@@ -1,6 +1,7 @@
 package com.learnup.backend.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Nationalized;
 
 @Entity
 @Table(name = "users")
@@ -10,6 +11,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Nationalized
     private String name;
 
     @Column(unique = true)
@@ -17,7 +19,21 @@ public class User {
 
     private String password;
 
+    @Nationalized
     private String role; // "admin" | "teacher" | "student"
+
+    private String dateOfBirth; // dạng "yyyy-MM-dd" từ input type="date"
+
+    private String phone;
+
+    @Nationalized
+    private String occupation;
+
+    @Nationalized
+    private String country;
+
+    @Nationalized
+    private String province;
 
     // Getters và Setters
     public Long getId() { return id; }
@@ -34,4 +50,19 @@ public class User {
 
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
+
+    public String getDateOfBirth() { return dateOfBirth; }
+    public void setDateOfBirth(String dateOfBirth) { this.dateOfBirth = dateOfBirth; }
+
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
+
+    public String getOccupation() { return occupation; }
+    public void setOccupation(String occupation) { this.occupation = occupation; }
+
+    public String getCountry() { return country; }
+    public void setCountry(String country) { this.country = country; }
+
+    public String getProvince() { return province; }
+    public void setProvince(String province) { this.province = province; }
 }

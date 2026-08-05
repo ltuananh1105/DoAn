@@ -5,6 +5,7 @@ import com.learnup.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -16,9 +17,25 @@ public class AuthController {
     @Autowired
     private UserRepository userRepository;
 
+    // Hàm dùng chung: chuyển User entity -> Map, loại bỏ password
+    private Map<String, Object> toUserInfo(User user) {
+        Map<String, Object> userInfo = new HashMap<>();
+        userInfo.put("id", user.getId());
+        userInfo.put("name", user.getName());
+        userInfo.put("email", user.getEmail());
+        userInfo.put("role", user.getRole());
+        userInfo.put("dateOfBirth", user.getDateOfBirth());
+        userInfo.put("phone", user.getPhone());
+        userInfo.put("occupation", user.getOccupation());
+        userInfo.put("country", user.getCountry());
+        userInfo.put("province", user.getProvince());
+        return userInfo;
+    }
+
     @PostMapping("/register")
-    public User register(@RequestBody User user) {
-        return userRepository.save(user);
+    public Object register(@RequestBody User user) {
+        User savedUser = userRepository.save(user);
+        return toUserInfo(savedUser);
     }
 
     @PostMapping("/login")
@@ -38,9 +55,9 @@ public class AuthController {
             return Map.of("success", false, "message", "Sai mật khẩu");
         }
 
-        return Map.of(
-            "success", true,
-            "user", Map.of("id", user.getId(), "name", user.getName(), "email", user.getEmail(), "role", user.getRole())
-        );
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("user", toUserInfo(user));
+        return response;
     }
 }

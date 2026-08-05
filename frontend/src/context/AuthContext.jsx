@@ -1,72 +1,81 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from "react";
 
-const AuthContext = createContext(null)
+const AuthContext = createContext(null);
 
-const STORAGE_KEY = 'learnup_auth'
-const API_BASE = 'http://localhost:8080/api'
+const STORAGE_KEY = "learnup_auth";
+const API_BASE = "http://localhost:8080/api";
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY)
+    const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       try {
-        setUser(JSON.parse(saved))
+        setUser(JSON.parse(saved));
       } catch {
-        localStorage.removeItem(STORAGE_KEY)
+        localStorage.removeItem(STORAGE_KEY);
       }
     }
-    setLoading(false)
-  }, [])
+    setLoading(false);
+  }, []);
 
   const login = async ({ email, password }) => {
     const res = await fetch(`${API_BASE}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    })
-    const data = await res.json()
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
 
     if (!data.success) {
-      throw new Error(data.message || 'Đăng nhập thất bại')
+      throw new Error(data.message || "Đăng nhập thất bại");
     }
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data.user))
-    setUser(data.user)
-    return data.user
-  }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data.user));
+    setUser(data.user);
+    return data.user;
+  };
 
   const register = async ({ name, email, password, role }) => {
     const res = await fetch(`${API_BASE}/auth/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password, role })
-    })
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, password, role }),
+    });
 
-    if (!res.ok) throw new Error('Đăng ký thất bại')
+    if (!res.ok) throw new Error("Đăng ký thất bại");
 
-    const newUser = await res.json()
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newUser))
-    setUser(newUser)
-    return newUser
-  }
+    const newUser = await res.json();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(newUser));
+    setUser(newUser);
+    return newUser;
+  };
 
   const logout = () => {
-    localStorage.removeItem(STORAGE_KEY)
-    setUser(null)
-  }
+    setUser(null);
+
+    // Xóa đúng Key "learnup_auth" đã dùng để lưu
+    localStorage.removeItem(STORAGE_KEY);
+
+    // Xóa dọn dẹp các key phụ khác nếu có
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    sessionStorage.clear();
+  };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider
+      value={{ user, setUser, loading, login, register, logout }}
+    >
       {children}
     </AuthContext.Provider>
-  )
+  );
 }
 
 export function useAuth() {
-  const ctx = useContext(AuthContext)
-  if (!ctx) throw new Error('useAuth phải dùng bên trong AuthProvider')
-  return ctx
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth phải dùng bên trong AuthProvider");
+  return ctx;
 }
