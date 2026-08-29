@@ -20,14 +20,4 @@ public class AiController {
         String reply = aiService.chatWithAi(message);
         return Map.of("success", true, "reply", reply);
     }
-
-    @PostMapping("/generate-quiz")
-    public Map<String, Object> generateQuiz(@RequestBody Map<String, Object> body) {
-        String topic = (String) body.getOrDefault("topic", "Tiếng Anh Tổng Quát");
-        String level = (String) body.getOrDefault("level", "Intermediate");
-        int count = body.containsKey("numQuestions") ? Integer.parseInt(body.get("numQuestions").toString()) : 5;
-
-        Map<String, Object> generated = aiService.generateQuizWithAi(topic, level, count);
-        return Map.of("success", true, "quiz", generated);
-    }
 }
