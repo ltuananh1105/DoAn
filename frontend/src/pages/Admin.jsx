@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
+import ExportModal from "../components/ExportModal.jsx";
 
 const API = "http://localhost:8080/api";
 
@@ -9,18 +10,8 @@ const adminMenuItems = [
     key: "courses",
     label: "Quản lý khóa học",
     icon: (
-      <svg
-        className="w-5 h-5 shrink-0"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        strokeWidth="2"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-        />
+      <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
       </svg>
     ),
   },
@@ -28,42 +19,36 @@ const adminMenuItems = [
     key: "students",
     label: "Quản lý học viên",
     icon: (
-      <svg
-        className="w-5 h-5 shrink-0"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        strokeWidth="2"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M12 14l9-5-9-5-9 5 9 5z"
-        />
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0112 20.055a11.952 11.952 0 01-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"
-        />
+      <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
       </svg>
     ),
   },
   {
     key: "teachers",
-    label: "Quản lý giáo viên",
+    label: "Quản lý giảng viên",
     icon: (
-      <svg
-        className="w-5 h-5 shrink-0"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        strokeWidth="2"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-        />
+      <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+      </svg>
+    ),
+  },
+  {
+    key: "revenue",
+    label: "Doanh thu sàn",
+    icon: (
+      <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    ),
+  },
+  {
+    key: "settings",
+    label: "Cài đặt & Danh mục",
+    icon: (
+      <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
       </svg>
     ),
   },
@@ -71,647 +56,525 @@ const adminMenuItems = [
 
 export default function Admin() {
   const { user } = useAuth();
-  const [tab, setTab] = useState("courses");
-  const [isExpanded, setIsExpanded] = useState(false);
-
+  const [activeTab, setActiveTab] = useState("courses");
   const [courses, setCourses] = useState([]);
   const [students, setStudents] = useState([]);
   const [teachers, setTeachers] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [revenueData, setRevenueData] = useState(null);
+  const [catName, setCatName] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const [modal, setModal] = useState(null);
+  // Export state
+  const [isExportOpen, setIsExportOpen] = useState(false);
+  const [exportData, setExportData] = useState([]);
+  const [exportColumns, setExportColumns] = useState([]);
+  const [exportFilename, setExportFilename] = useState("");
+  const [exportTitle, setExportTitle] = useState("");
+  const [exportSubtitle, setExportSubtitle] = useState("");
 
-  const loadAll = () => {
-    fetch(`${API}/courses`)
-      .then((r) => r.json())
-      .then(setCourses);
-    fetch(`${API}/users?role=student`)
-      .then((r) => r.json())
-      .then(setStudents);
-    fetch(`${API}/users?role=teacher`)
-      .then((r) => r.json())
-      .then(setTeachers);
-    fetch(`${API}/categories`)
-      .then((r) => r.json())
-      .then(setCategories);
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      if (activeTab === "courses") {
+        const res = await fetch(`${API}/courses`);
+        const data = await res.json();
+        setCourses(data);
+      } else if (activeTab === "students" || activeTab === "teachers") {
+        const res = await fetch(`${API}/users`);
+        const data = await res.json();
+        if (activeTab === "students") {
+          setStudents(data.filter((u) => u.role === "student"));
+        } else {
+          setTeachers(data.filter((u) => u.role === "teacher"));
+        }
+      } else if (activeTab === "revenue") {
+        const res = await fetch(`${API}/revenue/admin`);
+        const data = await res.json();
+        setRevenueData(data);
+      } else if (activeTab === "settings") {
+        const res = await fetch(`${API}/categories`);
+        const data = await res.json();
+        setCategories(data);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    setLoading(false);
   };
 
   useEffect(() => {
-    loadAll();
-  }, []);
+    loadData();
+  }, [activeTab]);
 
-  // ===== COURSE ACTIONS =====
-  const handleApprove = async (id) => {
-    await fetch(`${API}/courses/${id}/approve`, { method: "PUT" });
-    loadAll();
+  const updateCourseStatus = async (id, action) => {
+    try {
+      const res = await fetch(`${API}/courses/${id}/${action}`, {
+        method: "PUT",
+      });
+      if (res.ok) {
+        loadData();
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
-  const handleReject = async (id) => {
-    await fetch(`${API}/courses/${id}/reject`, { method: "PUT" });
-    loadAll();
-  };
-  const handleDeleteCourse = async (id) => {
-    if (!confirm("Xóa khóa học này? Không thể hoàn tác.")) return;
-    await fetch(`${API}/courses/${id}`, { method: "DELETE" });
-    loadAll();
-  };
-  const handleSaveCourse = async (form) => {
-    const payload = {
-      title: form.title,
-      description: form.description,
-      price: Number(form.price) || 0,
-      teacher: form.teacherId ? { id: Number(form.teacherId) } : null,
-      category: form.categoryId ? { id: Number(form.categoryId) } : null,
-    };
-    if (modal.mode === "add") {
-      await fetch(`${API}/courses`, {
+
+  const handleAddCategory = async (e) => {
+    e.preventDefault();
+    if (!catName.trim()) return;
+    try {
+      const res = await fetch(`${API}/categories`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ name: catName }),
       });
-    } else {
-      await fetch(`${API}/courses/${modal.data.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      if (res.ok) {
+        setCatName("");
+        loadData();
+      }
+    } catch (err) {
+      console.error(err);
     }
-    setModal(null);
-    loadAll();
   };
 
-  // ===== USER ACTIONS =====
-  const handleDeleteUser = async (id) => {
-    if (!confirm("Xóa tài khoản này? Không thể hoàn tác.")) return;
-    await fetch(`${API}/users/${id}`, { method: "DELETE" });
-    loadAll();
-  };
-  const handleSaveUser = async (form, role) => {
-    if (modal.mode === "add") {
-      await fetch(`${API}/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: form.name,
-          email: form.email,
-          password: form.password,
-          role,
-        }),
-      });
-    } else {
-      const body = { name: form.name, email: form.email };
-      if (form.password) body.password = form.password;
-      await fetch(`${API}/users/${modal.data.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
+  const handleDeleteCategory = async (id) => {
+    if (!window.confirm("Bạn có chắc muốn xóa danh mục này?")) return;
+    try {
+      const res = await fetch(`${API}/categories/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        loadData();
+      } else {
+        alert("Không thể xóa danh mục đang có khóa học");
+      }
+    } catch (err) {
+      console.error(err);
     }
-    setModal(null);
-    loadAll();
   };
 
-  const pendingCourses = courses.filter((c) => c.status === "pending");
-  const otherCourses = courses.filter((c) => c.status !== "pending");
+  const handleResetData = async () => {
+    if (!window.confirm("CẢNH BÁO: Thao tác này sẽ nạp lại toàn bộ dữ liệu mẫu demo. Bạn có chắc chắn?")) return;
+    try {
+      const res = await fetch(`${API}/admin/reset-sample-data`, { method: "POST" });
+      const data = await res.json();
+      alert(data.message || "Đã nạp lại dữ liệu mẫu thành công");
+      loadData();
+    } catch (err) {
+      console.error(err);
+      alert("Lỗi khi reset data");
+    }
+  };
+
+  // --- Export Handlers ---
+  const handleExportStudents = () => {
+    const columns = [
+      { key: "id", label: "Mã HV" },
+      { key: "name", label: "Họ và tên" },
+      { key: "email", label: "Địa chỉ Email" },
+      { key: "phone", label: "Số điện thoại" },
+      { key: "province", label: "Tỉnh / Thành phố" },
+      { key: "occupation", label: "Nghề nghiệp" },
+    ];
+    setExportColumns(columns);
+    setExportData(students);
+    setExportFilename("Danh_Sach_Hoc_Vien_Toan_San");
+    setExportTitle("DANH SÁCH HỌC VIÊN TRÊN HỆ THỐNG");
+    setExportSubtitle("Trích xuất từ Cổng Quản trị viên LearnUp");
+    setIsExportOpen(true);
+  };
+
+  const handleExportTeachers = () => {
+    const columns = [
+      { key: "id", label: "Mã GV" },
+      { key: "name", label: "Họ và tên giảng viên" },
+      { key: "email", label: "Email" },
+      { key: "phone", label: "Số điện thoại" },
+      { key: "province", label: "Địa bàn" },
+      { key: "occupation", label: "Chuyên môn / Học vị" },
+    ];
+    setExportColumns(columns);
+    setExportData(teachers);
+    setExportFilename("Danh_Sach_Giang_Vien_LearnUp");
+    setExportTitle("DANH SÁCH GIẢNG VIÊN HỢP TÁC");
+    setExportSubtitle("Phòng Quản lý Đào tạo & Đối tác - LearnUp");
+    setIsExportOpen(true);
+  };
+
+  const handleExportRevenue = () => {
+    const columns = [
+      { key: "orderCode", label: "Mã đơn hàng" },
+      { key: "createdAtText", label: "Thời gian GD" },
+      { key: "studentName", label: "Học viên thanh toán" },
+      { key: "courseTitle", label: "Khóa học" },
+      { key: "amountText", label: "Số tiền (VNĐ)" },
+      { key: "paymentMethod", label: "Phương thức TT" },
+    ];
+    const data = (revenueData?.recentOrders || []).map((r) => ({
+      orderCode: r.orderCode,
+      createdAtText: r.createdAt ? new Date(r.createdAt).toLocaleString("vi-VN") : "—",
+      studentName: r.student?.name,
+      courseTitle: r.course?.title,
+      amountText: r.amount?.toLocaleString("vi-VN") + " ₫",
+      paymentMethod: r.paymentMethod,
+    }));
+    setExportColumns(columns);
+    setExportData(data);
+    setExportFilename("Bao_Cao_Doanh_Thu_Tong_Hop_San");
+    setExportTitle("BÁO CÁO DOANH THU & GIAO DỊCH TOÀN HỆ THỐNG");
+    setExportSubtitle(`Phân tích tài chính Sàn LearnUp - Ngày: ${new Date().toLocaleDateString("vi-VN")}`);
+    setIsExportOpen(true);
+  };
 
   return (
-    <div className="flex min-h-screen bg-gray-50 relative">
-      {/* Nút Toggle Sidebar */}
-      <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="fixed top-3 left-3 z-50 p-2.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 transition"
-      >
-        <svg
-          className="w-5 h-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth="2"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M4 6h16M4 12h16M4 18h16"
-          />
-        </svg>
-      </button>
-
-      {/* SIDEBAR ADMIN */}
-      <aside
-        className={`group fixed top-16 left-0 z-40 h-[calc(100vh-64px)] bg-white border-r border-gray-200 transition-all duration-300 ease-in-out flex flex-col justify-between py-3 px-2 shadow-sm ${
-          isExpanded ? "w-60" : "w-16 hover:w-60"
-        }`}
-      >
-        <div className="space-y-2 mt-2 w-full">
-          {adminMenuItems.map((item) => {
-            const isActive = tab === item.key;
-            return (
-              <button
-                key={item.key}
-                onClick={() => setTab(item.key)}
-                className={`flex items-center h-11 rounded-xl font-medium text-sm transition-colors whitespace-nowrap overflow-hidden w-full ${
-                  isActive
-                    ? "bg-blue-100 text-blue-600 font-bold"
-                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                }`}
-              >
-                <div className="w-12 h-full flex items-center justify-center shrink-0">
-                  {item.icon}
-                </div>
-                <span
-                  className={`transition-opacity duration-200 ${
-                    isExpanded
-                      ? "opacity-100"
-                      : "opacity-0 group-hover:opacity-100"
-                  }`}
-                >
-                  {item.label}
-                </span>
-              </button>
-            );
-          })}
+    <div className="flex min-h-screen bg-gray-50">
+      {/* SIDEBAR */}
+      <aside className="w-64 bg-white border-r flex-shrink-0 sticky top-0 h-screen overflow-y-auto hidden md:block">
+        <div className="p-6">
+          <h2 className="text-xl font-bold text-gray-800">LearnUp Admin</h2>
+          <p className="text-xs text-gray-500 mt-1">{user?.email}</p>
         </div>
-
-        <Link
-          to="/"
-          className="flex items-center h-11 rounded-xl font-medium text-sm text-gray-600 hover:bg-gray-100 transition-colors whitespace-nowrap overflow-hidden mb-2 w-full"
-        >
-          <div className="w-12 h-full flex items-center justify-center shrink-0">
-            <svg
-              className="w-5 h-5 shrink-0"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="2"
+        <nav className="px-4 pb-6 space-y-1">
+          {adminMenuItems.map((item) => (
+            <button
+              key={item.key}
+              onClick={() => setActiveTab(item.key)}
+              className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
+                activeTab === item.key
+                  ? "bg-blue-50 text-blue-700"
+                  : "text-gray-600 hover:bg-gray-100"
+              }`}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z"
-              />
-            </svg>
+              {item.icon}
+              {item.label}
+            </button>
+          ))}
+
+          <div className="pt-8 mt-8 border-t border-gray-200">
+            <button
+              onClick={handleResetData}
+              className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Nạp lại dữ liệu mẫu
+            </button>
           </div>
-          <span
-            className={`transition-opacity duration-200 ${
-              isExpanded ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-            }`}
-          >
-            Trở về trang chủ
-          </span>
-        </Link>
+        </nav>
       </aside>
 
-      {/* NỘI DUNG CHÍNH */}
-      <main
-        className={`flex-1 transition-all duration-300 pr-6 py-8 ${isExpanded ? "pl-64" : "pl-20"}`}
-      >
-        <div className="max-w-5xl mx-auto">
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-[#1E4FD8]">
-              Trang Quản trị viên
-            </h1>
-            <p className="text-sm text-gray-500">
-              Xin chào, {user?.name} ({user?.email})
-            </p>
-          </div>
-
-          {/* ===== TAB: KHÓA HỌC ===== */}
-          {tab === "courses" && (
-            <div>
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="font-bold text-lg">
-                  Chờ duyệt ({pendingCourses.length})
-                </h2>
-              </div>
-              <div className="space-y-3 mb-10">
-                {pendingCourses.map((c) => (
-                  <div key={c.id} className="border bg-white rounded-xl p-4">
-                    <div className="font-semibold">{c.title}</div>
-                    <div className="text-sm text-gray-500 mb-3">
-                      {c.description} — {c.category?.name} —{" "}
-                      {(c.price || 0).toLocaleString("vi-VN")} đ
-                      {c.teacher?.name && ` — GV: ${c.teacher.name}`}
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleApprove(c.id)}
-                        className="bg-green-600 text-white text-sm px-4 py-1.5 rounded-full font-semibold"
-                      >
-                        Duyệt
-                      </button>
-                      <button
-                        onClick={() => handleReject(c.id)}
-                        className="bg-red-600 text-white text-sm px-4 py-1.5 rounded-full font-semibold"
-                      >
-                        Từ chối
-                      </button>
-                    </div>
-                  </div>
-                ))}
-                {pendingCourses.length === 0 && (
-                  <p className="text-gray-400 text-sm">
-                    Không có khóa học nào chờ duyệt.
-                  </p>
-                )}
-              </div>
-
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="font-bold text-lg">
-                  Tất cả khóa học ({otherCourses.length})
-                </h2>
-                <button
-                  onClick={() =>
-                    setModal({ type: "course", mode: "add", data: null })
-                  }
-                  className="bg-[#1E4FD8] text-white text-sm font-bold px-5 py-2 rounded-full hover:bg-[#173FB0] transition"
-                >
-                  + Thêm khóa học
-                </button>
-              </div>
-              <div className="space-y-2">
-                {otherCourses.map((c) => (
-                  <div
-                    key={c.id}
-                    className="flex justify-between items-center border bg-white rounded-xl p-3"
-                  >
-                    <div>
-                      <span className="text-sm font-medium">{c.title}</span>
-                      <span className="text-xs text-gray-400 ml-2">
-                        {c.category?.name} —{" "}
-                        {(c.price || 0).toLocaleString("vi-VN")} đ
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`text-xs font-bold px-3 py-1 rounded-full ${
-                          c.status === "approved"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
-                        }`}
-                      >
-                        {c.status}
-                      </span>
-                      <button
-                        onClick={() =>
-                          setModal({ type: "course", mode: "edit", data: c })
-                        }
-                        className="text-xs font-semibold text-[#1E4FD8] hover:underline px-2"
-                      >
-                        Sửa
-                      </button>
-                      <button
-                        onClick={() => handleDeleteCourse(c.id)}
-                        className="text-xs font-semibold text-red-600 hover:underline px-2"
-                      >
-                        Xóa
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
+      {/* CONTENT */}
+      <main className="flex-1 p-8">
+        <div className="max-w-6xl mx-auto">
+          {loading ? (
+            <div className="flex justify-center items-center py-20">
+              <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
             </div>
-          )}
+          ) : (
+            <>
+              {/* TAB COURSES */}
+              {activeTab === "courses" && (
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900 mb-6">
+                    Phê duyệt & Quản lý khóa học
+                  </h1>
+                  <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+                    <table className="w-full text-left text-sm">
+                      <thead className="bg-gray-50 border-b">
+                        <tr>
+                          <th className="px-6 py-4 font-semibold text-gray-700">Khóa học</th>
+                          <th className="px-6 py-4 font-semibold text-gray-700">Giảng viên</th>
+                          <th className="px-6 py-4 font-semibold text-gray-700">Giá</th>
+                          <th className="px-6 py-4 font-semibold text-gray-700">Trạng thái</th>
+                          <th className="px-6 py-4 font-semibold text-gray-700 text-right">Thao tác</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y">
+                        {courses.map((c) => (
+                          <tr key={c.id} className="hover:bg-gray-50">
+                            <td className="px-6 py-4">
+                              <div className="font-medium text-gray-900 line-clamp-1">{c.title}</div>
+                              <div className="text-xs text-gray-500">{c.category?.name}</div>
+                            </td>
+                            <td className="px-6 py-4 text-gray-600">{c.teacher?.name}</td>
+                            <td className="px-6 py-4 text-gray-600">{c.price?.toLocaleString("vi-VN")} đ</td>
+                            <td className="px-6 py-4">
+                              <span
+                                className={`px-3 py-1 rounded-full text-xs font-bold ${
+                                  c.status === "approved"
+                                    ? "bg-green-100 text-green-700"
+                                    : c.status === "rejected"
+                                      ? "bg-red-100 text-red-700"
+                                      : c.status === "hidden"
+                                        ? "bg-gray-100 text-gray-700"
+                                        : "bg-yellow-100 text-yellow-700"
+                                }`}
+                              >
+                                {c.status === "approved"
+                                  ? "Đã duyệt"
+                                  : c.status === "hidden"
+                                    ? "Đang ẩn"
+                                    : c.status === "pending"
+                                      ? "Chờ duyệt"
+                                      : "Từ chối"}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 text-right space-x-2">
+                              {c.status === "pending" && (
+                                <>
+                                  <button
+                                    onClick={() => updateCourseStatus(c.id, "approve")}
+                                    className="px-3 py-1.5 bg-green-50 text-green-600 rounded font-medium hover:bg-green-100"
+                                  >
+                                    Duyệt
+                                  </button>
+                                  <button
+                                    onClick={() => updateCourseStatus(c.id, "reject")}
+                                    className="px-3 py-1.5 bg-red-50 text-red-600 rounded font-medium hover:bg-red-100"
+                                  >
+                                    Từ chối
+                                  </button>
+                                </>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    {courses.length === 0 && (
+                      <div className="p-8 text-center text-gray-500">Chưa có khóa học nào.</div>
+                    )}
+                  </div>
+                </div>
+              )}
 
-          {/* ===== TAB: HỌC VIÊN ===== */}
-          {tab === "students" && (
-            <UserTable
-              title="Học viên"
-              users={students}
-              onAdd={() =>
-                setModal({
-                  type: "user",
-                  mode: "add",
-                  data: null,
-                  role: "student",
-                })
-              }
-              onEdit={(u) =>
-                setModal({
-                  type: "user",
-                  mode: "edit",
-                  data: u,
-                  role: "student",
-                })
-              }
-              onDelete={handleDeleteUser}
-            />
-          )}
+              {/* TAB STUDENTS */}
+              {activeTab === "students" && (
+                <div>
+                  <div className="flex justify-between items-center mb-6">
+                    <div>
+                      <h1 className="text-2xl font-bold text-gray-900">Quản lý học viên</h1>
+                      <p className="text-xs text-gray-500">Danh sách toàn bộ tài khoản học viên trong hệ thống</p>
+                    </div>
+                    <button
+                      onClick={handleExportStudents}
+                      className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 flex items-center gap-2 shadow-sm"
+                    >
+                      <span>📥</span>
+                      <span>Xuất Excel / Báo Cáo</span>
+                    </button>
+                  </div>
+                  <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+                    <table className="w-full text-left text-sm">
+                      <thead className="bg-gray-50 border-b">
+                        <tr>
+                          <th className="px-6 py-4 font-semibold text-gray-700">Tên</th>
+                          <th className="px-6 py-4 font-semibold text-gray-700">Email</th>
+                          <th className="px-6 py-4 font-semibold text-gray-700">SĐT</th>
+                          <th className="px-6 py-4 font-semibold text-gray-700">Tỉnh/TP</th>
+                          <th className="px-6 py-4 font-semibold text-gray-700">Nghề nghiệp</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y">
+                        {students.map((u) => (
+                          <tr key={u.id} className="hover:bg-gray-50">
+                            <td className="px-6 py-4 font-medium text-gray-900">{u.name}</td>
+                            <td className="px-6 py-4 text-gray-600">{u.email}</td>
+                            <td className="px-6 py-4 text-gray-600">{u.phone || "Chưa cập nhật"}</td>
+                            <td className="px-6 py-4 text-gray-600">{u.province || "Chưa cập nhật"}</td>
+                            <td className="px-6 py-4 text-gray-600">{u.occupation || "Chưa cập nhật"}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
 
-          {/* ===== TAB: GIÁO VIÊN ===== */}
-          {tab === "teachers" && (
-            <UserTable
-              title="Giáo viên"
-              users={teachers}
-              onAdd={() =>
-                setModal({
-                  type: "user",
-                  mode: "add",
-                  data: null,
-                  role: "teacher",
-                })
-              }
-              onEdit={(u) =>
-                setModal({
-                  type: "user",
-                  mode: "edit",
-                  data: u,
-                  role: "teacher",
-                })
-              }
-              onDelete={handleDeleteUser}
-            />
-          )}
+              {/* TAB TEACHERS */}
+              {activeTab === "teachers" && (
+                <div>
+                  <div className="flex justify-between items-center mb-6">
+                    <div>
+                      <h1 className="text-2xl font-bold text-gray-900">Quản lý giảng viên</h1>
+                      <p className="text-xs text-gray-500">Danh sách các đối tác giảng viên đang giảng dạy</p>
+                    </div>
+                    <button
+                      onClick={handleExportTeachers}
+                      className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 flex items-center gap-2 shadow-sm"
+                    >
+                      <span>📥</span>
+                      <span>Xuất Excel / Báo Cáo</span>
+                    </button>
+                  </div>
+                  <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+                    <table className="w-full text-left text-sm">
+                      <thead className="bg-gray-50 border-b">
+                        <tr>
+                          <th className="px-6 py-4 font-semibold text-gray-700">Tên</th>
+                          <th className="px-6 py-4 font-semibold text-gray-700">Email</th>
+                          <th className="px-6 py-4 font-semibold text-gray-700">SĐT</th>
+                          <th className="px-6 py-4 font-semibold text-gray-700">Chuyên môn</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y">
+                        {teachers.map((u) => (
+                          <tr key={u.id} className="hover:bg-gray-50">
+                            <td className="px-6 py-4 font-medium text-gray-900">{u.name}</td>
+                            <td className="px-6 py-4 text-gray-600">{u.email}</td>
+                            <td className="px-6 py-4 text-gray-600">{u.phone || "Chưa cập nhật"}</td>
+                            <td className="px-6 py-4 text-gray-600">{u.occupation || "Chưa cập nhật"}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
 
-          {/* ===== MODAL ===== */}
-          {modal?.type === "course" && (
-            <CourseModal
-              mode={modal.mode}
-              data={modal.data}
-              teachers={teachers}
-              categories={categories}
-              onClose={() => setModal(null)}
-              onSave={handleSaveCourse}
-            />
-          )}
-          {modal?.type === "user" && (
-            <UserModal
-              mode={modal.mode}
-              data={modal.data}
-              role={modal.role}
-              onClose={() => setModal(null)}
-              onSave={(form) => handleSaveUser(form, modal.role)}
-            />
+              {/* TAB REVENUE */}
+              {activeTab === "revenue" && revenueData && (
+                <div>
+                  <div className="flex justify-between items-center mb-6">
+                    <div>
+                      <h1 className="text-2xl font-bold text-gray-900">Doanh thu sàn LearnUp</h1>
+                      <p className="text-xs text-gray-500">Phân tích dòng tiền toàn hệ thống và lịch sử giao dịch</p>
+                    </div>
+                    <button
+                      onClick={handleExportRevenue}
+                      className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 flex items-center gap-2 shadow-sm"
+                    >
+                      <span>📥</span>
+                      <span>Xuất Báo Cáo Sàn</span>
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div className="bg-white p-6 border rounded-xl shadow-sm">
+                      <div className="text-gray-500 text-sm font-medium mb-1">Tổng đơn hàng thành công</div>
+                      <div className="text-3xl font-bold text-gray-900">{revenueData.totalCompletedOrders}</div>
+                    </div>
+                    <div className="bg-white p-6 border rounded-xl shadow-sm">
+                      <div className="text-gray-500 text-sm font-medium mb-1">Tổng giao dịch (Gross)</div>
+                      <div className="text-3xl font-bold text-gray-900">{revenueData.totalGrossRevenue?.toLocaleString("vi-VN")} ₫</div>
+                    </div>
+                    <div className="bg-white p-6 border rounded-xl shadow-sm bg-blue-50 border-blue-100">
+                      <div className="text-blue-800 text-sm font-medium mb-1">Sàn giữ lại (Net - 20%)</div>
+                      <div className="text-3xl font-bold text-blue-600">{revenueData.platformNetRevenue?.toLocaleString("vi-VN")} ₫</div>
+                    </div>
+                    <div className="bg-white p-6 border rounded-xl shadow-sm bg-green-50 border-green-100">
+                      <div className="text-green-800 text-sm font-medium mb-1">Thanh toán GV (80%)</div>
+                      <div className="text-3xl font-bold text-green-600">{revenueData.totalTeacherPayout?.toLocaleString("vi-VN")} ₫</div>
+                    </div>
+                  </div>
+
+                  <h3 className="font-bold text-gray-800 mb-4">Giao dịch gần đây</h3>
+                  <div className="bg-white border rounded-xl shadow-sm overflow-x-auto">
+                    <table className="w-full text-left text-sm">
+                      <thead className="bg-gray-50 border-b">
+                        <tr>
+                          <th className="px-4 py-3 font-semibold text-gray-700">Mã đơn</th>
+                          <th className="px-4 py-3 font-semibold text-gray-700">Thời gian</th>
+                          <th className="px-4 py-3 font-semibold text-gray-700">Học viên</th>
+                          <th className="px-4 py-3 font-semibold text-gray-700">Khóa học</th>
+                          <th className="px-4 py-3 font-semibold text-gray-700 text-right">Số tiền</th>
+                          <th className="px-4 py-3 font-semibold text-gray-700">PTTT</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y">
+                        {revenueData.recentOrders?.map((r) => (
+                          <tr key={r.orderCode} className="hover:bg-gray-50">
+                            <td className="px-4 py-3 font-mono text-xs">{r.orderCode}</td>
+                            <td className="px-4 py-3 text-gray-500">{new Date(r.createdAt).toLocaleString("vi-VN")}</td>
+                            <td className="px-4 py-3">
+                              <div className="font-medium">{r.student?.name}</div>
+                              <div className="text-xs text-gray-500">{r.student?.email}</div>
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="line-clamp-1">{r.course?.title}</div>
+                            </td>
+                            <td className="px-4 py-3 text-right font-medium text-green-600">
+                              {r.amount?.toLocaleString("vi-VN")} ₫
+                            </td>
+                            <td className="px-4 py-3 text-xs">
+                              <span className="bg-gray-100 px-2 py-1 rounded">{r.paymentMethod}</span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB SETTINGS */}
+              {activeTab === "settings" && (
+                <div className="max-w-2xl">
+                  <h1 className="text-2xl font-bold text-gray-900 mb-6">Quản lý danh mục</h1>
+
+                  <div className="bg-white rounded-xl shadow-sm border p-6 mb-8">
+                    <h3 className="font-medium text-gray-900 mb-4">Thêm danh mục mới</h3>
+                    <form onSubmit={handleAddCategory} className="flex gap-3">
+                      <input
+                        type="text"
+                        placeholder="Tên danh mục..."
+                        value={catName}
+                        onChange={(e) => setCatName(e.target.value)}
+                        className="flex-1 border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                      />
+                      <button
+                        type="submit"
+                        className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                      >
+                        Thêm
+                      </button>
+                    </form>
+                  </div>
+
+                  <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+                    <table className="w-full text-left text-sm">
+                      <thead className="bg-gray-50 border-b">
+                        <tr>
+                          <th className="px-6 py-4 font-semibold text-gray-700 w-16">ID</th>
+                          <th className="px-6 py-4 font-semibold text-gray-700">Tên danh mục</th>
+                          <th className="px-6 py-4 font-semibold text-gray-700 text-right">Thao tác</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y">
+                        {categories.map((cat) => (
+                          <tr key={cat.id} className="hover:bg-gray-50">
+                            <td className="px-6 py-4 text-gray-500">#{cat.id}</td>
+                            <td className="px-6 py-4 font-medium text-gray-900">{cat.name}</td>
+                            <td className="px-6 py-4 text-right">
+                              <button
+                                onClick={() => handleDeleteCategory(cat.id)}
+                                className="text-red-500 hover:text-red-700 font-medium text-sm"
+                              >
+                                Xóa
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
       </main>
+
+      {/* Modal Tùy chỉnh Xuất Báo Cáo */}
+      <ExportModal
+        isOpen={isExportOpen}
+        onClose={() => setIsExportOpen(false)}
+        columns={exportColumns}
+        data={exportData}
+        defaultFilename={exportFilename}
+        defaultTitle={exportTitle}
+        defaultSubtitle={exportSubtitle}
+      />
     </div>
-  );
-}
-
-// ================= SUB-COMPONENTS =================
-
-function UserTable({ title, users, onAdd, onEdit, onDelete }) {
-  return (
-    <div>
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="font-bold text-lg">
-          {title} ({users.length})
-        </h2>
-        <button
-          onClick={onAdd}
-          className="bg-[#1E4FD8] text-white text-sm font-bold px-5 py-2 rounded-full hover:bg-[#173FB0] transition"
-        >
-          + Thêm {title.toLowerCase()}
-        </button>
-      </div>
-      <div className="border bg-white rounded-xl overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-gray-500 text-left">
-            <tr>
-              <th className="px-4 py-2 font-medium">Tên</th>
-              <th className="px-4 py-2 font-medium">Email</th>
-              <th className="px-4 py-2 font-medium">SĐT</th>
-              <th className="px-4 py-2 font-medium w-28"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((u) => (
-              <tr key={u.id} className="border-t">
-                <td className="px-4 py-2 font-medium">{u.name}</td>
-                <td className="px-4 py-2 text-gray-500">{u.email}</td>
-                <td className="px-4 py-2 text-gray-500">{u.phone || "—"}</td>
-                <td className="px-4 py-2 text-right">
-                  <button
-                    onClick={() => onEdit(u)}
-                    className="text-xs font-semibold text-[#1E4FD8] hover:underline px-2"
-                  >
-                    Sửa
-                  </button>
-                  <button
-                    onClick={() => onDelete(u.id)}
-                    className="text-xs font-semibold text-red-600 hover:underline px-2"
-                  >
-                    Xóa
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {users.length === 0 && (
-              <tr>
-                <td colSpan={4} className="px-4 py-6 text-center text-gray-400">
-                  Chưa có {title.toLowerCase()} nào.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
-function ModalShell({ title, onClose, children }) {
-  return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="font-bold text-lg text-[#0F172A]">{title}</h3>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-700 text-xl leading-none"
-          >
-            ×
-          </button>
-        </div>
-        {children}
-      </div>
-    </div>
-  );
-}
-
-function CourseModal({ mode, data, teachers, categories, onClose, onSave }) {
-  const [form, setForm] = useState({
-    title: data?.title || "",
-    description: data?.description || "",
-    price: data?.price || "",
-    teacherId: data?.teacher?.id || "",
-    categoryId: data?.category?.id || "",
-  });
-  const update = (k, v) => setForm((f) => ({ ...f, [k]: v }));
-
-  return (
-    <ModalShell
-      title={mode === "add" ? "Thêm khóa học" : "Sửa khóa học"}
-      onClose={onClose}
-    >
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          onSave(form);
-        }}
-        className="space-y-3"
-      >
-        <div>
-          <label className="text-sm font-medium text-gray-600 block mb-1">
-            Tên khóa học *
-          </label>
-          <input
-            required
-            value={form.title}
-            onChange={(e) => update("title", e.target.value)}
-            className="w-full border px-3 py-2 rounded-lg"
-          />
-        </div>
-        <div>
-          <label className="text-sm font-medium text-gray-600 block mb-1">
-            Mô tả
-          </label>
-          <textarea
-            value={form.description}
-            onChange={(e) => update("description", e.target.value)}
-            rows={3}
-            className="w-full border px-3 py-2 rounded-lg"
-          />
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="text-sm font-medium text-gray-600 block mb-1">
-              Giá (đ)
-            </label>
-            <input
-              type="number"
-              min="0"
-              value={form.price}
-              onChange={(e) => update("price", e.target.value)}
-              className="w-full border px-3 py-2 rounded-lg"
-            />
-          </div>
-          <div>
-            <label className="text-sm font-medium text-gray-600 block mb-1">
-              Danh mục
-            </label>
-            <select
-              value={form.categoryId}
-              onChange={(e) => update("categoryId", e.target.value)}
-              className="w-full border px-3 py-2 rounded-lg bg-white"
-            >
-              <option value="">-- Chọn --</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-        <div>
-          <label className="text-sm font-medium text-gray-600 block mb-1">
-            Giáo viên phụ trách
-          </label>
-          <select
-            value={form.teacherId}
-            onChange={(e) => update("teacherId", e.target.value)}
-            className="w-full border px-3 py-2 rounded-lg bg-white"
-          >
-            <option value="">-- Chọn --</option>
-            {teachers.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="flex justify-end gap-2 pt-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-5 py-2 rounded-full text-sm font-semibold text-gray-600 hover:bg-gray-100"
-          >
-            Hủy
-          </button>
-          <button
-            type="submit"
-            className="bg-[#1E4FD8] text-white text-sm font-bold px-6 py-2 rounded-full hover:bg-[#173FB0]"
-          >
-            Lưu
-          </button>
-        </div>
-      </form>
-    </ModalShell>
-  );
-}
-
-function UserModal({ mode, data, role, onClose, onSave }) {
-  const [form, setForm] = useState({
-    name: data?.name || "",
-    email: data?.email || "",
-    password: "",
-  });
-  const update = (k, v) => setForm((f) => ({ ...f, [k]: v }));
-  const roleLabel = role === "student" ? "học viên" : "giáo viên";
-
-  return (
-    <ModalShell
-      title={mode === "add" ? `Thêm ${roleLabel}` : `Sửa ${roleLabel}`}
-      onClose={onClose}
-    >
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          onSave(form);
-        }}
-        className="space-y-3"
-      >
-        <div>
-          <label className="text-sm font-medium text-gray-600 block mb-1">
-            Họ và tên *
-          </label>
-          <input
-            required
-            value={form.name}
-            onChange={(e) => update("name", e.target.value)}
-            className="w-full border px-3 py-2 rounded-lg"
-          />
-        </div>
-        <div>
-          <label className="text-sm font-medium text-gray-600 block mb-1">
-            Email *
-          </label>
-          <input
-            required
-            type="email"
-            value={form.email}
-            onChange={(e) => update("email", e.target.value)}
-            className="w-full border px-3 py-2 rounded-lg"
-          />
-        </div>
-        <div>
-          <label className="text-sm font-medium text-gray-600 block mb-1">
-            Mật khẩu {mode === "add" ? "*" : "(để trống nếu không đổi)"}
-          </label>
-          <input
-            required={mode === "add"}
-            type="password"
-            value={form.password}
-            onChange={(e) => update("password", e.target.value)}
-            className="w-full border px-3 py-2 rounded-lg"
-          />
-        </div>
-        <div className="flex justify-end gap-2 pt-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-5 py-2 rounded-full text-sm font-semibold text-gray-600 hover:bg-gray-100"
-          >
-            Hủy
-          </button>
-          <button
-            type="submit"
-            className="bg-[#1E4FD8] text-white text-sm font-bold px-6 py-2 rounded-full hover:bg-[#173FB0]"
-          >
-            Lưu
-          </button>
-        </div>
-      </form>
-    </ModalShell>
   );
 }

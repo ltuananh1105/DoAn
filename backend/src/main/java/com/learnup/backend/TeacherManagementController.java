@@ -1,0 +1,249 @@
+package com.learnup.backend;
+
+import com.learnup.backend.entity.*;
+import com.learnup.backend.repository.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.*;
+
+@CrossOrigin(origins = "*")
+@RestController
+@RequestMapping("/api/teacher/{teacherId}")
+public class TeacherManagementController {
+
+    @Autowired private CourseRepository courseRepository;
+    @Autowired private ChapterRepository chapterRepository;
+    @Autowired private LessonRepository lessonRepository;
+    @Autowired private LessonProgressRepository lessonProgressRepository;
+    @Autowired private EnrollmentRepository enrollmentRepository;
+    @Autowired private OrderRepository orderRepository;
+    @Autowired private UserRepository userRepository;
+    @Autowired private QuizResultRepository quizResultRepository;
+    @Autowired private QuizRepository quizRepository;
+    @Autowired private QuestionRepository questionRepository;
+    @Autowired private QuestionOptionRepository questionOptionRepository;
+
+    // ===================== COURSES =====================
+
+    @GetMapping("/courses-detail")
+    public List<Map<String, Object>> getTeacherCourses(@PathVariable Long teacherId) {
+        List<Course> courses = courseRepository.findAll()
+                .stream()
+                .filter(c -> c.getTeacher() != null && c.getTeacher().getId().equals(teacherId))
+                .toList();
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Course c : courses) {
+            Map<String, Object> map = new LinkedHashMap<>();
+            map.put("id", c.getId());
+            map.put("title", c.getTitle());
+            map.put("description", c.getDescription());
+            map.put("price", c.getPrice());
+            map.put("status", c.getStatus());
+            map.put("category", c.getCategory());
+            long enrollCount = enrollmentRepository.countByCourseId(c.getId());
+            map.put("enrollmentCount", enrollCount);
+            result.add(map);
+        }
+        return result;
+    }
+
+    @PutMapping("/courses/{courseId}/toggle-visibility")
+    public Object toggleVisibility(@PathVariable Long teacherId, @PathVariable Long courseId) {
+        Optional<Course> opt = courseRepository.findById(courseId);
+        if (opt.isEmpty()) return Map.of("success", false, "message", "Không tìm thấy khóa học");
+        Course c = opt.get();
+        if ("hidden".equals(c.getStatus())) {
+            c.setStatus("approved");
+        } else {
+            c.setStatus("hidden");
+        }
+        courseRepository.save(c);
+        return Map.of("success", true, "newStatus", c.getStatus());
+    }
+
+    @DeleteMapping("/courses/{courseId}")
+    @Transactional
+    public Object deleteCourse(@PathVariable Long teacherId, @PathVariable Long courseId) {
+        Optional<Course> opt = courseRepository.findById(courseId);
+        if (opt.isEmpty()) return Map.of("success", false, "message", "Không tìm thấy khóa học");
+
+        long enrollCount = enrollmentRepository.countByCourseId(courseId);
+        if (enrollCount > 0) {
+            return Map.of("success", false,
+                    "message", "Không thể xóa khóa học đã có " + enrollCount + " học viên đang học. Hãy chọn 'Ẩn khóa học' thay thế.",
+                    "canHide", true);
+        }
+
+        // Xóa cascade
+        List<Chapter> chapters = chapterRepository.findByCourseId(courseId);
+        for (Chapter ch : chapters) {
+            List<Lesson> lessons = lessonRepository.findByChapterId(ch.getId());
+            for (Lesson l : lessons) {
+                lessonProgressRepository.deleteByLessonId(l.getId());
+            }
+            lessonRepository.deleteAll(lessons);
+        }
+        chapterRepository.deleteAll(chapters);
+
+        List<Quiz> quizzes = quizRepository.findByCourseId(courseId);
+        for (Quiz q : quizzes) {
+            quizResultRepository.deleteByQuizId(q.getId());
+            List<Question> questions = questionRepository.findByQuizIdOrderByOrderIndex(q.getId());
+            for (Question question : questions) {
+                questionOptionRepository.deleteByQuestionId(question.getId());
+            }
+            questionRepository.deleteByQuizId(q.getId());
+        }
+        quizRepository.deleteAll(quizzes);
+
+        courseRepository.deleteById(courseId);
+        return Map.of("success", true, "message", "Đã xóa khóa học thành công");
+    }
+
+    // ===================== STUDENTS OF TEACHER =====================
+
+    @GetMapping("/students")
+    public List<Map<String, Object>> getTeacherStudents(@PathVariable Long teacherId) {
+        List<Course> teacherCourses = courseRepository.findAll()
+                .stream()
+                .filter(c -> c.getTeacher() != null && c.getTeacher().getId().equals(teacherId))
+                .toList();
+
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        for (Course course : teacherCourses) {
+            List<Enrollment> enrollments = enrollmentRepository.findByCourseId(course.getId());
+            List<Lesson> allLessons = new ArrayList<>();
+            List<Chapter> chapters = chapterRepository.findByCourseId(course.getId());
+            for (Chapter ch : chapters) {
+                allLessons.addAll(lessonRepository.findByChapterId(ch.getId()));
+            }
+            int totalLessons = allLessons.size();
+
+            List<Quiz> quizzes = quizRepository.findByCourseId(course.getId());
+
+            for (Enrollment en : enrollments) {
+                User student = en.getStudent();
+                if (student == null) continue;
+
+                Map<String, Object> row = new LinkedHashMap<>();
+                row.put("enrollmentId", en.getId());
+                row.put("student", Map.of(
+                        "id", student.getId(),
+                        "name", student.getName() != null ? student.getName() : "",
+                        "email", student.getEmail() != null ? student.getEmail() : "",
+                        "phone", student.getPhone() != null ? student.getPhone() : "",
+                        "province", student.getProvince() != null ? student.getProvince() : ""
+                ));
+                row.put("course", Map.of(
+                        "id", course.getId(),
+                        "title", course.getTitle(),
+                        "price", course.getPrice() != null ? course.getPrice() : 0,
+                        "categoryName", course.getCategory() != null ? course.getCategory().getName() : ""
+                ));
+
+                // Tiến độ bài học
+                int completedLessons = 0;
+                for (Lesson l : allLessons) {
+                    Optional<LessonProgress> lp = lessonProgressRepository.findByStudentIdAndLessonId(student.getId(), l.getId());
+                    if (lp.isPresent() && Boolean.TRUE.equals(lp.get().getIsCompleted())) {
+                        completedLessons++;
+                    }
+                }
+                int progressPercent = totalLessons > 0 ? (int) Math.round((double) completedLessons / totalLessons * 100) : 0;
+                row.put("completedLessons", completedLessons);
+                row.put("totalLessons", totalLessons);
+                row.put("progressPercent", progressPercent);
+
+                // Kết quả quiz
+                int quizzesTaken = 0;
+                int passedQuizzes = 0;
+                double totalScore = 0;
+                for (Quiz q : quizzes) {
+                    Optional<QuizResult> qr = quizResultRepository.findByStudentIdAndQuizId(student.getId(), q.getId());
+                    if (qr.isPresent()) {
+                        quizzesTaken++;
+                        if (Boolean.TRUE.equals(qr.get().getPassed())) passedQuizzes++;
+                        totalScore += qr.get().getScore() != null ? qr.get().getScore() : 0;
+                    }
+                }
+                row.put("quizzesTaken", quizzesTaken);
+                row.put("passedQuizzes", passedQuizzes);
+                row.put("avgScore", quizzesTaken > 0 ? Math.round(totalScore / quizzesTaken * 10.0) / 10.0 : 0);
+
+                result.add(row);
+            }
+        }
+        return result;
+    }
+
+    @DeleteMapping("/enrollments/{enrollmentId}")
+    @Transactional
+    public Object removeStudentFromCourse(@PathVariable Long teacherId, @PathVariable Long enrollmentId) {
+        Optional<Enrollment> opt = enrollmentRepository.findById(enrollmentId);
+        if (opt.isEmpty()) return Map.of("success", false, "message", "Không tìm thấy ghi danh");
+
+        Enrollment en = opt.get();
+        Course c = en.getCourse();
+        if (c == null || c.getTeacher() == null || !c.getTeacher().getId().equals(teacherId)) {
+            return Map.of("success", false, "message", "Không có quyền xóa học viên này");
+        }
+
+        enrollmentRepository.delete(en);
+        return Map.of("success", true, "message", "Đã xóa học viên khỏi khóa học");
+    }
+
+    // ===================== REVENUE =====================
+
+    @GetMapping("/revenue")
+    public Map<String, Object> getTeacherRevenue(@PathVariable Long teacherId) {
+        List<Course> teacherCourses = courseRepository.findAll()
+                .stream()
+                .filter(c -> c.getTeacher() != null && c.getTeacher().getId().equals(teacherId))
+                .toList();
+
+        double totalGrossRevenue = 0;
+        int totalCoursesSold = 0;
+        List<Map<String, Object>> coursesBreakdown = new ArrayList<>();
+
+        for (Course c : teacherCourses) {
+            List<Order> orders = orderRepository.findByCourseId(c.getId())
+                    .stream().filter(o -> "COMPLETED".equals(o.getStatus())).toList();
+            
+            // Nếu có order thì tính theo order, nếu không thì fallback theo enrollments
+            double courseRevenue = 0;
+            int count = 0;
+            if (!orders.isEmpty()) {
+                courseRevenue = orders.stream().mapToDouble(o -> o.getAmount() != null ? o.getAmount() : 0).sum();
+                count = orders.size();
+            } else {
+                long enrollCount = enrollmentRepository.countByCourseId(c.getId());
+                count = (int) enrollCount;
+                courseRevenue = count * (c.getPrice() != null ? c.getPrice() : 0);
+            }
+
+            double teacherEarnings = courseRevenue * 0.8;
+            totalGrossRevenue += courseRevenue;
+            totalCoursesSold += count;
+
+            Map<String, Object> breakdown = new LinkedHashMap<>();
+            breakdown.put("courseId", c.getId());
+            breakdown.put("courseTitle", c.getTitle());
+            breakdown.put("price", c.getPrice() != null ? c.getPrice() : 0);
+            breakdown.put("soldCount", count);
+            breakdown.put("totalRevenue", courseRevenue);
+            breakdown.put("teacherEarnings", teacherEarnings);
+            coursesBreakdown.add(breakdown);
+        }
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("totalGrossRevenue", totalGrossRevenue);
+        result.put("teacherNetEarnings", totalGrossRevenue * 0.8);
+        result.put("totalCoursesSold", totalCoursesSold);
+        result.put("coursesBreakdown", coursesBreakdown);
+        return result;
+    }
+}
