@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 
@@ -21,15 +21,6 @@ const menuItems = [
       </svg>
     ),
   },
-  {
-    path: "/student/practice",
-    label: "Luyện tập & Quiz",
-    icon: (
-      <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-      </svg>
-    ),
-  },
 ];
 
 export default function Student() {
@@ -37,27 +28,33 @@ export default function Student() {
   const location = useLocation();
   const [enrollments, setEnrollments] = useState([]);
   const [quizzes, setQuizzes] = useState([]);
-  const [activeQuiz, setActiveQuiz] = useState(null);
-  const [answers, setAnswers] = useState({});
-  const [quizResult, setQuizResult] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [courseSearch, setCourseSearch] = useState("");
+
+  const filteredEnrollments = useMemo(() => {
+    return enrollments.filter((e) => {
+      return (
+        !courseSearch ||
+        e.course?.title?.toLowerCase().includes(courseSearch.toLowerCase()) ||
+        e.course?.teacher?.name?.toLowerCase().includes(courseSearch.toLowerCase()) ||
+        e.course?.category?.name?.toLowerCase().includes(courseSearch.toLowerCase())
+      );
+    });
+  }, [enrollments, courseSearch]);
 
   const isOverview = location.pathname === "/student";
   const isMyCourses = location.pathname === "/student/courses";
-  const isPractice = location.pathname === "/student/practice";
 
   const loadData = async () => {
     if (!user?.id) return;
     setLoading(true);
     try {
-      // 1. Lấy danh sách khóa học đã đăng ký
       const resEn = await fetch(`http://localhost:8080/api/students/${user.id}/enrollments`);
       const dataEn = await resEn.json();
-      const enList = Array.isArray(dataEn) ? dataEn : [];
+      const enList = Array.isArray(dataEn) ? dataEn.filter((e) => e && e.course) : [];
       setEnrollments(enList);
 
-      // 2. Lấy danh sách Quiz từ các khóa học
       const allQuizzes = [];
       for (const en of enList) {
         if (en.course?.id) {
@@ -82,40 +79,6 @@ export default function Student() {
   useEffect(() => {
     loadData();
   }, [user?.id]);
-
-  const handleStartQuiz = async (quizId) => {
-    try {
-      const res = await fetch(`http://localhost:8080/api/quizzes/${quizId}`);
-      const data = await res.json();
-      setActiveQuiz(data);
-      setAnswers({});
-      setQuizResult(null);
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  const handleSelectOption = (questionId, optionId) => {
-    setAnswers((prev) => ({ ...prev, [questionId]: optionId }));
-  };
-
-  const handleSubmitQuiz = async () => {
-    if (!activeQuiz) return;
-    try {
-      const res = await fetch(`http://localhost:8080/api/quizzes/${activeQuiz.id}/submit`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          studentId: user.id,
-          answers,
-        }),
-      });
-      const result = await res.json();
-      setQuizResult(result);
-    } catch (e) {
-      console.error(e);
-    }
-  };
 
   return (
     <div className="flex min-h-screen bg-gray-50 relative">
@@ -185,7 +148,6 @@ export default function Student() {
                     <p className="text-sm text-gray-500">Xin chào, {user?.name}! Chúc bạn có buổi học hiệu quả.</p>
                   </div>
 
-                  {/* THỐNG KÊ NHANH */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                     <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
                       <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Khóa học tham gia</div>
@@ -201,7 +163,6 @@ export default function Student() {
                     </div>
                   </div>
 
-                  {/* KHÓA HỌC GẦN ĐÂY */}
                   <div>
                     <div className="flex justify-between items-center mb-4">
                       <h2 className="text-lg font-bold text-gray-900">Khóa học đang học</h2>
@@ -219,7 +180,7 @@ export default function Student() {
                             <p className="text-xs text-gray-500 mt-1 line-clamp-2">{e.course?.description}</p>
                           </div>
                           <div className="mt-5 pt-4 border-t flex justify-between items-center">
-                            <span className="text-xs text-gray-400">GV: {e.course?.teacher?.name}</span>
+                            <span className="text-xs text-gray-400">GV: {e.course?.teacher?.name || "LearnUp"}</span>
                             <Link
                               to={`/student/courses/${e.course?.id}`}
                               className="px-4 py-1.5 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition"
@@ -229,6 +190,14 @@ export default function Student() {
                           </div>
                         </div>
                       ))}
+                      {enrollments.length === 0 && (
+                        <div className="col-span-3 text-center py-12 bg-white rounded-2xl border text-gray-400">
+                          Bạn chưa đăng ký khóa học nào.{" "}
+                          <Link to="/courses" className="text-blue-600 underline font-semibold">
+                            Khám phá ngay
+                          </Link>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -237,10 +206,23 @@ export default function Student() {
               {/* 2. KHÓA HỌC CỦA TÔI */}
               {isMyCourses && (
                 <div>
-                  <div className="flex justify-between items-center mb-6">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-5">
                     <div>
                       <h1 className="text-2xl font-bold text-gray-900">Khóa học của tôi ({enrollments.length})</h1>
                       <p className="text-sm text-gray-500">Tất cả các khóa học bạn đã đăng ký</p>
+                    </div>
+                    {/* SEARCH */}
+                    <div className="relative w-full sm:max-w-xs">
+                      <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                      <input
+                        type="text"
+                        placeholder="Tìm khóa học, giảng viên..."
+                        value={courseSearch}
+                        onChange={(e) => setCourseSearch(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl text-sm outline-none focus:border-blue-500 bg-white"
+                      />
                     </div>
                   </div>
 
@@ -249,9 +231,14 @@ export default function Student() {
                       <p className="text-gray-400 mb-4">Bạn chưa đăng ký khóa học nào.</p>
                       <Link to="/courses" className="text-blue-600 font-semibold underline">Khám phá khóa học ngay</Link>
                     </div>
+                  ) : filteredEnrollments.length === 0 ? (
+                    <div className="text-center py-20 bg-white rounded-2xl border border-gray-100 shadow-sm">
+                      <p className="text-gray-400 mb-2">Không tìm thấy khóa học phù hợp.</p>
+                      <button onClick={() => setCourseSearch("")} className="text-blue-600 font-semibold text-sm hover:underline">Xóa bộ lọc</button>
+                    </div>
                   ) : (
                     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {enrollments.map((e) => (
+                      {filteredEnrollments.map((e) => (
                         <Link
                           key={e.id}
                           to={`/student/courses/${e.course?.id}`}
@@ -269,133 +256,11 @@ export default function Student() {
                             </div>
                             <div className="mt-4 pt-3 border-t text-xs font-bold text-blue-600 flex justify-between items-center">
                               <span>Vào học ngay →</span>
-                              <span className="text-gray-400 font-normal">GV: {e.course?.teacher?.name}</span>
+                              <span className="text-gray-400 font-normal">GV: {e.course?.teacher?.name || "LearnUp"}</span>
                             </div>
                           </div>
                         </Link>
                       ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* 3. LUYỆN TẬP & QUIZ */}
-              {isPractice && (
-                <div>
-                  <div className="mb-6">
-                    <h1 className="text-2xl font-bold text-gray-900">Luyện tập trắc nghiệm & Quiz đánh giá</h1>
-                    <p className="text-sm text-gray-500">Làm các bài test để củng cố kiến thức và kiểm tra trình độ</p>
-                  </div>
-
-                  {!activeQuiz ? (
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {quizzes.map((q) => (
-                        <div key={q.id} className="bg-white border rounded-2xl p-5 shadow-sm flex flex-col justify-between">
-                          <div>
-                            <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-md">
-                              Khóa: {q.courseTitle}
-                            </span>
-                            <h3 className="font-bold text-gray-900 text-base mt-3">{q.title}</h3>
-                            <div className="text-xs text-gray-500 space-y-1 mt-2">
-                              <div>⏱️ Thời gian: <strong>{q.timeLimitMinutes || 15} phút</strong></div>
-                              <div>🎯 Điểm đạt: <strong>{q.passScore || 80}%</strong></div>
-                              <div>📝 Số câu hỏi: <strong>{q.questions?.length || 0} câu</strong></div>
-                            </div>
-                          </div>
-                          <button
-                            onClick={() => handleStartQuiz(q.id)}
-                            className="mt-5 w-full py-2.5 bg-indigo-600 text-white text-xs font-bold rounded-xl hover:bg-indigo-700 transition"
-                          >
-                            Bắt đầu làm bài
-                          </button>
-                        </div>
-                      ))}
-                      {quizzes.length === 0 && (
-                        <div className="col-span-3 text-center py-16 bg-white rounded-2xl border text-gray-400">
-                          Chưa có bài Quiz nào trong các khóa học bạn tham gia.
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    /* GIAO DIỆN LÀM QUIZ */
-                    <div className="bg-white border rounded-2xl p-6 shadow-sm max-w-3xl mx-auto">
-                      <div className="flex justify-between items-center pb-4 mb-6 border-b">
-                        <div>
-                          <h2 className="text-lg font-bold text-gray-900">{activeQuiz.title}</h2>
-                          <p className="text-xs text-gray-500">Điểm đạt: {activeQuiz.passScore}% · Thời gian: {activeQuiz.timeLimitMinutes} phút</p>
-                        </div>
-                        <button
-                          onClick={() => setActiveQuiz(null)}
-                          className="text-xs text-gray-500 hover:text-gray-800 border px-3 py-1.5 rounded-lg"
-                        >
-                          ← Thoát bài thi
-                        </button>
-                      </div>
-
-                      {quizResult ? (
-                        /* KẾT QUẢ */
-                        <div className="text-center py-8">
-                          <div className={`text-5xl font-black mb-2 ${quizResult.passed ? "text-green-600" : "text-red-600"}`}>
-                            {quizResult.score}%
-                          </div>
-                          <div className={`text-lg font-bold mb-4 ${quizResult.passed ? "text-green-700" : "text-red-700"}`}>
-                            {quizResult.passed ? "🎉 Chúc mừng! Bạn đã ĐẠT bài kiểm tra." : "❌ Chưa đạt. Hãy ôn tập và thử lại nhé."}
-                          </div>
-                          <p className="text-sm text-gray-600 mb-6">
-                            Đúng <strong>{quizResult.correct}</strong> trên tổng số <strong>{quizResult.total}</strong> câu hỏi.
-                          </p>
-                          <button
-                            onClick={() => {
-                              setQuizResult(null);
-                              setAnswers({});
-                            }}
-                            className="px-6 py-2.5 bg-blue-600 text-white font-bold text-xs rounded-xl hover:bg-blue-700"
-                          >
-                            Làm lại bài thi
-                          </button>
-                        </div>
-                      ) : (
-                        /* CÂU HỎI */
-                        <div className="space-y-8">
-                          {(activeQuiz.questions || []).map((q, qIdx) => (
-                            <div key={q.id} className="p-4 bg-gray-50 rounded-xl border">
-                              <div className="font-semibold text-gray-900 text-sm mb-3">
-                                Câu {qIdx + 1}: {q.content}
-                              </div>
-                              <div className="space-y-2">
-                                {(q.options || []).map((opt) => (
-                                  <label
-                                    key={opt.id}
-                                    className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition text-xs ${
-                                      answers[q.id] === opt.id
-                                        ? "bg-blue-50 border-blue-600 font-bold text-blue-900"
-                                        : "bg-white border-gray-200 hover:bg-gray-100"
-                                    }`}
-                                  >
-                                    <input
-                                      type="radio"
-                                      name={`question_${q.id}`}
-                                      checked={answers[q.id] === opt.id}
-                                      onChange={() => handleSelectOption(q.id, opt.id)}
-                                      className="w-4 h-4 text-blue-600"
-                                    />
-                                    <span>{opt.content}</span>
-                                  </label>
-                                ))}
-                              </div>
-                            </div>
-                          ))}
-
-                          <div className="pt-4 border-t flex justify-end">
-                            <button
-                              onClick={handleSubmitQuiz}
-                              className="px-8 py-3 bg-green-600 text-white font-bold text-sm rounded-xl hover:bg-green-700 transition shadow-md"
-                            >
-                              Nộp bài thi
-                            </button>
-                          </div>
-                        </div>
-                      )}
                     </div>
                   )}
                 </div>

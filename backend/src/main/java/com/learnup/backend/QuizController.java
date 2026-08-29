@@ -89,6 +89,19 @@ public class QuizController {
         return Map.of("success", true, "quiz", buildQuizDetail(saved));
     }
 
+    // Sửa quiz
+    @PutMapping("/{quizId}")
+    public Object updateQuiz(@PathVariable Long quizId, @RequestBody Map<String, Object> body) {
+        Optional<Quiz> opt = quizRepository.findById(quizId);
+        if (opt.isEmpty()) return Map.of("success", false, "message", "Không tìm thấy quiz");
+        Quiz q = opt.get();
+        if (body.containsKey("title")) q.setTitle((String) body.get("title"));
+        if (body.containsKey("passScore")) q.setPassScore(Integer.parseInt(body.get("passScore").toString()));
+        if (body.containsKey("timeLimitMinutes")) q.setTimeLimitMinutes(Integer.parseInt(body.get("timeLimitMinutes").toString()));
+        quizRepository.save(q);
+        return Map.of("success", true, "quiz", buildQuizDetail(q));
+    }
+
     // Xóa quiz
     @DeleteMapping("/{quizId}")
     @Transactional
@@ -135,6 +148,17 @@ public class QuizController {
         return Map.of("success", true, "questionId", saved.getId());
     }
 
+    // Xóa câu hỏi
+    @DeleteMapping("/questions/{questionId}")
+    @Transactional
+    public Object deleteQuestion(@PathVariable Long questionId) {
+        if (!questionRepository.existsById(questionId))
+            return Map.of("success", false, "message", "Không tìm thấy câu hỏi");
+        questionOptionRepository.deleteByQuestionId(questionId);
+        questionRepository.deleteById(questionId);
+        return Map.of("success", true, "message", "Đã xóa câu hỏi");
+    }
+
     // Nộp bài quiz
     @PostMapping("/{quizId}/submit")
     public Object submitQuiz(@PathVariable Long quizId, @RequestBody Map<String, Object> body) {
@@ -159,7 +183,7 @@ public class QuizController {
                     Optional<QuestionOption> opt = questionOptionRepository.findById(optId);
                     if (opt.isPresent() && Boolean.TRUE.equals(opt.get().getIsCorrect())) {
                         correct++;
-                    }
+                      }
                 }
             }
         }

@@ -13,7 +13,6 @@ import CourseDetail from "./pages/CourseDetail.jsx";
 import TeacherCourseDetail from "./pages/TeacherCourseDetail.jsx";
 import CoursePreview from "./pages/CoursePreview.jsx";
 import Settings from "./pages/Settings.jsx";
-import Practice from "./pages/Practice.jsx";
 import VNPayReturn from "./pages/VNPayReturn.jsx";
 import AiTutorModal from "./components/AiTutorModal.jsx";
 
@@ -55,14 +54,7 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/practice"
-            element={
-              <ProtectedRoute>
-                <Practice />
-              </ProtectedRoute>
-            }
-          />
+
 
           {/* STUDENT ROUTES */}
           <Route
@@ -81,14 +73,7 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/student/practice"
-            element={
-              <ProtectedRoute role="student">
-                <Practice />
-              </ProtectedRoute>
-            }
-          />
+
           <Route
             path="/student/courses/:courseId"
             element={

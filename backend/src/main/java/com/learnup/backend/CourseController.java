@@ -1,6 +1,8 @@
 package com.learnup.backend;
 
+import com.learnup.backend.entity.Chapter;
 import com.learnup.backend.entity.Course;
+import com.learnup.backend.repository.ChapterRepository;
 import com.learnup.backend.repository.CourseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -9,13 +11,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/courses")
 public class CourseController {
 
     @Autowired
     private CourseRepository courseRepository;
+
+    @Autowired
+    private ChapterRepository chapterRepository;
 
     @GetMapping
     public List<Course> getAllCourses() {
@@ -27,13 +32,25 @@ public class CourseController {
         return courseRepository.findById(id).orElse(null);
     }
 
+    @GetMapping("/{id}/chapters")
+    public List<Chapter> getChaptersByCourseId(@PathVariable Long id) {
+        return chapterRepository.findByCourseId(id);
+    }
+
+    @PostMapping("/{id}/chapters")
+    public Chapter addChapterToCourse(@PathVariable Long id, @RequestBody Chapter chapter) {
+        Course course = courseRepository.findById(id).orElseThrow();
+        chapter.setCourse(course);
+        return chapterRepository.save(chapter);
+    }
+
     @PostMapping
     public Course createCourse(@RequestBody Course course) {
         course.setStatus("pending");
         return courseRepository.save(course);
     }
 
-    // Sửa thông tin khóa học (không đổi status qua API này)
+    // Sửa thông tin khóa học
     @PutMapping("/{id}")
     public Object updateCourse(@PathVariable Long id, @RequestBody Course updatedCourse) {
         Optional<Course> optionalCourse = courseRepository.findById(id);

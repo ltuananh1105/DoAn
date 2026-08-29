@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import ExportModal from "../components/ExportModal.jsx";
@@ -65,6 +65,13 @@ export default function Admin() {
   const [catName, setCatName] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Search & Filter state
+  const [courseSearch, setCourseSearch] = useState("");
+  const [courseStatusFilter, setCourseStatusFilter] = useState("");
+  const [studentSearch, setStudentSearch] = useState("");
+  const [teacherSearch, setTeacherSearch] = useState("");
+  const [orderSearch, setOrderSearch] = useState("");
+
   // Export state
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [exportData, setExportData] = useState([]);
@@ -106,6 +113,49 @@ export default function Admin() {
   useEffect(() => {
     loadData();
   }, [activeTab]);
+
+  // Filtered derived data
+  const filteredCourses = useMemo(() => {
+    return courses.filter((c) => {
+      const matchSearch =
+        !courseSearch ||
+        c.title?.toLowerCase().includes(courseSearch.toLowerCase()) ||
+        c.teacher?.name?.toLowerCase().includes(courseSearch.toLowerCase());
+      const matchStatus = !courseStatusFilter || c.status === courseStatusFilter;
+      return matchSearch && matchStatus;
+    });
+  }, [courses, courseSearch, courseStatusFilter]);
+
+  const filteredStudents = useMemo(() => {
+    return students.filter((u) => {
+      return (
+        !studentSearch ||
+        u.name?.toLowerCase().includes(studentSearch.toLowerCase()) ||
+        u.email?.toLowerCase().includes(studentSearch.toLowerCase())
+      );
+    });
+  }, [students, studentSearch]);
+
+  const filteredTeachers = useMemo(() => {
+    return teachers.filter((u) => {
+      return (
+        !teacherSearch ||
+        u.name?.toLowerCase().includes(teacherSearch.toLowerCase()) ||
+        u.email?.toLowerCase().includes(teacherSearch.toLowerCase())
+      );
+    });
+  }, [teachers, teacherSearch]);
+
+  const filteredOrders = useMemo(() => {
+    return (revenueData?.recentOrders || []).filter((r) => {
+      return (
+        !orderSearch ||
+        r.student?.name?.toLowerCase().includes(orderSearch.toLowerCase()) ||
+        r.course?.title?.toLowerCase().includes(orderSearch.toLowerCase()) ||
+        r.orderCode?.toLowerCase().includes(orderSearch.toLowerCase())
+      );
+    });
+  }, [revenueData, orderSearch]);
 
   const updateCourseStatus = async (id, action) => {
     try {
@@ -149,19 +199,6 @@ export default function Admin() {
       }
     } catch (err) {
       console.error(err);
-    }
-  };
-
-  const handleResetData = async () => {
-    if (!window.confirm("CẢNH BÁO: Thao tác này sẽ nạp lại toàn bộ dữ liệu mẫu demo. Bạn có chắc chắn?")) return;
-    try {
-      const res = await fetch(`${API}/admin/reset-sample-data`, { method: "POST" });
-      const data = await res.json();
-      alert(data.message || "Đã nạp lại dữ liệu mẫu thành công");
-      loadData();
-    } catch (err) {
-      console.error(err);
-      alert("Lỗi khi reset data");
     }
   };
 
@@ -248,18 +285,6 @@ export default function Admin() {
               {item.label}
             </button>
           ))}
-
-          <div className="pt-8 mt-8 border-t border-gray-200">
-            <button
-              onClick={handleResetData}
-              className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-600 rounded-lg hover:bg-red-50 transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              Nạp lại dữ liệu mẫu
-            </button>
-          </div>
         </nav>
       </aside>
 
@@ -275,9 +300,36 @@ export default function Admin() {
               {/* TAB COURSES */}
               {activeTab === "courses" && (
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900 mb-6">
+                  <h1 className="text-2xl font-bold text-gray-900 mb-4">
                     Phê duyệt & Quản lý khóa học
                   </h1>
+                  {/* SEARCH & FILTER - COURSES */}
+                  <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                    <div className="relative flex-1">
+                      <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                      <input
+                        type="text"
+                        placeholder="Tìm tên khóa học, giảng viên..."
+                        value={courseSearch}
+                        onChange={(e) => setCourseSearch(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-blue-500"
+                      />
+                    </div>
+                    <select
+                      value={courseStatusFilter}
+                      onChange={(e) => setCourseStatusFilter(e.target.value)}
+                      className="px-3 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-blue-500 bg-white min-w-[160px]"
+                    >
+                      <option value="">Tất cả trạng thái</option>
+                      <option value="pending">Chờ duyệt</option>
+                      <option value="approved">Đã duyệt</option>
+                      <option value="hidden">Đang ẩn</option>
+                      <option value="rejected">Từ chối</option>
+                    </select>
+                    <span className="text-sm text-gray-400 flex items-center">{filteredCourses.length}/{courses.length}</span>
+                  </div>
                   <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
                     <table className="w-full text-left text-sm">
                       <thead className="bg-gray-50 border-b">
@@ -290,7 +342,7 @@ export default function Admin() {
                         </tr>
                       </thead>
                       <tbody className="divide-y">
-                        {courses.map((c) => (
+                        {filteredCourses.map((c) => (
                           <tr key={c.id} className="hover:bg-gray-50">
                             <td className="px-6 py-4">
                               <div className="font-medium text-gray-900 line-clamp-1">{c.title}</div>
@@ -341,8 +393,8 @@ export default function Admin() {
                         ))}
                       </tbody>
                     </table>
-                    {courses.length === 0 && (
-                      <div className="p-8 text-center text-gray-500">Chưa có khóa học nào.</div>
+                    {filteredCourses.length === 0 && (
+                      <div className="p-8 text-center text-gray-500">{courseSearch || courseStatusFilter ? "Không tìm thấy khóa học phù hợp." : "Chưa có khóa học nào."}</div>
                     )}
                   </div>
                 </div>
@@ -351,7 +403,7 @@ export default function Admin() {
               {/* TAB STUDENTS */}
               {activeTab === "students" && (
                 <div>
-                  <div className="flex justify-between items-center mb-6">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
                     <div>
                       <h1 className="text-2xl font-bold text-gray-900">Quản lý học viên</h1>
                       <p className="text-xs text-gray-500">Danh sách toàn bộ tài khoản học viên trong hệ thống</p>
@@ -363,6 +415,20 @@ export default function Admin() {
                       <span>📥</span>
                       <span>Xuất Excel / Báo Cáo</span>
                     </button>
+                  </div>
+                  {/* SEARCH - STUDENTS */}
+                  <div className="relative mb-4">
+                    <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <input
+                      type="text"
+                      placeholder="Tìm học viên theo tên hoặc email..."
+                      value={studentSearch}
+                      onChange={(e) => setStudentSearch(e.target.value)}
+                      className="w-full max-w-md pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-blue-500"
+                    />
+                    {studentSearch && <span className="ml-3 text-sm text-gray-400">{filteredStudents.length}/{students.length} kết quả</span>}
                   </div>
                   <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
                     <table className="w-full text-left text-sm">
@@ -376,7 +442,7 @@ export default function Admin() {
                         </tr>
                       </thead>
                       <tbody className="divide-y">
-                        {students.map((u) => (
+                        {filteredStudents.map((u) => (
                           <tr key={u.id} className="hover:bg-gray-50">
                             <td className="px-6 py-4 font-medium text-gray-900">{u.name}</td>
                             <td className="px-6 py-4 text-gray-600">{u.email}</td>
@@ -394,7 +460,7 @@ export default function Admin() {
               {/* TAB TEACHERS */}
               {activeTab === "teachers" && (
                 <div>
-                  <div className="flex justify-between items-center mb-6">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
                     <div>
                       <h1 className="text-2xl font-bold text-gray-900">Quản lý giảng viên</h1>
                       <p className="text-xs text-gray-500">Danh sách các đối tác giảng viên đang giảng dạy</p>
@@ -407,6 +473,20 @@ export default function Admin() {
                       <span>Xuất Excel / Báo Cáo</span>
                     </button>
                   </div>
+                  {/* SEARCH - TEACHERS */}
+                  <div className="relative mb-4">
+                    <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <input
+                      type="text"
+                      placeholder="Tìm giảng viên theo tên hoặc email..."
+                      value={teacherSearch}
+                      onChange={(e) => setTeacherSearch(e.target.value)}
+                      className="w-full max-w-md pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-blue-500"
+                    />
+                    {teacherSearch && <span className="ml-3 text-sm text-gray-400">{filteredTeachers.length}/{teachers.length} kết quả</span>}
+                  </div>
                   <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
                     <table className="w-full text-left text-sm">
                       <thead className="bg-gray-50 border-b">
@@ -418,7 +498,7 @@ export default function Admin() {
                         </tr>
                       </thead>
                       <tbody className="divide-y">
-                        {teachers.map((u) => (
+                        {filteredTeachers.map((u) => (
                           <tr key={u.id} className="hover:bg-gray-50">
                             <td className="px-6 py-4 font-medium text-gray-900">{u.name}</td>
                             <td className="px-6 py-4 text-gray-600">{u.email}</td>
@@ -468,7 +548,22 @@ export default function Admin() {
                     </div>
                   </div>
 
-                  <h3 className="font-bold text-gray-800 mb-4">Giao dịch gần đây</h3>
+                  <div className="flex items-center gap-3 mb-4">
+                    <h3 className="font-bold text-gray-800">Giao dịch gần đây</h3>
+                    <div className="relative flex-1 max-w-sm">
+                      <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                      <input
+                        type="text"
+                        placeholder="Tìm học viên, khóa học, mã đơn..."
+                        value={orderSearch}
+                        onChange={(e) => setOrderSearch(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-blue-500"
+                      />
+                    </div>
+                    {orderSearch && <span className="text-sm text-gray-400">{filteredOrders.length} kết quả</span>}
+                  </div>
                   <div className="bg-white border rounded-xl shadow-sm overflow-x-auto">
                     <table className="w-full text-left text-sm">
                       <thead className="bg-gray-50 border-b">
@@ -482,7 +577,7 @@ export default function Admin() {
                         </tr>
                       </thead>
                       <tbody className="divide-y">
-                        {revenueData.recentOrders?.map((r) => (
+                        {filteredOrders.map((r) => (
                           <tr key={r.orderCode} className="hover:bg-gray-50">
                             <td className="px-4 py-3 font-mono text-xs">{r.orderCode}</td>
                             <td className="px-4 py-3 text-gray-500">{new Date(r.createdAt).toLocaleString("vi-VN")}</td>

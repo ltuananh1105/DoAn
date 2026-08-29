@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
+import PaymentModal from "../components/PaymentModal.jsx";
 
 export default function CoursePreview() {
   const { courseId } = useParams();
@@ -11,75 +12,142 @@ export default function CoursePreview() {
   const [chapters, setChapters] = useState([]);
   const [lessonsByChapter, setLessonsByChapter] = useState({});
   const [isEnrolled, setIsEnrolled] = useState(false);
-  const [enrolling, setEnrolling] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Payment modal state
+  const [showPayModal, setShowPayModal] = useState(false);
+  const [paying, setPaying] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
     fetch(`http://localhost:8080/api/courses/${courseId}`)
       .then((res) => res.json())
-      .then(setCourse);
+      .then((data) => {
+        setCourse(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setLoading(false);
+      });
 
     fetch(`http://localhost:8080/api/courses/${courseId}/chapters`)
       .then((res) => res.json())
       .then(async (chs) => {
-        setChapters(chs);
-        const entries = await Promise.all(
-          chs.map((ch) =>
-            fetch(`http://localhost:8080/api/chapters/${ch.id}/lessons`)
-              .then((res) => res.json())
-              .then((lessons) => [ch.id, lessons])
-          )
-        );
-        setLessonsByChapter(Object.fromEntries(entries));
-      });
+        if (Array.isArray(chs)) {
+          setChapters(chs);
+          const entries = await Promise.all(
+            chs.map((ch) =>
+              fetch(`http://localhost:8080/api/chapters/${ch.id}/lessons`)
+                .then((res) => res.json())
+                .then((lessons) => [ch.id, Array.isArray(lessons) ? lessons : []])
+                .catch(() => [ch.id, []])
+            )
+          );
+          setLessonsByChapter(Object.fromEntries(entries));
+        } else {
+          setChapters([]);
+        }
+      })
+      .catch(console.error);
 
-    if (user?.role === "student") {
+    if (user?.id && user?.role === "student") {
       fetch(`http://localhost:8080/api/orders/check?studentId=${user.id}&courseId=${courseId}`)
         .then((res) => res.json())
         .then((data) => setIsEnrolled(data.enrolled || data.purchased))
         .catch(() => {
-          // Fallback to enrollment check
           fetch(`http://localhost:8080/api/students/${user.id}/enrollments`)
             .then((res) => res.json())
-            .then((data) => setIsEnrolled(data.some((e) => e.course?.id === Number(courseId))));
+            .then((data) => {
+              if (Array.isArray(data)) {
+                setIsEnrolled(data.some((e) => e.course?.id === Number(courseId)));
+              }
+            })
+            .catch(console.error);
         });
     }
   }, [courseId, user]);
 
-  const totalLessons = Object.values(lessonsByChapter).reduce((sum, l) => sum + l.length, 0);
+  const totalLessons = Object.values(lessonsByChapter).reduce(
+    (sum, l) => sum + (Array.isArray(l) ? l.length : 0),
+    0
+  );
 
-  const handleEnroll = async () => {
-    setEnrolling(true);
+  const handleEnrollClick = () => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    setShowPayModal(true);
+  };
+
+  const createOrder = async () => {
+    const orderRes = await fetch("http://localhost:8080/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ studentId: user.id, courseId }),
+    });
+    return await orderRes.json();
+  };
+
+  // Thanh toán VNPay
+  const handleVNPay = async () => {
+    setPaying(true);
     try {
-      // Tạo Order và Demo Pay
-      const orderRes = await fetch("http://localhost:8080/api/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ studentId: user.id, courseId }),
-      });
-      const orderData = await orderRes.json();
-
-      if (orderData.success && orderData.orderId) {
-        await fetch(`http://localhost:8080/api/orders/${orderData.orderId}/demo-pay`, {
-          method: "POST",
-        });
-      } else {
-        // Fallback enroll
-        await fetch(`http://localhost:8080/api/courses/${courseId}/enroll`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ studentId: user.id }),
-        });
+      const orderData = await createOrder();
+      if (!orderData.success) {
+        alert(orderData.message || "Không thể tạo đơn hàng, vui lòng thử lại.");
+        setPaying(false);
+        return;
       }
+      if (orderData.paymentUrl) {
+        window.location.href = orderData.paymentUrl;
+        return;
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Có lỗi xảy ra, vui lòng thử lại.");
+    }
+    setPaying(false);
+  };
 
+  // Thanh toán Demo
+  const handleDemoPay = async () => {
+    setPaying(true);
+    try {
+      const orderData = await createOrder();
+      if (!orderData.success) {
+        alert(orderData.message || "Không thể tạo đơn hàng, vui lòng thử lại.");
+        setPaying(false);
+        return;
+      }
+      await fetch(`http://localhost:8080/api/orders/${orderData.orderId}/demo-pay`, {
+        method: "POST",
+      });
       setIsEnrolled(true);
+      setShowPayModal(false);
       alert("Đăng ký & Kích hoạt khóa học thành công!");
     } catch (err) {
       console.error(err);
+      alert("Có lỗi xảy ra, vui lòng thử lại.");
     }
-    setEnrolling(false);
+    setPaying(false);
   };
 
-  if (!course) return <div className="max-w-4xl mx-auto px-6 py-14 text-gray-400">Đang tải thông tin khóa học...</div>;
+  if (loading) {
+    return <div className="max-w-4xl mx-auto px-6 py-14 text-gray-400">Đang tải thông tin khóa học...</div>;
+  }
+
+  if (!course || course.error) {
+    return (
+      <div className="max-w-4xl mx-auto px-6 py-14 text-center">
+        <p className="text-gray-500 mb-4">Không tìm thấy thông tin khóa học.</p>
+        <Link to="/courses" className="text-blue-600 font-semibold underline">
+          ← Quay lại danh sách khóa học
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-14">
@@ -95,7 +163,7 @@ export default function CoursePreview() {
 
       <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-8">
         <span>
-          Giáo viên: <strong className="text-[#0F172A]">{course.teacher?.name}</strong>
+          Giáo viên: <strong className="text-[#0F172A]">{course.teacher?.name || "LearnUp"}</strong>
         </span>
         <span>·</span>
         <span>
@@ -116,11 +184,10 @@ export default function CoursePreview() {
 
         {user?.role === "student" && !isEnrolled && (
           <button
-            onClick={handleEnroll}
-            disabled={enrolling}
-            className="bg-[#1E4FD8] text-white font-bold px-8 py-3 rounded-full hover:bg-[#173FB0] transition disabled:opacity-60 shadow-md"
+            onClick={handleEnrollClick}
+            className="bg-[#1E4FD8] text-white font-bold px-8 py-3 rounded-full hover:bg-[#173FB0] transition shadow-md"
           >
-            {enrolling ? "Đang xử lý đăng ký..." : `Đăng ký học ngay · ${course.price?.toLocaleString("vi-VN")} đ`}
+            Đăng ký học ngay · {course.price?.toLocaleString("vi-VN")} đ
           </button>
         )}
 
@@ -134,7 +201,7 @@ export default function CoursePreview() {
         )}
       </div>
 
-      {/* DANH SÁCH CHƯƠNG - CHỈ HIỆN TIÊU ĐỀ */}
+      {/* DANH SÁCH CHƯƠNG */}
       <h2 className="font-bold text-lg mb-4">Nội dung chương trình học</h2>
 
       {chapters.map((ch) => (
@@ -155,6 +222,20 @@ export default function CoursePreview() {
           </ul>
         </div>
       ))}
+
+      {chapters.length === 0 && (
+        <p className="text-gray-400 text-sm">Khóa học chưa có nội dung chi tiết.</p>
+      )}
+
+      {/* PAYMENT MODAL */}
+      <PaymentModal
+        isOpen={showPayModal}
+        course={course}
+        onClose={() => setShowPayModal(false)}
+        onVNPay={handleVNPay}
+        onDemoPay={handleDemoPay}
+        loading={paying}
+      />
     </div>
   );
 }
