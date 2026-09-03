@@ -434,6 +434,7 @@ export default function Admin() {
                               {c.reviewNote && <div className="mt-1 max-w-xs text-xs text-red-600" title={c.reviewNote}>{c.reviewNote}</div>}
                             </td>
                             <td className="px-6 py-4 text-right space-x-2">
+                              <Link to={`/admin/courses/${c.id}`} className="px-3 py-1.5 bg-blue-50 text-blue-700 rounded font-medium hover:bg-blue-100">Xem</Link>
                               {c.status === "pending" && (
                                 <>
                                   <button
@@ -518,7 +519,6 @@ export default function Admin() {
                             <td className="px-6 py-4 text-gray-600">{u.occupation || "Chưa cập nhật"}</td>
                             <td className="px-6 py-4"><span className={`px-2 py-1 rounded-full text-xs font-semibold ${(u.status || "active") === "active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>{accountStatusLabels[u.status || "active"]}</span></td>
                             <td className="px-6 py-4 text-right space-x-2">
-                              <Link to={`/admin/courses/${c.id}`} className="px-3 py-1.5 bg-blue-50 text-blue-700 rounded font-medium hover:bg-blue-100">Xem</Link>
                               {(u.status || "active") === "active" ? <button onClick={() => updateAccountStatus(u, "locked")} className="text-orange-600 font-medium">Khóa</button> : <button onClick={() => updateAccountStatus(u, "active")} className="text-green-600 font-medium">Mở khóa</button>}
                               <button onClick={() => resetPassword(u)} className="text-blue-600 font-medium">Đặt lại MK</button>
                             </td>
