@@ -339,6 +339,22 @@ Kết quả mong đợi: endpoint thanh toán demo không cho phép hoàn tất 
 
 ## 15. Tiêu chí hoàn thành
 
+### Kiểm thử thống kê và xuất báo cáo
+
+1. Chọn khoảng 30 ngày ở báo cáo Admin và đối chiếu số đơn với các đơn `COMPLETED` có ngày hoàn tất trong khoảng đó.
+2. Xác nhận doanh thu gộp bằng tổng `amount`; phí nền tảng bằng 20% và thanh toán giảng viên bằng 80%.
+3. Đổi sang khoảng ngày không có giao dịch; mọi KPI phải bằng 0 và nút xuất không tạo báo cáo rỗng.
+4. Kiểm tra giá trị đơn trung bình bằng doanh thu gộp chia số đơn hoàn tất.
+5. Một học viên mua nhiều khóa trong kỳ chỉ được tính một lần ở KPI người mua duy nhất.
+6. Biểu đồ ngày phải có đủ từng ngày trong kỳ, kể cả ngày doanh thu bằng 0.
+7. Báo cáo Teacher chỉ chứa giao dịch thuộc khóa học của Teacher đang đăng nhập.
+8. Số ghi danh và số đơn trả phí phải được hiển thị riêng, không gọi ghi danh miễn phí là doanh thu.
+9. Tìm kiếm danh sách rồi xuất; file phải chỉ chứa các dòng đang phù hợp với bộ lọc.
+10. Xuất CSV và mở bằng Excel: tiếng Việt hiển thị đúng, số tiền vẫn là dữ liệu số và nội dung bắt đầu bằng `=`, `+`, `-`, `@` không được chạy như công thức.
+11. Xuất PDF: tiêu đề, kỳ báo cáo, thời gian xuất, số bản ghi và bảng chi tiết phải khớp giao diện.
+12. Thử tên file chứa ký tự `<>:"/\\|?*`; file vẫn tải được với tên đã được làm sạch.
+
+
 Phần security đạt yêu cầu kiểm thử cơ bản khi:
 
 - Backend test, frontend lint và frontend build đều thành công.
