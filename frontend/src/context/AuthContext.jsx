@@ -6,6 +6,18 @@ const STORAGE_KEY = "learnup_auth";
 const TOKEN_KEY = "learnup_token";
 const API_BASE = "/api";
 
+async function readApiResponse(response) {
+  const text = await response.text();
+  if (!text.trim()) {
+    throw new Error("Backend không phản hồi. Hãy kiểm tra Spring Boot đang chạy tại cổng 8080.");
+  }
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error(`Backend trả dữ liệu không hợp lệ (HTTP ${response.status}).`);
+  }
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -28,9 +40,9 @@ export function AuthProvider({ children }) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
-    const data = await res.json();
+    const data = await readApiResponse(res);
 
-    if (!data.success) {
+    if (!res.ok || !data.success) {
       throw new Error(data.message || "Đăng nhập thất bại");
     }
 
@@ -49,7 +61,7 @@ export function AuthProvider({ children }) {
 
     if (!res.ok) throw new Error("Đăng ký thất bại");
 
-    const data = await res.json();
+    const data = await readApiResponse(res);
     if (data.success === false) throw new Error(data.message || "Đăng ký thất bại");
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data.user));
     localStorage.setItem(TOKEN_KEY, data.token);
