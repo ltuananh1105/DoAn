@@ -2,6 +2,7 @@ package com.learnup.backend.entity;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.Nationalized;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 @Entity
 @Table(name = "users")
@@ -17,6 +18,7 @@ public class User {
     @Column(unique = true)
     private String email;
 
+    @JsonSerialize(using = HiddenPasswordSerializer.class)
     private String password;
 
     @Nationalized

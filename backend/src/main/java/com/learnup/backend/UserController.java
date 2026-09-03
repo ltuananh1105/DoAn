@@ -5,10 +5,12 @@ import com.learnup.backend.repository.UserRepository;
 import com.learnup.backend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Objects;
 
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
@@ -22,6 +24,7 @@ public class UserController {
     @Autowired private OrderRepository orderRepository;
     @Autowired private LessonProgressRepository lessonProgressRepository;
     @Autowired private QuizResultRepository quizResultRepository;
+    @Autowired private PasswordEncoder passwordEncoder;
 
     // Lấy danh sách user, có thể lọc theo role (?role=student / teacher)
     @GetMapping
@@ -50,7 +53,7 @@ public class UserController {
         if (body.containsKey("country")) user.setCountry(body.get("country"));
         if (body.containsKey("province")) user.setProvince(body.get("province"));
         if (body.containsKey("password") && body.get("password") != null && !body.get("password").isEmpty()) {
-    user.setPassword(body.get("password"));
+            user.setPassword(passwordEncoder.encode(body.get("password")));
 }
         userRepository.save(user);
 
@@ -86,11 +89,17 @@ public class UserController {
         String currentPassword = body.get("currentPassword");
         String newPassword = body.get("newPassword");
 
-        if (!user.getPassword().equals(currentPassword)) {
+        boolean validPassword = user.getPassword() != null && user.getPassword().startsWith("$2")
+                ? passwordEncoder.matches(currentPassword, user.getPassword())
+                : Objects.equals(user.getPassword(), currentPassword);
+        if (!validPassword) {
             return Map.of("success", false, "message", "Mật khẩu hiện tại không đúng");
         }
 
-        user.setPassword(newPassword);
+        if (newPassword == null || newPassword.length() < 6) {
+            return Map.of("success", false, "message", "Mật khẩu mới phải có ít nhất 6 ký tự");
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
 
         return Map.of("success", true, "message", "Đổi mật khẩu thành công");

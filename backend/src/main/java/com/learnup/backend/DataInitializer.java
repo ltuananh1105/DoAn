@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Service;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,6 +32,7 @@ public class DataInitializer implements CommandLineRunner {
     @Autowired private QuestionRepository questionRepository;
     @Autowired private QuestionOptionRepository questionOptionRepository;
     @Autowired private QuizResultRepository quizResultRepository;
+    @Autowired private PasswordEncoder passwordEncoder;
 
     @Override
     public void run(String... args) {
@@ -275,7 +277,7 @@ public class DataInitializer implements CommandLineRunner {
 
     private User saveUser(String name, String email, String role, String phone, String occupation, String province) {
         User u = new User();
-        u.setName(name); u.setEmail(email); u.setPassword("123456");
+        u.setName(name); u.setEmail(email); u.setPassword(passwordEncoder.encode("123456"));
         u.setRole(role); u.setPhone(phone); u.setOccupation(occupation);
         u.setCountry("Việt Nam"); u.setProvince(province);
         return userRepository.save(u);
