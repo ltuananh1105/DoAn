@@ -33,6 +33,11 @@ const teacherMenuItems = [
   },
 ];
 
+const courseStatusLabels = {
+  draft: "Bản nháp", pending: "Chờ duyệt", published: "Đang xuất bản",
+  approved: "Đang xuất bản", rejected: "Bị từ chối", suspended: "Đình chỉ", archived: "Đã lưu trữ",
+};
+
 export default function Teacher() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -153,7 +158,7 @@ export default function Teacher() {
 
     const data = await res.json();
     if (res.ok && data.success !== false) {
-      alert("Tạo khóa học thành công! Đang chờ Admin duyệt.");
+      alert("Đã tạo bản nháp. Hãy bổ sung chương và bài học trước khi gửi duyệt.");
       setForm({ title: "", description: "", price: "", categoryId: "" });
       setShowCreateModal(false);
       loadData();
@@ -235,10 +240,21 @@ export default function Teacher() {
       const data = await res.json();
       if (data.success) {
         loadData();
-      }
+      } else alert(data.message || "Không thể lưu trữ khóa học");
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const handleSubmitCourse = async (e, courseId) => {
+    e.stopPropagation();
+    if (!window.confirm("Gửi khóa học cho Admin xét duyệt? Trong thời gian chờ duyệt, bạn sẽ không thể sửa nội dung.")) return;
+    const res = await fetch(`/api/courses/${courseId}/submit`, { method: "PUT" });
+    const data = await res.json();
+    if (res.ok && data.success !== false) {
+      alert("Đã gửi khóa học chờ duyệt");
+      loadData();
+    } else alert(data.message || "Không thể gửi duyệt khóa học");
   };
 
   // Xóa học viên khỏi lớp
@@ -407,9 +423,11 @@ export default function Teacher() {
                     >
                       <option value="">Tất cả trạng thái</option>
                       <option value="pending">Chờ duyệt</option>
-                      <option value="approved">Đang hiển thị</option>
-                      <option value="hidden">Đang ẩn</option>
-                      <option value="rejected">Từ chối</option>
+                      <option value="draft">Bản nháp</option>
+                      <option value="published">Đang xuất bản</option>
+                      <option value="rejected">Bị từ chối</option>
+                      <option value="suspended">Đình chỉ</option>
+                      <option value="archived">Đã lưu trữ</option>
                     </select>
                     {(courseSearch || courseStatusFilter) && (
                       <div className="flex items-center gap-2">
@@ -436,22 +454,16 @@ export default function Teacher() {
 
                             <span
                               className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
-                                c.status === "approved"
+                                ["published", "approved"].includes(c.status)
                                   ? "bg-green-100 text-green-700"
                                   : c.status === "rejected"
                                     ? "bg-red-100 text-red-700"
-                                    : c.status === "hidden"
+                                    : ["suspended", "archived"].includes(c.status)
                                       ? "bg-gray-100 text-gray-700"
                                       : "bg-yellow-100 text-yellow-700"
                               }`}
                             >
-                              {c.status === "approved"
-                                ? "Đang hiển thị"
-                                : c.status === "hidden"
-                                  ? "Đang ẩn"
-                                  : c.status === "pending"
-                                    ? "Chờ duyệt"
-                                    : "Từ chối"}
+                              {courseStatusLabels[c.status] || c.status}
                             </span>
                           </div>
 
@@ -460,6 +472,7 @@ export default function Teacher() {
                             {c.title}
                           </h3>
                           <p className="text-xs text-gray-500 mt-1 line-clamp-2 leading-relaxed">{c.description}</p>
+                          {c.reviewNote && <p className="mt-2 rounded-lg bg-red-50 p-2 text-xs text-red-700"><strong>Phản hồi Admin:</strong> {c.reviewNote}</p>}
 
                           <div className="mt-3 pt-3 border-t flex justify-between items-center text-xs text-gray-600">
                             <span className="font-bold text-gray-900">{c.price?.toLocaleString("vi-VN")} ₫</span>
@@ -469,36 +482,24 @@ export default function Teacher() {
 
                         {/* NÚT THAO TÁC (SỬA, ẨN, XÓA) */}
                         <div className="mt-4 pt-3 border-t flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
-                          <button
-                            onClick={(e) => handleOpenEdit(e, c)}
-                            className="px-2.5 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-lg transition"
-                          >
-                            Sửa
-                          </button>
+                          {["draft", "rejected"].includes(c.status) && <button onClick={(e) => handleOpenEdit(e, c)} className="px-2.5 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-lg transition">Sửa</button>}
 
-                          {c.status === "approved" && (
+                          {["draft", "rejected"].includes(c.status) && <button onClick={(e) => handleSubmitCourse(e, c.id)} className="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg transition">Gửi duyệt</button>}
+
+                          {["published", "approved"].includes(c.status) && (
                             <button
                               onClick={(e) => handleToggleVisibility(e, c.id)}
                               className="px-2.5 py-1 bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-semibold rounded-lg transition"
                             >
-                              Ẩn
+                              Lưu trữ
                             </button>
                           )}
-                          {c.status === "hidden" && (
-                            <button
-                              onClick={(e) => handleToggleVisibility(e, c.id)}
-                              className="px-2.5 py-1 bg-green-50 hover:bg-green-100 text-green-700 text-xs font-semibold rounded-lg transition"
-                            >
-                              Mở lại
-                            </button>
-                          )}
-
-                          <button
+                          {c.status === "draft" && <button
                             onClick={(e) => handleDeleteCourse(e, c.id)}
                             className="px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-semibold rounded-lg transition"
                           >
                             Xóa
-                          </button>
+                          </button>}
                         </div>
                       </div>
                     ))}

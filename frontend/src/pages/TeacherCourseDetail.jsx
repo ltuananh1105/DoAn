@@ -8,6 +8,7 @@ export default function TeacherCourseDetail() {
   const [lessonsByChapter, setLessonsByChapter] = useState({});
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const canEdit = ["draft", "rejected"].includes(course?.status);
 
   // CHẾ ĐỘ CHỈNH SỬA CHO PHẦN CHƯƠNG TRÌNH BÀI HỌC
   const [isEditMode, setIsEditMode] = useState(false);
@@ -255,6 +256,8 @@ export default function TeacherCourseDetail() {
         </span>
         <h1 className="text-2xl font-extrabold text-gray-900 mt-2 mb-1">{course?.title}</h1>
         <p className="text-xs text-gray-500">{course?.description}</p>
+        {!canEdit && <p className="mt-3 rounded-xl bg-yellow-50 p-3 text-xs font-medium text-yellow-800">Nội dung đang được khóa vì khóa học đã gửi duyệt, xuất bản, đình chỉ hoặc lưu trữ.</p>}
+        {course?.reviewNote && <p className="mt-3 rounded-xl bg-red-50 p-3 text-xs text-red-700"><strong>Phản hồi Admin:</strong> {course.reviewNote}</p>}
       </div>
 
       {loading ? (
@@ -275,7 +278,7 @@ export default function TeacherCourseDetail() {
 
               {/* NÚT CHỈNH SỬA / LƯU ĐẶT NGAY TẠI HEADER CỦA PHẦN BÀI HỌC */}
               <div>
-                {!isEditMode ? (
+                {!isEditMode && canEdit ? (
                   <button
                     onClick={handleEnterEditMode}
                     className="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold hover:bg-blue-700 transition flex items-center gap-1.5 shadow-sm"
@@ -283,7 +286,7 @@ export default function TeacherCourseDetail() {
                     <span>✏️</span>
                     <span>Chỉnh Sửa Bài Học</span>
                   </button>
-                ) : (
+                ) : isEditMode ? (
                   <div className="flex items-center gap-2 bg-yellow-50 border border-yellow-200 p-1 rounded-xl">
                     <button
                       onClick={handleCancelEditMode}
@@ -300,7 +303,7 @@ export default function TeacherCourseDetail() {
                       {isSaving ? "Đang lưu..." : "💾 Lưu Thay Đổi"}
                     </button>
                   </div>
-                )}
+                ) : null}
               </div>
             </div>
 
@@ -460,13 +463,13 @@ export default function TeacherCourseDetail() {
                 <p className="text-xs text-gray-500 mt-0.5">Tạo đề thi và bấm "+ Thêm câu hỏi" trực tiếp trên từng bài Quiz</p>
               </div>
 
-              <button
+              {canEdit && <button
                 onClick={() => setShowCreateQuizModal(true)}
                 className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-700 transition flex items-center gap-1.5 shadow-sm"
               >
                 <span>+</span>
                 <span>Tạo Bài Quiz Mới</span>
-              </button>
+              </button>}
             </div>
 
             {/* DANH SÁCH QUIZ */}
@@ -481,7 +484,7 @@ export default function TeacherCourseDetail() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    {canEdit && <div className="flex items-center gap-2">
                       <button
                         onClick={() => {
                           setActiveQuizForQuestion(q);
@@ -505,7 +508,7 @@ export default function TeacherCourseDetail() {
                       >
                         Xóa Quiz
                       </button>
-                    </div>
+                    </div>}
                   </div>
 
                   {/* DANH SÁCH CÂU HỎI */}
@@ -516,12 +519,12 @@ export default function TeacherCourseDetail() {
                           <div className="font-bold text-gray-900">
                             Câu {qIdx + 1}: {quest.content}
                           </div>
-                          <button
+                          {canEdit && <button
                             onClick={() => handleDeleteQuestion(quest.id)}
                             className="text-red-500 hover:text-red-700 text-[11px] font-semibold"
                           >
                             Xóa câu hỏi
-                          </button>
+                          </button>}
                         </div>
 
                         {/* 4 ĐÁP ÁN */}

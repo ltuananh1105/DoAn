@@ -12,6 +12,7 @@ import Courses from "./pages/Courses.jsx";
 import CourseDetail from "./pages/CourseDetail.jsx";
 import TeacherCourseDetail from "./pages/TeacherCourseDetail.jsx";
 import CoursePreview from "./pages/CoursePreview.jsx";
+import AdminCourseReview from "./pages/AdminCourseReview.jsx";
 import Settings from "./pages/Settings.jsx";
 import VNPayReturn from "./pages/VNPayReturn.jsx";
 import AiTutorModal from "./components/AiTutorModal.jsx";
@@ -102,6 +103,14 @@ export default function App() {
           />
 
           {/* ADMIN ROUTES */}
+          <Route
+            path="/admin/courses/:courseId"
+            element={
+              <ProtectedRoute role="admin">
+                <AdminCourseReview />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/admin"
             element={

@@ -1,8 +1,16 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 import ExportModal from "../components/ExportModal.jsx";
+import { Link } from "react-router-dom";
 
 const API = "/api";
+
+const courseStatusLabels = {
+  draft: "Bản nháp", pending: "Chờ duyệt", published: "Đang xuất bản",
+  approved: "Đang xuất bản", rejected: "Bị từ chối", suspended: "Đình chỉ", archived: "Đã lưu trữ",
+};
+
+const accountStatusLabels = { active: "Đang hoạt động", locked: "Đã khóa", inactive: "Ngừng hoạt động" };
 
 const adminMenuItems = [
   {
@@ -63,6 +71,8 @@ export default function Admin() {
   const [revenueData, setRevenueData] = useState(null);
   const [catName, setCatName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showCreateUser, setShowCreateUser] = useState(false);
+  const [userForm, setUserForm] = useState({ name: "", email: "", password: "", role: "student" });
 
   // Search & Filter state
   const [courseSearch, setCourseSearch] = useState("");
@@ -158,15 +168,55 @@ export default function Admin() {
 
   const updateCourseStatus = async (id, action) => {
     try {
+      let reason = "";
+      if (action === "reject" || action === "suspend") {
+        reason = window.prompt(action === "reject" ? "Nhập lý do từ chối (ít nhất 10 ký tự)" : "Nhập lý do đình chỉ (ít nhất 10 ký tự)") || "";
+        if (reason.trim().length < 10) return;
+      }
       const res = await fetch(`${API}/courses/${id}/${action}`, {
         method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: reason.trim() }),
       });
-      if (res.ok) {
-        loadData();
-      }
+      const data = await res.json();
+      if (res.ok && data.success !== false) loadData();
+      else alert(data.message || "Không thể cập nhật trạng thái khóa học");
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const updateAccountStatus = async (account, status) => {
+    if (!window.confirm(`Xác nhận chuyển tài khoản ${account.email} sang trạng thái "${accountStatusLabels[status]}"?`)) return;
+    const res = await fetch(`${API}/users/${account.id}/status`, {
+      method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status }),
+    });
+    const data = await res.json();
+    if (res.ok && data.success !== false) loadData();
+    else alert(data.message || "Không thể cập nhật tài khoản");
+  };
+
+  const resetPassword = async (account) => {
+    const newPassword = window.prompt(`Nhập mật khẩu tạm cho ${account.email} (ít nhất 6 ký tự)`);
+    if (!newPassword) return;
+    const res = await fetch(`${API}/users/${account.id}/reset-password`, {
+      method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ newPassword }),
+    });
+    const data = await res.json();
+    alert(data.message || (res.ok ? "Đã đặt lại mật khẩu" : "Không thể đặt lại mật khẩu"));
+  };
+
+  const createAccount = async (e) => {
+    e.preventDefault();
+    const res = await fetch(`${API}/users`, {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(userForm),
+    });
+    const data = await res.json();
+    if (res.ok && data.success !== false) {
+      setShowCreateUser(false);
+      setUserForm({ name: "", email: "", password: "", role: activeTab === "teachers" ? "teacher" : "student" });
+      loadData();
+    } else alert(data.message || "Không thể tạo tài khoản");
   };
 
   const handleAddCategory = async (e) => {
@@ -339,9 +389,11 @@ export default function Admin() {
                     >
                       <option value="">Tất cả trạng thái</option>
                       <option value="pending">Chờ duyệt</option>
-                      <option value="approved">Đã duyệt</option>
-                      <option value="hidden">Đang ẩn</option>
-                      <option value="rejected">Từ chối</option>
+                      <option value="draft">Bản nháp</option>
+                      <option value="published">Đang xuất bản</option>
+                      <option value="rejected">Bị từ chối</option>
+                      <option value="suspended">Đình chỉ</option>
+                      <option value="archived">Đã lưu trữ</option>
                     </select>
                     <span className="text-sm text-gray-400 flex items-center">{filteredCourses.length}/{courses.length}</span>
                   </div>
@@ -368,23 +420,18 @@ export default function Admin() {
                             <td className="px-6 py-4">
                               <span
                                 className={`px-3 py-1 rounded-full text-xs font-bold ${
-                                  c.status === "approved"
+                                  ["published", "approved"].includes(c.status)
                                     ? "bg-green-100 text-green-700"
                                     : c.status === "rejected"
                                       ? "bg-red-100 text-red-700"
-                                      : c.status === "hidden"
+                                      : ["suspended", "archived"].includes(c.status)
                                         ? "bg-gray-100 text-gray-700"
                                         : "bg-yellow-100 text-yellow-700"
                                 }`}
                               >
-                                {c.status === "approved"
-                                  ? "Đã duyệt"
-                                  : c.status === "hidden"
-                                    ? "Đang ẩn"
-                                    : c.status === "pending"
-                                      ? "Chờ duyệt"
-                                      : "Từ chối"}
+                                {courseStatusLabels[c.status] || c.status}
                               </span>
+                              {c.reviewNote && <div className="mt-1 max-w-xs text-xs text-red-600" title={c.reviewNote}>{c.reviewNote}</div>}
                             </td>
                             <td className="px-6 py-4 text-right space-x-2">
                               {c.status === "pending" && (
@@ -402,6 +449,12 @@ export default function Admin() {
                                     Từ chối
                                   </button>
                                 </>
+                              )}
+                              {["published", "approved"].includes(c.status) && (
+                                <button onClick={() => updateCourseStatus(c.id, "suspend")} className="px-3 py-1.5 bg-orange-50 text-orange-700 rounded font-medium hover:bg-orange-100">Đình chỉ</button>
+                              )}
+                              {["suspended", "archived"].includes(c.status) && (
+                                <button onClick={() => updateCourseStatus(c.id, "restore")} className="px-3 py-1.5 bg-blue-50 text-blue-700 rounded font-medium hover:bg-blue-100">Khôi phục</button>
                               )}
                             </td>
                           </tr>
@@ -423,13 +476,10 @@ export default function Admin() {
                       <h1 className="text-2xl font-bold text-gray-900">Quản lý học viên</h1>
                       <p className="text-xs text-gray-500">Danh sách toàn bộ tài khoản học viên trong hệ thống</p>
                     </div>
-                    <button
-                      onClick={handleExportStudents}
-                      className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 flex items-center gap-2 shadow-sm"
-                    >
-                      <span>📥</span>
-                      <span>Xuất Excel / Báo Cáo</span>
-                    </button>
+                    <div className="flex gap-2">
+                      <button onClick={() => { setUserForm({ name: "", email: "", password: "", role: "student" }); setShowCreateUser(true); }} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">+ Thêm học viên</button>
+                      <button onClick={handleExportStudents} className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 flex items-center gap-2 shadow-sm"><span>📥</span><span>Xuất báo cáo</span></button>
+                    </div>
                   </div>
                   {/* SEARCH - STUDENTS */}
                   <div className="relative mb-4">
@@ -454,6 +504,8 @@ export default function Admin() {
                           <th className="px-6 py-4 font-semibold text-gray-700">SĐT</th>
                           <th className="px-6 py-4 font-semibold text-gray-700">Tỉnh/TP</th>
                           <th className="px-6 py-4 font-semibold text-gray-700">Nghề nghiệp</th>
+                          <th className="px-6 py-4 font-semibold text-gray-700">Trạng thái</th>
+                          <th className="px-6 py-4 font-semibold text-right text-gray-700">Thao tác</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y">
@@ -464,6 +516,12 @@ export default function Admin() {
                             <td className="px-6 py-4 text-gray-600">{u.phone || "Chưa cập nhật"}</td>
                             <td className="px-6 py-4 text-gray-600">{u.province || "Chưa cập nhật"}</td>
                             <td className="px-6 py-4 text-gray-600">{u.occupation || "Chưa cập nhật"}</td>
+                            <td className="px-6 py-4"><span className={`px-2 py-1 rounded-full text-xs font-semibold ${(u.status || "active") === "active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>{accountStatusLabels[u.status || "active"]}</span></td>
+                            <td className="px-6 py-4 text-right space-x-2">
+                              <Link to={`/admin/courses/${c.id}`} className="px-3 py-1.5 bg-blue-50 text-blue-700 rounded font-medium hover:bg-blue-100">Xem</Link>
+                              {(u.status || "active") === "active" ? <button onClick={() => updateAccountStatus(u, "locked")} className="text-orange-600 font-medium">Khóa</button> : <button onClick={() => updateAccountStatus(u, "active")} className="text-green-600 font-medium">Mở khóa</button>}
+                              <button onClick={() => resetPassword(u)} className="text-blue-600 font-medium">Đặt lại MK</button>
+                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -480,13 +538,10 @@ export default function Admin() {
                       <h1 className="text-2xl font-bold text-gray-900">Quản lý giảng viên</h1>
                       <p className="text-xs text-gray-500">Danh sách các đối tác giảng viên đang giảng dạy</p>
                     </div>
-                    <button
-                      onClick={handleExportTeachers}
-                      className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 flex items-center gap-2 shadow-sm"
-                    >
-                      <span>📥</span>
-                      <span>Xuất Excel / Báo Cáo</span>
-                    </button>
+                    <div className="flex gap-2">
+                      <button onClick={() => { setUserForm({ name: "", email: "", password: "", role: "teacher" }); setShowCreateUser(true); }} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">+ Thêm giảng viên</button>
+                      <button onClick={handleExportTeachers} className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 flex items-center gap-2 shadow-sm"><span>📥</span><span>Xuất báo cáo</span></button>
+                    </div>
                   </div>
                   {/* SEARCH - TEACHERS */}
                   <div className="relative mb-4">
@@ -510,6 +565,8 @@ export default function Admin() {
                           <th className="px-6 py-4 font-semibold text-gray-700">Email</th>
                           <th className="px-6 py-4 font-semibold text-gray-700">SĐT</th>
                           <th className="px-6 py-4 font-semibold text-gray-700">Chuyên môn</th>
+                          <th className="px-6 py-4 font-semibold text-gray-700">Trạng thái</th>
+                          <th className="px-6 py-4 font-semibold text-right text-gray-700">Thao tác</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y">
@@ -519,6 +576,11 @@ export default function Admin() {
                             <td className="px-6 py-4 text-gray-600">{u.email}</td>
                             <td className="px-6 py-4 text-gray-600">{u.phone || "Chưa cập nhật"}</td>
                             <td className="px-6 py-4 text-gray-600">{u.occupation || "Chưa cập nhật"}</td>
+                            <td className="px-6 py-4"><span className={`px-2 py-1 rounded-full text-xs font-semibold ${(u.status || "active") === "active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>{accountStatusLabels[u.status || "active"]}</span></td>
+                            <td className="px-6 py-4 text-right space-x-2">
+                              {(u.status || "active") === "active" ? <button onClick={() => updateAccountStatus(u, "locked")} className="text-orange-600 font-medium">Khóa</button> : <button onClick={() => updateAccountStatus(u, "active")} className="text-green-600 font-medium">Mở khóa</button>}
+                              <button onClick={() => resetPassword(u)} className="text-blue-600 font-medium">Đặt lại MK</button>
+                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -680,6 +742,24 @@ export default function Admin() {
           )}
         </div>
       </main>
+
+      {showCreateUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <form onSubmit={createAccount} className="w-full max-w-md space-y-4 rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold">Tạo tài khoản {userForm.role === "teacher" ? "giảng viên" : "học viên"}</h3>
+              <button type="button" onClick={() => setShowCreateUser(false)} className="text-gray-500">✕</button>
+            </div>
+            <input required value={userForm.name} onChange={(e) => setUserForm({ ...userForm, name: e.target.value })} placeholder="Họ và tên" className="w-full rounded-xl border px-3 py-2" />
+            <input required type="email" value={userForm.email} onChange={(e) => setUserForm({ ...userForm, email: e.target.value })} placeholder="Email" className="w-full rounded-xl border px-3 py-2" />
+            <input required minLength="6" type="password" value={userForm.password} onChange={(e) => setUserForm({ ...userForm, password: e.target.value })} placeholder="Mật khẩu tạm (ít nhất 6 ký tự)" className="w-full rounded-xl border px-3 py-2" />
+            <div className="flex justify-end gap-2">
+              <button type="button" onClick={() => setShowCreateUser(false)} className="rounded-xl border px-4 py-2">Hủy</button>
+              <button type="submit" className="rounded-xl bg-blue-600 px-4 py-2 font-semibold text-white">Tạo tài khoản</button>
+            </div>
+          </form>
+        </div>
+      )}
 
       {/* Modal Tùy chỉnh Xuất Báo Cáo */}
       <ExportModal
