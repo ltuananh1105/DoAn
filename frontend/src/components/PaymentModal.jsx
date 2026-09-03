@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 /**
  * Modal chọn phương thức thanh toán
  * Props:
