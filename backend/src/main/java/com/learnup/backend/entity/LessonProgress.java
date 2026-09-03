@@ -3,19 +3,20 @@ package com.learnup.backend.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "lesson_progress")
+@Table(name = "lesson_progress", uniqueConstraints = @UniqueConstraint(
+        name = "uk_progress_student_lesson", columnNames = {"student_id", "lesson_id"}))
 public class LessonProgress {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "student_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "student_id", nullable = false)
     private User student;
 
-    @ManyToOne
-    @JoinColumn(name = "lesson_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "lesson_id", nullable = false)
     private Lesson lesson;
 
     private Boolean isCompleted;

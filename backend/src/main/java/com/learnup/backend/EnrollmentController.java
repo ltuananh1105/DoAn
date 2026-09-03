@@ -3,36 +3,68 @@ package com.learnup.backend;
 import com.learnup.backend.entity.Course;
 import com.learnup.backend.entity.Enrollment;
 import com.learnup.backend.entity.User;
+import com.learnup.backend.repository.CourseRepository;
 import com.learnup.backend.repository.EnrollmentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.learnup.backend.repository.UserRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api")
 public class EnrollmentController {
+    private final EnrollmentRepository enrollmentRepository;
+    private final UserRepository userRepository;
+    private final CourseRepository courseRepository;
 
-    @Autowired
-    private EnrollmentRepository enrollmentRepository;
+    public EnrollmentController(EnrollmentRepository enrollmentRepository,
+                                UserRepository userRepository,
+                                CourseRepository courseRepository) {
+        this.enrollmentRepository = enrollmentRepository;
+        this.userRepository = userRepository;
+        this.courseRepository = courseRepository;
+    }
 
     @PostMapping("/courses/{courseId}/enroll")
-    public Enrollment enroll(@PathVariable Long courseId, @RequestBody Map<String, Long> body) {
+    public ResponseEntity<?> enroll(@PathVariable Long courseId, @RequestBody Map<String, Long> body) {
         Long studentId = body.get("studentId");
+        if (studentId == null) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Thiếu mã học viên"));
+        }
 
-        User student = new User();
-        student.setId(studentId);
+        Optional<User> studentOpt = userRepository.findById(studentId);
+        Optional<Course> courseOpt = courseRepository.findById(courseId);
+        if (studentOpt.isEmpty() || !"student".equals(studentOpt.get().getRole())) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Học viên không hợp lệ"));
+        }
+        if (courseOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("success", false, "message", "Không tìm thấy khóa học"));
+        }
 
-        Course course = new Course();
-        course.setId(courseId);
+        Course course = courseOpt.get();
+        if (!"approved".equals(course.getStatus())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("success", false, "message", "Khóa học chưa được mở đăng ký"));
+        }
+        if (course.getPrice() != null && course.getPrice() > 0) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("success", false, "message", "Khóa học trả phí phải hoàn tất thanh toán trước"));
+        }
+        if (enrollmentRepository.existsByStudentIdAndCourseId(studentId, courseId)) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("success", false, "message", "Học viên đã đăng ký khóa học này"));
+        }
 
         Enrollment enrollment = new Enrollment();
-        enrollment.setStudent(student);
+        enrollment.setStudent(studentOpt.get());
         enrollment.setCourse(course);
-
-        return enrollmentRepository.save(enrollment);
+        return ResponseEntity.status(HttpStatus.CREATED).body(enrollmentRepository.save(enrollment));
     }
 
     @GetMapping("/students/{studentId}/enrollments")

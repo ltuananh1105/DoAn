@@ -3,19 +3,20 @@ package com.learnup.backend.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "enrollments")
+@Table(name = "enrollments", uniqueConstraints = @UniqueConstraint(
+        name = "uk_enrollment_student_course", columnNames = {"student_id", "course_id"}))
 public class Enrollment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "student_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "student_id", nullable = false)
     private User student;
 
-    @ManyToOne
-    @JoinColumn(name = "course_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
     public Long getId() { return id; }
