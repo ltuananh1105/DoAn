@@ -7,6 +7,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -30,6 +31,12 @@ public class ApiExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Map<String, Object>> conflict() {
         return response(HttpStatus.CONFLICT, "Dữ liệu đang được sử dụng hoặc bị trùng lặp");
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Map<String, Object>> forbidden(AccessDeniedException exception) {
+        return response(HttpStatus.FORBIDDEN, exception.getMessage() != null
+                ? exception.getMessage() : "Không có quyền thực hiện thao tác này");
     }
 
     private ResponseEntity<Map<String, Object>> response(HttpStatus status, String message) {

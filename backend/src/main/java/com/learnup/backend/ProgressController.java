@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import com.learnup.backend.security.CurrentUser;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -27,26 +28,31 @@ public class ProgressController {
     private final UserRepository userRepository;
     private final EnrollmentRepository enrollmentRepository;
     private final ChapterRepository chapterRepository;
+    private final CurrentUser currentUser;
 
     public ProgressController(LessonProgressRepository lessonProgressRepository,
                               LessonRepository lessonRepository,
                               UserRepository userRepository,
                               EnrollmentRepository enrollmentRepository,
-                              ChapterRepository chapterRepository) {
+                              ChapterRepository chapterRepository,
+                              CurrentUser currentUser) {
         this.lessonProgressRepository = lessonProgressRepository;
         this.lessonRepository = lessonRepository;
         this.userRepository = userRepository;
         this.enrollmentRepository = enrollmentRepository;
         this.chapterRepository = chapterRepository;
+        this.currentUser = currentUser;
     }
 
     @GetMapping("/student/{studentId}")
     public List<LessonProgress> getStudentProgress(@PathVariable Long studentId) {
+        currentUser.requireStudentSelf(studentId);
         return lessonProgressRepository.findByStudentId(studentId);
     }
 
     @GetMapping("/student/{studentId}/course/{courseId}")
     public ResponseEntity<?> getCourseProgress(@PathVariable Long studentId, @PathVariable Long courseId) {
+        currentUser.requireStudentSelf(studentId);
         if (!enrollmentRepository.existsByStudentIdAndCourseId(studentId, courseId)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("success", false, "message", "Không tìm thấy ghi danh cho khóa học"));
@@ -82,6 +88,7 @@ public class ProgressController {
             return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", "Mã học viên và bài học không hợp lệ"));
         }
+        currentUser.requireStudentSelf(studentId);
 
         Optional<User> studentOpt = userRepository.findById(studentId);
         Optional<Lesson> lessonOpt = lessonRepository.findById(lessonId);

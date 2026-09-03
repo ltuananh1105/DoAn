@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.Duration;
+import com.learnup.backend.security.CurrentUser;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -29,10 +30,12 @@ public class QuizController {
     private UserRepository userRepository;
     @Autowired
     private EnrollmentRepository enrollmentRepository;
+    @Autowired private CurrentUser currentUser;
 
     // Lấy danh sách quiz theo khóa học
     @GetMapping("/course/{courseId}")
     public List<Map<String, Object>> getQuizByCourse(@PathVariable Long courseId) {
+        currentUser.requireCourseAccess(courseId);
         List<Quiz> quizzes = quizRepository.findByCourseId(courseId);
         List<Map<String, Object>> result = new ArrayList<>();
         for (Quiz q : quizzes) {
@@ -46,11 +49,13 @@ public class QuizController {
         Optional<Quiz> opt = quizRepository.findById(quizId);
         if (opt.isEmpty())
             return Map.of("error", "Không tìm thấy quiz");
+        currentUser.requireCourseAccess(opt.get().getCourse().getId());
         return buildQuizDetail(opt.get(), false);
     }
 
     @GetMapping("/course/{courseId}/manage")
     public List<Map<String, Object>> getQuizForManagement(@PathVariable Long courseId) {
+        currentUser.requireCourseOwner(courseId);
         return quizRepository.findByCourseId(courseId).stream()
                 .map(quiz -> buildQuizDetail(quiz, true))
                 .toList();
@@ -92,6 +97,7 @@ public class QuizController {
     // Tạo quiz
     @PostMapping("/course/{courseId}")
     public Object createQuiz(@PathVariable Long courseId, @RequestBody Map<String, Object> body) {
+        currentUser.requireCourseOwner(courseId);
         Optional<Course> courseOpt = courseRepository.findById(courseId);
         if (courseOpt.isEmpty())
             return Map.of("error", "Không tìm thấy khóa học");
@@ -114,6 +120,7 @@ public class QuizController {
     // Sửa quiz
     @PutMapping("/{quizId}")
     public Object updateQuiz(@PathVariable Long quizId, @RequestBody Map<String, Object> body) {
+        currentUser.requireQuizOwner(quizId);
         Optional<Quiz> opt = quizRepository.findById(quizId);
         if (opt.isEmpty()) return Map.of("success", false, "message", "Không tìm thấy quiz");
         Quiz q = opt.get();
@@ -136,6 +143,7 @@ public class QuizController {
     @DeleteMapping("/{quizId}")
     @Transactional
     public Object deleteQuiz(@PathVariable Long quizId) {
+        currentUser.requireQuizOwner(quizId);
         if (!quizRepository.existsById(quizId))
             return Map.of("success", false, "message", "Không tìm thấy quiz");
         quizResultRepository.deleteByQuizId(quizId);
@@ -151,6 +159,7 @@ public class QuizController {
     // Thêm câu hỏi
     @PostMapping("/{quizId}/questions")
     public Object addQuestion(@PathVariable Long quizId, @RequestBody Map<String, Object> body) {
+        currentUser.requireQuizOwner(quizId);
         Optional<Quiz> quizOpt = quizRepository.findById(quizId);
         if (quizOpt.isEmpty())
             return Map.of("success", false, "message", "Không tìm thấy quiz");
@@ -191,6 +200,8 @@ public class QuizController {
     @DeleteMapping("/questions/{questionId}")
     @Transactional
     public Object deleteQuestion(@PathVariable Long questionId) {
+        var question = questionRepository.findById(questionId).orElseThrow();
+        currentUser.requireQuizOwner(question.getQuiz().getId());
         if (!questionRepository.existsById(questionId))
             return Map.of("success", false, "message", "Không tìm thấy câu hỏi");
         questionOptionRepository.deleteByQuestionId(questionId);
@@ -207,6 +218,7 @@ public class QuizController {
         Quiz quiz = quizOpt.get();
         Long studentId = parseLong(body.get("studentId"));
         if (studentId == null) return Map.of("success", false, "message", "Học viên không hợp lệ");
+        currentUser.requireStudentSelf(studentId);
         Optional<User> studentOpt = userRepository.findById(studentId);
         if (studentOpt.isEmpty() || !"student".equalsIgnoreCase(studentOpt.get().getRole())) {
             return Map.of("success", false, "message", "Không tìm thấy học viên");
@@ -248,6 +260,7 @@ public class QuizController {
         } catch (NumberFormatException ex) {
             return Map.of("success", false, "message", "Học viên không hợp lệ");
         }
+        currentUser.requireStudentSelf(studentId);
         Optional<User> studentOpt = userRepository.findById(studentId);
         if (studentOpt.isEmpty() || !"student".equalsIgnoreCase(studentOpt.get().getRole())) {
             return Map.of("success", false, "message", "Không tìm thấy học viên");
@@ -338,6 +351,7 @@ public class QuizController {
 
     @GetMapping("/{quizId}/history/student/{studentId}")
     public List<Map<String, Object>> getHistory(@PathVariable Long quizId, @PathVariable Long studentId) {
+        currentUser.requireStudentSelf(studentId);
         return quizResultRepository.findByStudentIdAndQuizIdAndSubmittedAtIsNotNullOrderBySubmittedAtDesc(studentId, quizId)
                 .stream().map(result -> Map.<String, Object>of(
                         "id", result.getId(), "score", result.getScore() != null ? result.getScore() : 0,

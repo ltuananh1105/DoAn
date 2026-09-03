@@ -6,6 +6,7 @@ import com.learnup.backend.repository.ChapterRepository;
 import com.learnup.backend.repository.CourseRepository;
 import com.learnup.backend.repository.CategoryRepository;
 import com.learnup.backend.repository.UserRepository;
+import com.learnup.backend.repository.LessonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +14,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Objects;
+import java.util.LinkedHashMap;
+import java.util.ArrayList;
+import com.learnup.backend.security.CurrentUser;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -26,6 +30,8 @@ public class CourseController {
     private ChapterRepository chapterRepository;
     @Autowired private UserRepository userRepository;
     @Autowired private CategoryRepository categoryRepository;
+    @Autowired private CurrentUser currentUser;
+    @Autowired private LessonRepository lessonRepository;
 
     @GetMapping
     public List<Course> getAllCourses() {
@@ -53,18 +59,35 @@ public class CourseController {
                 .orElseGet(List::of);
     }
 
+    @GetMapping("/public/{id}/curriculum")
+    public List<Map<String, Object>> getPublicCurriculum(@PathVariable Long id) {
+        if (courseRepository.findById(id).filter(course -> "approved".equals(course.getStatus())).isEmpty()) return List.of();
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Chapter chapter : chapterRepository.findByCourseIdOrderByOrderIndexAscIdAsc(id)) {
+            Map<String, Object> item = new LinkedHashMap<>();
+            item.put("id", chapter.getId()); item.put("title", chapter.getTitle()); item.put("orderIndex", chapter.getOrderIndex());
+            item.put("lessons", lessonRepository.findByChapterIdOrderByOrderIndexAscIdAsc(chapter.getId()).stream()
+                    .map(lesson -> Map.<String, Object>of("id", lesson.getId(), "title", lesson.getTitle())).toList());
+            result.add(item);
+        }
+        return result;
+    }
+
     @GetMapping("/{id}")
     public Course getCourseById(@PathVariable Long id) {
+        currentUser.requireCourseAccess(id);
         return courseRepository.findById(id).orElse(null);
     }
 
     @GetMapping("/{id}/chapters")
     public List<Chapter> getChaptersByCourseId(@PathVariable Long id) {
+        currentUser.requireCourseAccess(id);
         return chapterRepository.findByCourseIdOrderByOrderIndexAscIdAsc(id);
     }
 
     @PostMapping("/{id}/chapters")
     public Chapter addChapterToCourse(@PathVariable Long id, @RequestBody Chapter chapter) {
+        currentUser.requireCourseOwner(id);
         Course course = courseRepository.findById(id).orElseThrow();
         if (chapter.getTitle() == null || chapter.getTitle().isBlank()) throw new IllegalArgumentException("Tên chương không được để trống");
         chapter.setTitle(chapter.getTitle().trim());
@@ -75,6 +98,7 @@ public class CourseController {
 
     @PostMapping
     public Object createCourse(@RequestBody Course course) {
+        if (course.getTeacher() != null) currentUser.requireTeacher(course.getTeacher().getId());
         String error = validateAndResolveCourse(course);
         if (error != null) return Map.of("success", false, "message", error);
         course.setStatus("pending");
@@ -90,6 +114,8 @@ public class CourseController {
         }
 
         Course course = optionalCourse.get();
+        currentUser.requireCourseOwner(id);
+        updatedCourse.setTeacher(course.getTeacher());
         String error = validateAndResolveCourse(updatedCourse);
         if (error != null) return Map.of("success", false, "message", error);
         course.setTitle(updatedCourse.getTitle());
@@ -103,6 +129,7 @@ public class CourseController {
     // Xóa khóa học
     @DeleteMapping("/{id}")
     public Object deleteCourse(@PathVariable Long id) {
+        currentUser.requireCourseOwner(id);
         if (!courseRepository.existsById(id)) {
             return Map.of("success", false, "message", "Không tìm thấy khóa học");
         }

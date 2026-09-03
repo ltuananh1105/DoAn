@@ -7,20 +7,27 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import org.springframework.beans.factory.annotation.Value;
 
 @Service
 public class VNPayService {
 
-    public static final String VNP_PAY_URL = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    public static final String VNP_TMN_CODE = "2QXUI4J4";
-    public static final String VNP_HASH_SECRET = "RAOCTARUA2SBXDYDYT2T4Z4G9525S8I5";
-    public static final String VNP_RETURN_URL = "http://localhost:5173/vnpay-return";
+    private static final String VNP_PAY_URL = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
+    private final String tmnCode;
+    private final String hashSecret;
+    private final String returnUrl;
+
+    public VNPayService(@Value("${app.vnpay.tmn-code}") String tmnCode,
+                        @Value("${app.vnpay.hash-secret}") String hashSecret,
+                        @Value("${app.vnpay.return-url}") String returnUrl) {
+        this.tmnCode = tmnCode; this.hashSecret = hashSecret; this.returnUrl = returnUrl;
+    }
 
     public String createPaymentUrl(String orderCode, long amount, String orderInfo, String ipAddress) {
         String vnp_Version = "2.1.0";
         String vnp_Command = "pay";
         String vnp_TxnRef = orderCode;
-        String vnp_TmnCode = VNP_TMN_CODE;
+        String vnp_TmnCode = tmnCode;
 
         Map<String, String> vnp_Params = new HashMap<>();
         vnp_Params.put("vnp_Version", vnp_Version);
@@ -32,7 +39,7 @@ public class VNPayService {
         vnp_Params.put("vnp_OrderInfo", orderInfo != null ? orderInfo : "Thanh toan khoa hoc LearnUp");
         vnp_Params.put("vnp_OrderType", "other");
         vnp_Params.put("vnp_Locale", "vn");
-        vnp_Params.put("vnp_ReturnUrl", VNP_RETURN_URL);
+        vnp_Params.put("vnp_ReturnUrl", returnUrl);
         vnp_Params.put("vnp_IpAddr", ipAddress != null ? ipAddress : "127.0.0.1");
 
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
@@ -67,10 +74,32 @@ public class VNPayService {
         }
 
         String queryUrl = query.toString();
-        String vnp_SecureHash = hmacSHA512(VNP_HASH_SECRET, hashData.toString());
+        String vnp_SecureHash = hmacSHA512(hashSecret, hashData.toString());
         queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
 
         return VNP_PAY_URL + "?" + queryUrl;
+    }
+
+    public boolean verifyCallback(Map<String, String> params) {
+        String receivedHash = params.get("vnp_SecureHash");
+        if (receivedHash == null || receivedHash.isBlank()) return false;
+        List<String> names = params.keySet().stream()
+                .filter(name -> name.startsWith("vnp_") && !"vnp_SecureHash".equals(name) && !"vnp_SecureHashType".equals(name))
+                .sorted().toList();
+        StringBuilder hashData = new StringBuilder();
+        for (String name : names) {
+            String value = params.get(name);
+            if (value == null || value.isEmpty()) continue;
+            if (!hashData.isEmpty()) hashData.append('&');
+            hashData.append(encode(name)).append('=').append(encode(value));
+        }
+        String expected = hmacSHA512(hashSecret, hashData.toString());
+        return java.security.MessageDigest.isEqual(expected.getBytes(StandardCharsets.US_ASCII),
+                receivedHash.toLowerCase(Locale.ROOT).getBytes(StandardCharsets.US_ASCII));
+    }
+
+    private String encode(String value) {
+        return URLEncoder.encode(value, StandardCharsets.US_ASCII);
     }
 
     public static String hmacSHA512(final String key, final String data) {

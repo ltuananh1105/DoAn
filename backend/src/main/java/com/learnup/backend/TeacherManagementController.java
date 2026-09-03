@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import com.learnup.backend.security.CurrentUser;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -24,11 +25,13 @@ public class TeacherManagementController {
     @Autowired private QuizRepository quizRepository;
     @Autowired private QuestionRepository questionRepository;
     @Autowired private QuestionOptionRepository questionOptionRepository;
+    @Autowired private CurrentUser currentUser;
 
     // ===================== COURSES =====================
 
     @GetMapping("/courses-detail")
     public List<Map<String, Object>> getTeacherCourses(@PathVariable Long teacherId) {
+        currentUser.requireTeacher(teacherId);
         List<Course> courses = courseRepository.findAll()
                 .stream()
                 .filter(c -> c.getTeacher() != null && c.getTeacher().getId().equals(teacherId))
@@ -52,6 +55,8 @@ public class TeacherManagementController {
 
     @PutMapping("/courses/{courseId}/toggle-visibility")
     public Object toggleVisibility(@PathVariable Long teacherId, @PathVariable Long courseId) {
+        currentUser.requireTeacher(teacherId);
+        currentUser.requireCourseOwner(courseId);
         Optional<Course> opt = courseRepository.findById(courseId);
         if (opt.isEmpty()) return Map.of("success", false, "message", "Không tìm thấy khóa học");
         Course c = opt.get();
@@ -67,6 +72,8 @@ public class TeacherManagementController {
     @DeleteMapping("/courses/{courseId}")
     @Transactional
     public Object deleteCourse(@PathVariable Long teacherId, @PathVariable Long courseId) {
+        currentUser.requireTeacher(teacherId);
+        currentUser.requireCourseOwner(courseId);
         Optional<Course> opt = courseRepository.findById(courseId);
         if (opt.isEmpty()) return Map.of("success", false, "message", "Không tìm thấy khóa học");
 
@@ -107,6 +114,7 @@ public class TeacherManagementController {
 
     @GetMapping("/students")
     public List<Map<String, Object>> getTeacherStudents(@PathVariable Long teacherId) {
+        currentUser.requireTeacher(teacherId);
         List<Course> teacherCourses = courseRepository.findAll()
                 .stream()
                 .filter(c -> c.getTeacher() != null && c.getTeacher().getId().equals(teacherId))
@@ -184,6 +192,7 @@ public class TeacherManagementController {
     @DeleteMapping("/enrollments/{enrollmentId}")
     @Transactional
     public Object removeStudentFromCourse(@PathVariable Long teacherId, @PathVariable Long enrollmentId) {
+        currentUser.requireTeacher(teacherId);
         Optional<Enrollment> opt = enrollmentRepository.findById(enrollmentId);
         if (opt.isEmpty()) return Map.of("success", false, "message", "Không tìm thấy ghi danh");
 
@@ -201,6 +210,7 @@ public class TeacherManagementController {
 
     @GetMapping("/revenue")
     public Map<String, Object> getTeacherRevenue(@PathVariable Long teacherId) {
+        currentUser.requireTeacher(teacherId);
         List<Course> teacherCourses = courseRepository.findAll()
                 .stream()
                 .filter(c -> c.getTeacher() != null && c.getTeacher().getId().equals(teacherId))

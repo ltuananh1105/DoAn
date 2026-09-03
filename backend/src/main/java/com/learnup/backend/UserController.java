@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Objects;
+import java.util.Set;
+import com.learnup.backend.security.CurrentUser;
 
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
@@ -25,6 +27,7 @@ public class UserController {
     @Autowired private LessonProgressRepository lessonProgressRepository;
     @Autowired private QuizResultRepository quizResultRepository;
     @Autowired private PasswordEncoder passwordEncoder;
+    @Autowired private CurrentUser currentUser;
 
     // Lấy danh sách user, có thể lọc theo role (?role=student / teacher)
     @GetMapping
@@ -38,6 +41,7 @@ public class UserController {
     // Cập nhật hồ sơ — chỉ set field nào có gửi lên (dùng chung cho cả user tự sửa và admin sửa)
     @PutMapping("/{id}")
     public Object updateProfile(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        currentUser.requireSelf(id);
         Optional<User> optionalUser = userRepository.findById(id);
         if (optionalUser.isEmpty()) {
             return Map.of("success", false, "message", "Không tìm thấy người dùng");
@@ -46,7 +50,14 @@ public class UserController {
         User user = optionalUser.get();
         if (body.containsKey("name")) user.setName(body.get("name"));
         if (body.containsKey("email")) user.setEmail(body.get("email"));
-        if (body.containsKey("role")) user.setRole(body.get("role"));
+        if (body.containsKey("role")) {
+            if (!currentUser.isAdmin()) return Map.of("success", false, "message", "Chỉ Admin được thay đổi vai trò");
+            String role = body.get("role") == null ? "" : body.get("role").toLowerCase();
+            if (!Set.of("student", "teacher", "admin").contains(role)) {
+                return Map.of("success", false, "message", "Vai trò không hợp lệ");
+            }
+            user.setRole(role);
+        }
         if (body.containsKey("dateOfBirth")) user.setDateOfBirth(body.get("dateOfBirth"));
         if (body.containsKey("phone")) user.setPhone(body.get("phone"));
         if (body.containsKey("occupation")) user.setOccupation(body.get("occupation"));
@@ -80,6 +91,7 @@ public class UserController {
     // Đổi mật khẩu
     @PutMapping("/{id}/password")
     public Object changePassword(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        currentUser.requireSelf(id);
         Optional<User> optionalUser = userRepository.findById(id);
         if (optionalUser.isEmpty()) {
             return Map.of("success", false, "message", "Không tìm thấy người dùng");

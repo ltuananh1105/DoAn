@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import com.learnup.backend.security.CurrentUser;
 
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
@@ -21,13 +22,15 @@ public class EnrollmentController {
     private final EnrollmentRepository enrollmentRepository;
     private final UserRepository userRepository;
     private final CourseRepository courseRepository;
+    private final CurrentUser currentUser;
 
     public EnrollmentController(EnrollmentRepository enrollmentRepository,
                                 UserRepository userRepository,
-                                CourseRepository courseRepository) {
+                                CourseRepository courseRepository, CurrentUser currentUser) {
         this.enrollmentRepository = enrollmentRepository;
         this.userRepository = userRepository;
         this.courseRepository = courseRepository;
+        this.currentUser = currentUser;
     }
 
     @PostMapping("/courses/{courseId}/enroll")
@@ -36,6 +39,7 @@ public class EnrollmentController {
         if (studentId == null) {
             return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Thiếu mã học viên"));
         }
+        currentUser.requireStudentSelf(studentId);
 
         Optional<User> studentOpt = userRepository.findById(studentId);
         Optional<Course> courseOpt = courseRepository.findById(courseId);
@@ -69,6 +73,7 @@ public class EnrollmentController {
 
     @GetMapping("/students/{studentId}/enrollments")
     public List<Enrollment> getMyEnrollments(@PathVariable Long studentId) {
+        currentUser.requireStudentSelf(studentId);
         return enrollmentRepository.findByStudentId(studentId);
     }
 }

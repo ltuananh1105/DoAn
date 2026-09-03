@@ -8,6 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import com.learnup.backend.security.CurrentUser;
+import org.springframework.beans.factory.annotation.Value;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -19,12 +21,15 @@ public class OrderController {
     @Autowired private CourseRepository courseRepository;
     @Autowired private UserRepository userRepository;
     @Autowired private VNPayService vnPayService;
+    @Autowired private CurrentUser currentUser;
+    @Value("${app.payment.demo-enabled}") private boolean demoPaymentEnabled;
 
     // Kiểm tra đã mua hoặc đã đăng ký chưa
     @GetMapping("/check")
     public Map<String, Object> checkPurchased(
             @RequestParam Long studentId,
             @RequestParam Long courseId) {
+        currentUser.requireStudentSelf(studentId);
         boolean purchased = orderRepository.existsByStudentIdAndCourseIdAndStatus(studentId, courseId, "COMPLETED");
         boolean enrolled = enrollmentRepository.existsByStudentIdAndCourseId(studentId, courseId);
         return Map.of("purchased", purchased || enrolled, "enrolled", enrolled);
@@ -41,6 +46,7 @@ public class OrderController {
         } catch (NumberFormatException ex) {
             return Map.of("success", false, "message", "Thông tin đơn hàng không hợp lệ");
         }
+        currentUser.requireStudentSelf(studentId);
 
         Optional<Course> courseOpt = courseRepository.findById(courseId);
         if (courseOpt.isEmpty()) return Map.of("success", false, "message", "Không tìm thấy khóa học");
@@ -92,6 +98,7 @@ public class OrderController {
     @PostMapping("/vnpay-callback")
     @Transactional
     public Object processVNPayCallback(@RequestBody Map<String, String> params) {
+        if (!vnPayService.verifyCallback(params)) return Map.of("success", false, "message", "Chữ ký VNPay không hợp lệ");
         String orderCode = params.get("vnp_TxnRef");
         String responseCode = params.get("vnp_ResponseCode");
         String transactionNo = params.get("vnp_TransactionNo");
@@ -99,6 +106,7 @@ public class OrderController {
         Optional<Order> orderOpt = orderCode == null ? Optional.empty() : orderRepository.findByOrderCode(orderCode);
         if (orderOpt.isEmpty()) return Map.of("success", false, "message", "Không tìm thấy đơn hàng");
         Order order = orderOpt.get();
+        currentUser.requireStudentSelf(order.getStudent().getId());
         if ("COMPLETED".equals(order.getStatus())) return Map.of("success", true, "message", "Đơn hàng đã được thanh toán", "order", order);
         if (!"PENDING".equals(order.getStatus())) return Map.of("success", false, "message", "Đơn hàng không còn hiệu lực");
         long returnedAmount;
@@ -134,10 +142,12 @@ public class OrderController {
     @PostMapping("/{orderId}/demo-pay")
     @Transactional
     public Object processDemoPayment(@PathVariable Long orderId) {
+        if (!demoPaymentEnabled) return Map.of("success", false, "message", "Thanh toán demo đã bị tắt");
         Optional<Order> orderOpt = orderRepository.findById(orderId);
         if (orderOpt.isEmpty()) return Map.of("success", false, "message", "Không tìm thấy đơn hàng");
 
         Order order = orderOpt.get();
+        currentUser.requireStudentSelf(order.getStudent().getId());
         if ("COMPLETED".equals(order.getStatus())) return Map.of("success", true, "message", "Đơn hàng đã được thanh toán", "order", order);
         if (!"PENDING".equals(order.getStatus())) return Map.of("success", false, "message", "Đơn hàng không còn hiệu lực");
         order.setStatus("COMPLETED");
@@ -162,6 +172,7 @@ public class OrderController {
     // Lịch sử đơn hàng của học viên
     @GetMapping("/student/{studentId}")
     public List<Order> getStudentOrders(@PathVariable Long studentId) {
+        currentUser.requireStudentSelf(studentId);
         return orderRepository.findByStudentIdOrderByCreatedAtDesc(studentId);
     }
 

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import com.learnup.backend.security.CurrentUser;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -22,14 +23,17 @@ public class LessonController {
     @Autowired
     private ChapterRepository chapterRepository;
     @Autowired private com.learnup.backend.repository.LessonProgressRepository lessonProgressRepository;
+    @Autowired private CurrentUser currentUser;
 
     @GetMapping("/chapter/{chapterId}")
     public List<Lesson> getLessonsByChapter(@PathVariable Long chapterId) {
+        currentUser.requireChapterAccess(chapterId);
         return lessonRepository.findByChapterIdOrderByOrderIndexAscIdAsc(chapterId);
     }
 
     @PostMapping("/chapter/{chapterId}")
     public Lesson addLesson(@PathVariable Long chapterId, @RequestBody Lesson lesson) {
+        currentUser.requireChapterOwner(chapterId);
         Chapter chapter = chapterRepository.findById(chapterId).orElseThrow();
         if (lesson.getTitle() == null || lesson.getTitle().isBlank()) throw new IllegalArgumentException("Tên bài học không được để trống");
         lesson.setTitle(lesson.getTitle().trim());
@@ -41,6 +45,7 @@ public class LessonController {
 
     @PutMapping("/{lessonId}")
     public Object updateLesson(@PathVariable Long lessonId, @RequestBody Map<String, Object> body) {
+        currentUser.requireLessonOwner(lessonId);
         Optional<Lesson> opt = lessonRepository.findById(lessonId);
         if (opt.isEmpty()) return Map.of("success", false, "message", "Không tìm thấy bài học");
         Lesson l = opt.get();
@@ -57,6 +62,7 @@ public class LessonController {
     @DeleteMapping("/{lessonId}")
     @org.springframework.transaction.annotation.Transactional
     public Object deleteLesson(@PathVariable Long lessonId) {
+        currentUser.requireLessonOwner(lessonId);
         if (!lessonRepository.existsById(lessonId)) return Map.of("success", false, "message", "Không tìm thấy bài học");
         lessonProgressRepository.deleteByLessonId(lessonId);
         lessonRepository.deleteById(lessonId);
