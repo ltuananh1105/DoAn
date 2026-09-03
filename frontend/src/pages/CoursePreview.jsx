@@ -20,7 +20,7 @@ export default function CoursePreview() {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`http://localhost:8080/api/courses/${courseId}`)
+    fetch(`http://localhost:8080/api/courses/public/${courseId}`)
       .then((res) => res.json())
       .then((data) => {
         setCourse(data);
@@ -31,7 +31,7 @@ export default function CoursePreview() {
         setLoading(false);
       });
 
-    fetch(`http://localhost:8080/api/courses/${courseId}/chapters`)
+    fetch(`http://localhost:8080/api/courses/public/${courseId}/chapters`)
       .then((res) => res.json())
       .then(async (chs) => {
         if (Array.isArray(chs)) {

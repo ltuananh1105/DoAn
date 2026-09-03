@@ -19,11 +19,11 @@ export default function Courses() {
   const [selectedCategory, setSelectedCategory] = useState("");
 
   const loadCourses = () => {
-    fetch("http://localhost:8080/api/courses")
+    fetch("http://localhost:8080/api/courses/public")
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
-          const approved = data.filter((c) => c.status === "approved");
+          const approved = data;
           setCourses(approved);
           // Lấy danh sách danh mục duy nhất
           const cats = [];

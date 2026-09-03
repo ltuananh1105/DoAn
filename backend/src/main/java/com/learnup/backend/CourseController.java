@@ -31,6 +31,27 @@ public class CourseController {
         return courseRepository.findAll();
     }
 
+    @GetMapping("/public")
+    public List<Course> getPublicCourses() {
+        return courseRepository.findByStatus("approved");
+    }
+
+    @GetMapping("/public/{id}")
+    public Object getPublicCourseById(@PathVariable Long id) {
+        return courseRepository.findById(id)
+                .filter(course -> "approved".equals(course.getStatus()))
+                .<Object>map(course -> course)
+                .orElseGet(() -> Map.of("success", false, "message", "Không tìm thấy khóa học đang mở"));
+    }
+
+    @GetMapping("/public/{id}/chapters")
+    public List<Chapter> getPublicCourseChapters(@PathVariable Long id) {
+        return courseRepository.findById(id)
+                .filter(course -> "approved".equals(course.getStatus()))
+                .map(course -> chapterRepository.findByCourseId(id))
+                .orElseGet(List::of);
+    }
+
     @GetMapping("/{id}")
     public Course getCourseById(@PathVariable Long id) {
         return courseRepository.findById(id).orElse(null);
