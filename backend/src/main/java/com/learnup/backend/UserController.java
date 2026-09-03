@@ -2,6 +2,7 @@ package com.learnup.backend;
 
 import com.learnup.backend.entity.User;
 import com.learnup.backend.repository.UserRepository;
+import com.learnup.backend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +17,11 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired private CourseRepository courseRepository;
+    @Autowired private EnrollmentRepository enrollmentRepository;
+    @Autowired private OrderRepository orderRepository;
+    @Autowired private LessonProgressRepository lessonProgressRepository;
+    @Autowired private QuizResultRepository quizResultRepository;
 
     // Lấy danh sách user, có thể lọc theo role (?role=student / teacher)
     @GetMapping
@@ -56,6 +62,13 @@ public class UserController {
     public Object deleteUser(@PathVariable Long id) {
         if (!userRepository.existsById(id)) {
             return Map.of("success", false, "message", "Không tìm thấy người dùng");
+        }
+        if (courseRepository.existsByTeacherId(id)) {
+            return Map.of("success", false, "message", "Không thể xóa giáo viên đang có khóa học");
+        }
+        if (enrollmentRepository.existsByStudentId(id) || orderRepository.existsByStudentId(id)
+                || lessonProgressRepository.existsByStudentId(id) || quizResultRepository.existsByStudentId(id)) {
+            return Map.of("success", false, "message", "Không thể xóa học viên đã có dữ liệu học tập hoặc thanh toán");
         }
         userRepository.deleteById(id);
         return Map.of("success", true, "message", "Đã xóa người dùng");

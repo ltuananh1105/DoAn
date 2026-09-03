@@ -30,6 +30,19 @@ public class CategoryController {
         return categoryRepository.save(category);
     }
 
+    @PutMapping("/{id}")
+    public Object updateCategory(@PathVariable Long id, @RequestBody Category input) {
+        var category = categoryRepository.findById(id).orElse(null);
+        if (category == null) return Map.of("success", false, "message", "Không tìm thấy danh mục");
+        String name = input.getName() == null ? "" : input.getName().trim();
+        if (name.isEmpty()) return Map.of("success", false, "message", "Tên danh mục không được để trống");
+        if (!name.equalsIgnoreCase(category.getName()) && categoryRepository.existsByNameIgnoreCase(name)) {
+            return Map.of("success", false, "message", "Danh mục đã tồn tại");
+        }
+        category.setName(name);
+        return categoryRepository.save(category);
+    }
+
     @DeleteMapping("/{id}")
     public Object deleteCategory(@PathVariable Long id,
                                  @Autowired com.learnup.backend.repository.CourseRepository courseRepository) {

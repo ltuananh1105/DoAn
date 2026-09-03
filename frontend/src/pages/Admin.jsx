@@ -205,6 +205,18 @@ export default function Admin() {
     }
   };
 
+  const handleEditCategory = async (category) => {
+    const name = window.prompt("Tên danh mục mới", category.name);
+    if (!name?.trim() || name.trim() === category.name) return;
+    const res = await fetch(`${API}/categories/${category.id}`, {
+      method: "PUT", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: name.trim() }),
+    });
+    const data = await res.json();
+    if (data.success === false) alert(data.message || "Không thể sửa danh mục");
+    else loadData();
+  };
+
   // --- Export Handlers ---
   const handleExportStudents = () => {
     const columns = [
@@ -644,6 +656,12 @@ export default function Admin() {
                             <td className="px-6 py-4 text-gray-500">#{cat.id}</td>
                             <td className="px-6 py-4 font-medium text-gray-900">{cat.name}</td>
                             <td className="px-6 py-4 text-right">
+                              <button
+                                onClick={() => handleEditCategory(cat)}
+                                className="text-blue-600 hover:text-blue-800 font-medium text-sm mr-4"
+                              >
+                                Sửa
+                              </button>
                               <button
                                 onClick={() => handleDeleteCategory(cat.id)}
                                 className="text-red-500 hover:text-red-700 font-medium text-sm"

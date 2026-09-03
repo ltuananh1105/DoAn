@@ -10,4 +10,5 @@ public interface LessonProgressRepository extends JpaRepository<LessonProgress, 
     List<LessonProgress> findByStudentIdAndLessonChapterId(Long studentId, Long chapterId);
     Optional<LessonProgress> findByStudentIdAndLessonId(Long studentId, Long lessonId);
     void deleteByLessonId(Long lessonId);
+    boolean existsByStudentId(Long studentId);
 }

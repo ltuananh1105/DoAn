@@ -12,4 +12,5 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     boolean existsByStudentIdAndCourseIdAndStatus(Long studentId, Long courseId, String status);
     Optional<Order> findByOrderCode(String orderCode);
     Optional<Order> findFirstByStudentIdAndCourseIdAndStatusOrderByCreatedAtDesc(Long studentId, Long courseId, String status);
+    boolean existsByStudentId(Long studentId);
 }

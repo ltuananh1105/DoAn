@@ -12,4 +12,5 @@ public interface QuizResultRepository extends JpaRepository<QuizResult, Long> {
     Optional<QuizResult> findTopByStudentIdAndQuizIdAndSubmittedAtIsNullOrderByStartedAtDesc(Long studentId, Long quizId);
     List<QuizResult> findByStudentIdAndQuizIdAndSubmittedAtIsNotNullOrderBySubmittedAtDesc(Long studentId, Long quizId);
     void deleteByQuizId(Long quizId);
+    boolean existsByStudentId(Long studentId);
 }
