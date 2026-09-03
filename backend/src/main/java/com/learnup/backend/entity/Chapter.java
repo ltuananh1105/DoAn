@@ -12,10 +12,11 @@ public class Chapter {
     private Long id;
 
     @Nationalized
+    @Column(nullable = false)
     private String title;
 
     @ManyToOne
-    @JoinColumn(name = "course_id")
+    @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
     public Long getId() { return id; }

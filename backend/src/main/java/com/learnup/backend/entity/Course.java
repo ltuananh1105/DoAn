@@ -12,23 +12,25 @@ public class Course {
     private Long id;
 
     @Nationalized
+    @Column(nullable = false)
     private String title;
 
     @Nationalized
     @Column(length = 2000)
     private String description;
 
+    @Column(nullable = false)
     private Double price;
 
     @Nationalized
     private String status; // "pending" | "approved" | "rejected"
 
     @ManyToOne
-    @JoinColumn(name = "teacher_id")
+    @JoinColumn(name = "teacher_id", nullable = false)
     private User teacher;
 
     @ManyToOne
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
     // Getters & Setters

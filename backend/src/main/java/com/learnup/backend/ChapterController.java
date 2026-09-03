@@ -6,6 +6,7 @@ import com.learnup.backend.entity.Lesson;
 import com.learnup.backend.repository.ChapterRepository;
 import com.learnup.backend.repository.CourseRepository;
 import com.learnup.backend.repository.LessonRepository;
+import com.learnup.backend.repository.LessonProgressRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +28,7 @@ public class ChapterController {
 
     @Autowired
     private CourseRepository courseRepository;
+    @Autowired private LessonProgressRepository lessonProgressRepository;
 
     @GetMapping("/course/{courseId}")
     public List<Chapter> getChaptersByCourse(@PathVariable Long courseId) {
@@ -36,6 +38,8 @@ public class ChapterController {
     @PostMapping("/course/{courseId}")
     public Chapter addChapter(@PathVariable Long courseId, @RequestBody Chapter chapter) {
         Course course = courseRepository.findById(courseId).orElseThrow();
+        if (chapter.getTitle() == null || chapter.getTitle().isBlank()) throw new IllegalArgumentException("Tên chương không được để trống");
+        chapter.setTitle(chapter.getTitle().trim());
         chapter.setCourse(course);
         return chapterRepository.save(chapter);
     }
@@ -45,7 +49,9 @@ public class ChapterController {
         Optional<Chapter> opt = chapterRepository.findById(chapterId);
         if (opt.isEmpty()) return Map.of("success", false, "message", "Không tìm thấy chương");
         Chapter ch = opt.get();
-        if (body.containsKey("title")) ch.setTitle((String) body.get("title"));
+        String title = body.get("title") instanceof String value ? value.trim() : "";
+        if (title.isEmpty()) return Map.of("success", false, "message", "Tên chương không được để trống");
+        ch.setTitle(title);
         chapterRepository.save(ch);
         return Map.of("success", true, "chapter", ch);
     }
@@ -55,6 +61,7 @@ public class ChapterController {
     public Object deleteChapter(@PathVariable Long chapterId) {
         if (!chapterRepository.existsById(chapterId)) return Map.of("success", false, "message", "Không tìm thấy chương");
         List<Lesson> lessons = lessonRepository.findByChapterId(chapterId);
+        for (Lesson lesson : lessons) lessonProgressRepository.deleteByLessonId(lesson.getId());
         lessonRepository.deleteAll(lessons);
         chapterRepository.deleteById(chapterId);
         return Map.of("success", true, "message", "Đã xóa chương");
@@ -68,6 +75,8 @@ public class ChapterController {
     @PostMapping("/{chapterId}/lessons")
     public Lesson addLesson(@PathVariable Long chapterId, @RequestBody Lesson lesson) {
         Chapter chapter = chapterRepository.findById(chapterId).orElseThrow();
+        if (lesson.getTitle() == null || lesson.getTitle().isBlank()) throw new IllegalArgumentException("Tên bài học không được để trống");
+        lesson.setTitle(lesson.getTitle().trim());
         lesson.setChapter(chapter);
         return lessonRepository.save(lesson);
     }

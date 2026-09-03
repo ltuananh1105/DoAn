@@ -151,13 +151,14 @@ export default function Teacher() {
       }),
     });
 
-    if (res.ok) {
+    const data = await res.json();
+    if (res.ok && data.success !== false) {
       alert("Tạo khóa học thành công! Đang chờ Admin duyệt.");
       setForm({ title: "", description: "", price: "", categoryId: "" });
       setShowCreateModal(false);
       loadData();
     } else {
-      alert("Có lỗi xảy ra khi tạo khóa học, vui lòng thử lại.");
+      alert(data.message || "Có lỗi xảy ra khi tạo khóa học, vui lòng thử lại.");
     }
   };
 
@@ -191,12 +192,13 @@ export default function Teacher() {
         }),
       });
 
-      if (res.ok) {
+      const data = await res.json();
+      if (res.ok && data.success !== false) {
         alert("Cập nhật thông tin khóa học thành công!");
         setEditingCourse(null);
         loadData();
       } else {
-        alert("Lỗi khi cập nhật khóa học.");
+        alert(data.message || "Lỗi khi cập nhật khóa học.");
       }
     } catch (err) {
       console.error(err);

@@ -12,12 +12,13 @@ public class Lesson {
     private Long id;
 
     @Nationalized
+    @Column(nullable = false)
     private String title;
 
     private String videoUrl;
 
     @ManyToOne
-    @JoinColumn(name = "chapter_id")
+    @JoinColumn(name = "chapter_id", nullable = false)
     private Chapter chapter;
 
     public Long getId() { return id; }

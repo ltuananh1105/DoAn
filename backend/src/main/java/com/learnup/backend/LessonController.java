@@ -21,6 +21,7 @@ public class LessonController {
 
     @Autowired
     private ChapterRepository chapterRepository;
+    @Autowired private com.learnup.backend.repository.LessonProgressRepository lessonProgressRepository;
 
     @GetMapping("/chapter/{chapterId}")
     public List<Lesson> getLessonsByChapter(@PathVariable Long chapterId) {
@@ -30,6 +31,8 @@ public class LessonController {
     @PostMapping("/chapter/{chapterId}")
     public Lesson addLesson(@PathVariable Long chapterId, @RequestBody Lesson lesson) {
         Chapter chapter = chapterRepository.findById(chapterId).orElseThrow();
+        if (lesson.getTitle() == null || lesson.getTitle().isBlank()) throw new IllegalArgumentException("Tên bài học không được để trống");
+        lesson.setTitle(lesson.getTitle().trim());
         lesson.setChapter(chapter);
         return lessonRepository.save(lesson);
     }
@@ -39,15 +42,21 @@ public class LessonController {
         Optional<Lesson> opt = lessonRepository.findById(lessonId);
         if (opt.isEmpty()) return Map.of("success", false, "message", "Không tìm thấy bài học");
         Lesson l = opt.get();
-        if (body.containsKey("title")) l.setTitle((String) body.get("title"));
+        if (body.containsKey("title")) {
+            String title = body.get("title") instanceof String value ? value.trim() : "";
+            if (title.isEmpty()) return Map.of("success", false, "message", "Tên bài học không được để trống");
+            l.setTitle(title);
+        }
         if (body.containsKey("videoUrl")) l.setVideoUrl((String) body.get("videoUrl"));
         lessonRepository.save(l);
         return Map.of("success", true, "lesson", l);
     }
 
     @DeleteMapping("/{lessonId}")
+    @org.springframework.transaction.annotation.Transactional
     public Object deleteLesson(@PathVariable Long lessonId) {
         if (!lessonRepository.existsById(lessonId)) return Map.of("success", false, "message", "Không tìm thấy bài học");
+        lessonProgressRepository.deleteByLessonId(lessonId);
         lessonRepository.deleteById(lessonId);
         return Map.of("success", true, "message", "Đã xóa bài học");
     }
