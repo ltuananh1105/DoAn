@@ -89,6 +89,10 @@ export default function Practice() {
         }),
       });
       const result = await res.json();
+      if (!result.success) {
+        alert(result.message || "Không thể nộp bài quiz");
+        return;
+      }
       setQuizResult(result);
     } catch (e) {
       console.error(e);
@@ -236,10 +240,9 @@ export default function Practice() {
               <div>
                 <h3 className="font-bold text-gray-900 text-base mb-4">💡 Chi tiết đáp án & Lời giải thích:</h3>
                 <div className="space-y-4">
-                  {(activeQuiz.questions || []).map((q, idx) => {
-                    const userOptId = answers[q.id];
-                    const correctOpt = (q.options || []).find((o) => o.isCorrect);
-                    const isUserCorrect = userOptId === correctOpt?.id;
+                  {(quizResult.questions || []).map((q, idx) => {
+                    const userOptId = q.selectedOptionId;
+                    const isUserCorrect = q.isCorrect;
 
                     return (
                       <div

@@ -142,6 +142,10 @@ export default function CourseDetail() {
         body: JSON.stringify({ studentId: user.id, answers }),
       });
       const result = await res.json();
+      if (!result.success) {
+        alert(result.message || "Không thể nộp bài quiz");
+        return;
+      }
       setQuizResult(result);
     } catch (e) {
       console.error(e);
@@ -187,11 +191,11 @@ export default function CourseDetail() {
 
             {/* PHẦN GIẢI THÍCH ĐÁP ÁN */}
             <div className="text-left space-y-4 mb-6">
-              {(quizDetail.questions || []).map((q, idx) => {
-                const selectedId = answers[q.id];
+              {(quizResult.questions || []).map((q, idx) => {
+                const selectedId = q.selectedOptionId;
                 const correctOpt = q.options?.find((o) => o.isCorrect);
                 const selectedOpt = q.options?.find((o) => o.id === selectedId);
-                const isCorrect = selectedOpt?.isCorrect;
+                const isCorrect = q.isCorrect;
                 return (
                   <div key={q.id} className={`p-4 rounded-xl border text-sm ${isCorrect ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"}`}>
                     <div className="font-semibold text-gray-900 mb-2">

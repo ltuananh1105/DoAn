@@ -66,7 +66,7 @@ export default function TeacherCourseDetail() {
       })
       .catch(() => setLoading(false));
 
-    fetch(`http://localhost:8080/api/quizzes/course/${courseId}`)
+    fetch(`http://localhost:8080/api/quizzes/course/${courseId}/manage`)
       .then((res) => res.json())
       .then((data) => setQuizzes(Array.isArray(data) ? data : []));
   };
