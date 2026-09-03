@@ -1,244 +1,38 @@
-const safeFilename = (filename, fallback = 'bao_cao') => {
-  const cleaned = String(filename || fallback).replace(/[<>:"/\\|?*]/g, '_')
+const safeFilename = (value) => {
+  const cleaned = String(value || 'bao_cao').replace(/\.(xlsx|pdf|csv|json|txt)$/i, '').replace(/[<>:"/\\|?*]/g, '_')
     .split('').map((char) => char.charCodeAt(0) < 32 ? '_' : char).join('').trim();
-  return cleaned || fallback;
+  return cleaned || 'bao_cao';
 };
-
-const downloadBlob = (blob, filename) => {
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.setAttribute('download', filename);
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 0);
-};
-
 const cellValue = (column, row) => column.format ? column.format(row[column.key], row) : row[column.key];
 export const formatExportValue = (column, row) => cellValue(column, row);
-const protectSpreadsheetFormula = (value) => /^[=+\-@]/.test(value) ? `'${value}` : value;
-const escapeHtml = (value) => String(value ?? '').replace(/[&<>"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[char]);
+const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[c]);
+const dateTime = (date) => new Intl.DateTimeFormat('vi-VN', { dateStyle: 'long', timeStyle: 'short' }).format(date);
+const download = (blob, name) => { const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 0); };
 
-export const exportToCSV = (columns, data, filename = 'export.csv') => {
-  const headers = columns.map((col) => `"${col.label.replace(/"/g, '""')}"`).join(',');
-  const rows = data.map((row) =>
-    columns
-      .map((col) => {
-        let val = cellValue(col, row);
-        if (val === null || val === undefined) val = '';
-        val = protectSpreadsheetFormula(String(val)).replace(/"/g, '""');
-        return `"${val}"`;
-      })
-      .join(',')
-  );
+export async function exportToExcel({ title, subtitle, preparedBy, generatedAt, columns, data, filename }) {
+  const { default: ExcelJS } = await import('exceljs');
+  const workbook = new ExcelJS.Workbook();
+  Object.assign(workbook, { creator: 'LearnUp Education', created: generatedAt, modified: generatedAt, subject: title });
+  const sheet = workbook.addWorksheet('Báo cáo', { views: [{ state: 'frozen', ySplit: 6 }], pageSetup: { orientation: columns.length > 6 ? 'landscape' : 'portrait', fitToPage: true, fitToWidth: 1, fitToHeight: 0, paperSize: 9 } });
+  const end = columns.length + 1;
+  sheet.mergeCells(1, 1, 1, end); sheet.getCell(1, 1).value = 'LEARNUP EDUCATION'; sheet.getCell(1, 1).font = { bold: true, size: 12, color: { argb: 'FFDCEAFE' } }; sheet.getCell(1, 1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1D4ED8' } }; sheet.getRow(1).height = 27;
+  sheet.mergeCells(2, 1, 2, end); sheet.getCell(2, 1).value = title.toUpperCase(); sheet.getCell(2, 1).font = { bold: true, size: 18, color: { argb: 'FF0F172A' } }; sheet.getCell(2, 1).alignment = { horizontal: 'center' }; sheet.getRow(2).height = 30;
+  sheet.mergeCells(3, 1, 3, end); sheet.getCell(3, 1).value = subtitle; sheet.getCell(3, 1).font = { italic: true, size: 10, color: { argb: 'FF64748B' } }; sheet.getCell(3, 1).alignment = { horizontal: 'center' };
+  const half = Math.max(1, Math.floor(end / 2)); sheet.mergeCells(4, 1, 4, half); sheet.getCell(4, 1).value = `Người lập: ${preparedBy}`;
+  if (end > 1) { sheet.mergeCells(4, half + 1, 4, end); sheet.getCell(4, half + 1).value = `Thời điểm xuất: ${dateTime(generatedAt)}`; sheet.getCell(4, half + 1).alignment = { horizontal: 'right' }; }
+  sheet.getRow(4).font = { size: 10, color: { argb: 'FF475569' } };
+  const header = sheet.getRow(6); header.values = ['STT', ...columns.map(c => c.label)]; header.height = 28; header.eachCell(cell => { cell.font = { bold: true, color: { argb: 'FFFFFFFF' } }; cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2563EB' } }; cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true }; });
+  data.forEach((item, i) => { const row = sheet.addRow([i + 1, ...columns.map(c => cellValue(c, item) ?? '')]); row.eachCell((cell, n) => { cell.alignment = { horizontal: n === 1 ? 'center' : 'left', vertical: 'middle', wrapText: true }; cell.border = { bottom: { style: 'hair', color: { argb: 'FFE2E8F0' } } }; if (i % 2) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8FAFC' } }; }); });
+  sheet.autoFilter = { from: { row: 6, column: 1 }, to: { row: Math.max(6, 5 + data.length), column: end } }; sheet.getColumn(1).width = 8;
+  columns.forEach((column, i) => { const width = data.slice(0, 200).reduce((max, row) => Math.max(max, String(cellValue(column, row) ?? '').length), column.label.length); sheet.getColumn(i + 2).width = Math.min(Math.max(width + 3, 14), 38); });
+  const total = sheet.addRow([]); sheet.mergeCells(total.number, 1, total.number, end); total.getCell(1).value = `Tổng cộng: ${data.length.toLocaleString('vi-VN')} bản ghi`; total.getCell(1).font = { bold: true, color: { argb: 'FF1E3A8A' } }; total.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDBEAFE' } }; total.getCell(1).alignment = { horizontal: 'right' };
+  sheet.headerFooter.oddFooter = '&LLearnUp Education&CTrang &P / &N&R&D &T';
+  const buffer = await workbook.xlsx.writeBuffer(); download(new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), `${safeFilename(filename)}.xlsx`);
+}
 
-  const csvContent = [headers, ...rows].join('\n');
-  const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
-  const name = safeFilename(filename);
-  downloadBlob(blob, name.endsWith('.csv') ? name : `${name}.csv`);
-};
-
-export const exportToJSON = (data, filename = 'export.json') => {
-  const jsonString = JSON.stringify(data, null, 2);
-  const blob = new Blob([jsonString], { type: 'application/json;charset=utf-8;' });
-  const name = safeFilename(filename);
-  downloadBlob(blob, name.endsWith('.json') ? name : `${name}.json`);
-};
-
-export const exportToTXT = (columns, data, filename = 'export.txt') => {
-  let txtContent = '';
-  // Headers
-  txtContent += columns.map((col) => col.label).join('\t') + '\n';
-  txtContent += '-'.repeat(100) + '\n';
-
-  // Rows
-  data.forEach((row) => {
-    txtContent += columns.map((col) => cellValue(col, row) ?? '').join('\t') + '\n';
-  });
-
-  const blob = new Blob([txtContent], { type: 'text/plain;charset=utf-8;' });
-  const name = safeFilename(filename);
-  downloadBlob(blob, name.endsWith('.txt') ? name : `${name}.txt`);
-};
-
-export const exportToPDF = ({
-  title = 'BÁO CÁO HỆ THỐNG',
-  subtitle = 'Nền tảng đào tạo trực tuyến LearnUp',
-  footerNote = 'Báo cáo được trích xuất tự động từ hệ thống quản trị LearnUp.',
-  columns = [],
-  data = [],
-}) => {
-  const printWindow = window.open('', '_blank', 'width=900,height=700');
-  if (!printWindow) {
-    alert('Vui lòng cho phép mở popup để in / xuất tài liệu PDF!');
-    return;
-  }
-
-  const currentDate = new Date().toLocaleDateString('vi-VN', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-
-  const html = `
-    <!DOCTYPE html>
-    <html lang="vi">
-    <head>
-      <meta charset="UTF-8" />
-      <title>${escapeHtml(title)}</title>
-      <style>
-        @page { size: A4; margin: 20mm; }
-        body {
-          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-          color: #1e293b;
-          margin: 0;
-          padding: 20px;
-          line-height: 1.5;
-        }
-        .header {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          border-bottom: 2px solid #2563eb;
-          padding-bottom: 15px;
-          margin-bottom: 25px;
-        }
-        .brand { font-size: 24px; font-weight: 800; color: #2563eb; letter-spacing: -0.5px; }
-        .date { font-size: 12px; color: #64748b; margin-top: 4px; }
-        .report-title { text-align: center; margin-bottom: 25px; }
-        .report-title h1 { font-size: 22px; font-weight: 700; margin: 0; color: #0f172a; text-transform: uppercase; }
-        .report-title p { font-size: 14px; color: #64748b; margin: 6px 0 0 0; }
-        
-        .meta-box {
-          background: #f8fafc;
-          border: 1px solid #e2e8f0;
-          border-radius: 8px;
-          padding: 12px 18px;
-          margin-bottom: 20px;
-          display: flex;
-          justify-content: space-between;
-          font-size: 13px;
-        }
-        
-        table {
-          width: 100%;
-          border-collapse: collapse;
-          margin-bottom: 30px;
-          font-size: 12px;
-        }
-        th, td {
-          border: 1px solid #cbd5e1;
-          padding: 8px 12px;
-          text-align: left;
-        }
-        th {
-          background-color: #f1f5f9;
-          font-weight: 600;
-          color: #1e293b;
-        }
-        tr:nth-child(even) { background-color: #fafafa; }
-        
-        .footer-note {
-          font-size: 12px;
-          font-style: italic;
-          color: #64748b;
-          margin-top: 20px;
-        }
-        
-        .signatures {
-          display: flex;
-          justify-content: space-between;
-          margin-top: 40px;
-          page-break-inside: avoid;
-        }
-        .signature-col {
-          text-align: center;
-          width: 200px;
-        }
-        .signature-title { font-weight: 700; font-size: 13px; margin-bottom: 60px; }
-        .signature-line { border-top: 1px dashed #94a3b8; padding-top: 5px; font-size: 12px; color: #64748b; }
-
-        @media print {
-          body { padding: 0; }
-          .no-print { display: none; }
-        }
-      </style>
-    </head>
-    <body>
-      <div class="header">
-        <div>
-          <div class="brand">🎓 LearnUp Education</div>
-          <div class="date">Hệ thống Quản lý Đào tạo Trực tuyến</div>
-        </div>
-        <div style="text-align: right;">
-          <div style="font-size: 12px; font-weight: 600; color: #475569;">Thời gian xuất báo cáo:</div>
-          <div class="date">${currentDate}</div>
-        </div>
-      </div>
-
-      <div class="report-title">
-        <h1>${escapeHtml(title)}</h1>
-        <p>${escapeHtml(subtitle)}</p>
-      </div>
-
-      <div class="meta-box">
-        <div><strong>Tổng số bản ghi:</strong> ${data.length} hàng dữ liệu</div>
-        <div><strong>Trạng thái:</strong> Chính thức</div>
-      </div>
-
-      <table>
-        <thead>
-          <tr>
-            <th style="width: 40px; text-align: center;">STT</th>
-            ${columns.map((col) => `<th>${escapeHtml(col.label)}</th>`).join('')}
-          </tr>
-        </thead>
-        <tbody>
-          ${data
-            .map(
-              (row, idx) => `
-            <tr>
-              <td style="text-align: center; color: #64748b;">${idx + 1}</td>
-              ${columns
-                .map((col) => {
-                  const val = cellValue(col, row);
-                  return `<td>${escapeHtml(val)}</td>`;
-                })
-                .join('')}
-            </tr>
-          `
-            )
-            .join('')}
-        </tbody>
-      </table>
-
-      ${footerNote ? `<div class="footer-note">📌 Ghi chú: ${escapeHtml(footerNote)}</div>` : ''}
-
-      <div class="signatures">
-        <div class="signature-col">
-          <div class="signature-title">Người lập biểu</div>
-          <div class="signature-line">(Ký và ghi rõ họ tên)</div>
-        </div>
-        <div class="signature-col">
-          <div class="signature-title">Xác nhận đơn vị</div>
-          <div class="signature-line">(Ký tên và đóng dấu)</div>
-        </div>
-      </div>
-
-      <script>
-        window.onload = function() {
-          window.print();
-        };
-      </script>
-    </body>
-    </html>
-  `;
-
-  printWindow.document.open();
-  printWindow.document.write(html);
-  printWindow.document.close();
-};
+export function exportToPDF({ title, subtitle, preparedBy, generatedAt, columns, data, includeSignatures = true }) {
+  const win = window.open('', '_blank', 'width=1100,height=800'); if (!win) throw new Error('Trình duyệt đang chặn cửa sổ in PDF.'); const landscape = columns.length > 6;
+  const rows = data.map((row, i) => `<tr><td class="center">${i + 1}</td>${columns.map(c => `<td>${escapeHtml(cellValue(c, row))}</td>`).join('')}</tr>`).join('');
+  const html = `<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>${escapeHtml(title)}</title><style>@page{size:A4 ${landscape ? 'landscape' : 'portrait'};margin:14mm}*{box-sizing:border-box}body{font-family:Arial,"Segoe UI",sans-serif;color:#172033;margin:0;font-size:10px}.brand{border-bottom:3px solid #1d4ed8;padding-bottom:12px;display:flex;justify-content:space-between}.logo{color:#1d4ed8;font-size:18px;font-weight:800}.muted{color:#64748b}.title{text-align:center;margin:24px 0 18px}.title h1{font-size:20px;margin:0;text-transform:uppercase}.title p{font-size:11px;color:#64748b}.meta{display:grid;grid-template-columns:1fr 1fr;border:1px solid #cbd5e1;background:#f8fafc;padding:10px 12px;margin-bottom:14px;gap:6px}.meta div:nth-child(even){text-align:right}table{width:100%;border-collapse:collapse}thead{display:table-header-group}tr{page-break-inside:avoid}th{background:#1d4ed8;color:#fff;padding:7px 6px;border:1px solid #1e40af}td{padding:6px;border:1px solid #cbd5e1;vertical-align:top}tbody tr:nth-child(even){background:#f8fafc}.center{text-align:center}.total{margin-top:10px;text-align:right;font-weight:bold}.signatures{display:flex;justify-content:space-between;margin-top:34px;page-break-inside:avoid}.signature{text-align:center;width:220px}.signature strong{display:block;margin-bottom:55px}.footer{margin-top:22px;border-top:1px solid #cbd5e1;padding-top:7px;color:#64748b;font-size:9px}@media print{body{print-color-adjust:exact;-webkit-print-color-adjust:exact}}</style></head><body><div class="brand"><div><div class="logo">LEARNUP EDUCATION</div><div class="muted">Hệ thống quản lý đào tạo trực tuyến</div></div><div class="muted" style="text-align:right">BÁO CÁO HỆ THỐNG<br>${escapeHtml(dateTime(generatedAt))}</div></div><div class="title"><h1>${escapeHtml(title)}</h1><p>${escapeHtml(subtitle)}</p></div><div class="meta"><div><b>Người lập:</b> ${escapeHtml(preparedBy)}</div><div><b>Trạng thái:</b> Chính thức</div><div><b>Số bản ghi:</b> ${data.length.toLocaleString('vi-VN')}</div><div><b>Ngày lập:</b> ${escapeHtml(dateTime(generatedAt))}</div></div><table><thead><tr><th>STT</th>${columns.map(c => `<th>${escapeHtml(c.label)}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table><div class="total">Tổng cộng: ${data.length.toLocaleString('vi-VN')} bản ghi</div>${includeSignatures ? '<div class="signatures"><div class="signature"><strong>Người lập báo cáo</strong><span>(Ký và ghi rõ họ tên)</span></div><div class="signature"><strong>Đơn vị xác nhận</strong><span>(Ký và ghi rõ họ tên)</span></div></div>' : ''}<div class="footer">Tài liệu được tạo tự động từ hệ thống LearnUp. Dữ liệu có giá trị tại thời điểm xuất.</div><script>window.onload=()=>window.print()</script></body></html>`;
+  win.document.open(); win.document.write(html); win.document.close();
+}
