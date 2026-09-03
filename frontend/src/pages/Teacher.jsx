@@ -37,6 +37,7 @@ const courseStatusLabels = {
   draft: "Bản nháp", pending: "Chờ duyệt", published: "Đang xuất bản",
   approved: "Đang xuất bản", rejected: "Bị từ chối", suspended: "Đình chỉ", archived: "Đã lưu trữ",
 };
+const isoDate = (date) => date.toISOString().slice(0, 10);
 
 export default function Teacher() {
   const { user } = useAuth();
@@ -49,6 +50,8 @@ export default function Teacher() {
   const [students, setStudents] = useState([]);
   const [revenue, setRevenue] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [reportFrom, setReportFrom] = useState(() => isoDate(new Date(Date.now() - 29 * 86400000)));
+  const [reportTo, setReportTo] = useState(() => isoDate(new Date()));
 
   // Search & Filter state
   const [courseSearch, setCourseSearch] = useState("");
@@ -131,11 +134,11 @@ export default function Teacher() {
       .catch(console.error);
 
     // 4. Doanh thu
-    fetch(`/api/teacher/${user.id}/revenue`)
+    fetch(`/api/teacher/${user.id}/revenue?from=${reportFrom}&to=${reportTo}`)
       .then((res) => res.json())
       .then(setRevenue)
       .catch(console.error);
-  }, [user?.id]);
+  }, [user?.id, reportFrom, reportTo]);
 
   useEffect(() => {
     loadData();
@@ -276,6 +279,21 @@ export default function Teacher() {
   };
 
   // --- Export Handlers ---
+  const handleExportCourses = () => {
+    setExportColumns([
+      { key: "id", label: "Mã khóa học" }, { key: "title", label: "Tên khóa học" },
+      { key: "categoryName", label: "Danh mục" }, { key: "price", label: "Giá niêm yết (VNĐ)" },
+      { key: "enrollmentCount", label: "Số học viên" }, { key: "statusText", label: "Trạng thái" },
+      { key: "submittedAt", label: "Ngày gửi duyệt", format: (value) => value ? new Date(value).toLocaleString("vi-VN") : "—" },
+      { key: "reviewNote", label: "Phản hồi Admin" },
+    ]);
+    setExportData(filteredCourses.map((course) => ({ ...course, categoryName: course.category?.name, statusText: courseStatusLabels[course.status] || course.status })));
+    setExportFilename(`Danh_Sach_Khoa_Hoc_${isoDate(new Date())}`);
+    setExportTitle("BÁO CÁO KHÓA HỌC GIẢNG VIÊN");
+    setExportSubtitle(`Giảng viên: ${user?.name || ""} · Dữ liệu theo bộ lọc hiện tại`);
+    setIsExportOpen(true);
+  };
+
   const handleExportStudents = () => {
     const columns = [
       { key: "studentName", label: "Họ và tên" },
@@ -285,7 +303,7 @@ export default function Teacher() {
       { key: "progressText", label: "Tiến độ hoàn thành" },
       { key: "quizSummary", label: "Kết quả Quiz" },
     ];
-    const data = students.map((s) => ({
+    const data = filteredStudents.map((s) => ({
       studentName: s.student?.name,
       studentEmail: s.student?.email,
       studentPhone: s.student?.phone || "Chưa có",
@@ -303,24 +321,22 @@ export default function Teacher() {
 
   const handleExportRevenue = () => {
     const columns = [
-      { key: "courseTitle", label: "Tên khóa học" },
-      { key: "price", label: "Giá niêm yết (VNĐ)" },
-      { key: "soldCount", label: "Số lượt đăng ký" },
-      { key: "totalRevenue", label: "Tổng doanh thu (VNĐ)" },
-      { key: "teacherEarnings", label: "Thực nhận 80% (VNĐ)" },
+      { key: "orderCode", label: "Mã đơn hàng" },
+      { key: "transactionNo", label: "Mã giao dịch" },
+      { key: "completedAt", label: "Thời gian hoàn tất", format: (value) => value ? new Date(value).toLocaleString("vi-VN") : "—" },
+      { key: "studentName", label: "Học viên" },
+      { key: "studentEmail", label: "Email học viên" },
+      { key: "courseTitle", label: "Khóa học" },
+      { key: "amount", label: "Doanh thu gộp (VNĐ)" },
+      { key: "teacherEarning", label: "Thực nhận 80% (VNĐ)" },
+      { key: "paymentMethod", label: "Phương thức thanh toán" },
     ];
-    const data = (revenue?.coursesBreakdown || []).map((r) => ({
-      courseTitle: r.courseTitle,
-      price: r.price?.toLocaleString("vi-VN"),
-      soldCount: r.soldCount,
-      totalRevenue: r.totalRevenue?.toLocaleString("vi-VN"),
-      teacherEarnings: r.teacherEarnings?.toLocaleString("vi-VN"),
-    }));
+    const data = revenue?.transactions || [];
     setExportColumns(columns);
     setExportData(data);
-    setExportFilename(`Bao_Cao_Doanh_Thu_${user?.name || "GV"}`);
+    setExportFilename(`Bao_Cao_Doanh_Thu_${reportFrom}_${reportTo}`);
     setExportTitle("BÁO CÁO TỔNG KẾT DOANH THU KHÓA HỌC");
-    setExportSubtitle(`Giảng viên: ${user?.name || ""} - Nền tảng LearnUp`);
+    setExportSubtitle(`Giảng viên: ${user?.name || ""} · Kỳ ${reportFrom} đến ${reportTo} · Giao dịch COMPLETED`);
     setIsExportOpen(true);
   };
 
@@ -387,19 +403,13 @@ export default function Teacher() {
               {/* TAB 1: KHÓA HỌC CỦA TÔI */}
               {activeTab === "courses" && (
                 <div>
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-6">
                     <div>
                       <h1 className="text-2xl font-bold text-gray-900">Khóa học của tôi ({courses.length})</h1>
                       <p className="text-xs text-gray-500 mt-0.5">Bấm trực tiếp vào khóa học để quản lý bài giảng & Quiz</p>
                     </div>
 
-                    <button
-                      onClick={() => setShowCreateModal(true)}
-                      className="px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition flex items-center gap-2 shadow-sm"
-                    >
-                      <span>+</span>
-                      <span>Tạo Khóa Học Mới</span>
-                    </button>
+                    <div className="flex gap-2"><button onClick={handleExportCourses} className="px-4 py-2.5 bg-green-600 text-white rounded-xl text-sm font-bold hover:bg-green-700">📥 Xuất báo cáo</button><button onClick={() => setShowCreateModal(true)} className="px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition flex items-center gap-2 shadow-sm"><span>+</span><span>Tạo Khóa Học Mới</span></button></div>
                   </div>
 
                   {/* SEARCH & FILTER - KHÓA HỌC */}
@@ -624,16 +634,14 @@ export default function Teacher() {
                       <h1 className="text-2xl font-bold text-gray-900">Báo cáo doanh thu & Hiệu suất bán khóa học</h1>
                       <p className="text-xs text-gray-500">Tỷ lệ phân chia: Giảng viên 80% - Sàn đào tạo LearnUp 20%</p>
                     </div>
-                    <button
-                      onClick={handleExportRevenue}
-                      className="px-4 py-2 bg-green-600 text-white rounded-xl text-xs font-bold hover:bg-green-700 flex items-center gap-2 shadow-sm transition"
-                    >
-                      <span>📥</span>
-                      <span>Xuất Báo Cáo Doanh Thu</span>
-                    </button>
+                    <div className="flex flex-wrap items-end gap-2 text-xs">
+                      <label>Từ ngày<input type="date" value={reportFrom} max={reportTo} onChange={(e) => setReportFrom(e.target.value)} className="ml-1 rounded-xl border px-2 py-2" /></label>
+                      <label>Đến ngày<input type="date" value={reportTo} min={reportFrom} max={isoDate(new Date())} onChange={(e) => setReportTo(e.target.value)} className="ml-1 rounded-xl border px-2 py-2" /></label>
+                      <button onClick={handleExportRevenue} className="px-4 py-2 bg-green-600 text-white rounded-xl text-xs font-bold hover:bg-green-700 flex items-center gap-2 shadow-sm transition"><span>📥</span><span>Xuất báo cáo</span></button>
+                    </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                  <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
                     <div className="bg-white p-6 border rounded-2xl shadow-xs">
                       <div className="text-gray-500 text-xs font-semibold uppercase tracking-wider mb-1">Tổng lượt mua / đăng ký</div>
                       <div className="text-3xl font-extrabold text-gray-900">{revenue.totalCoursesSold}</div>
@@ -650,6 +658,8 @@ export default function Teacher() {
                         {revenue.teacherNetEarnings?.toLocaleString("vi-VN")} ₫
                       </div>
                     </div>
+                    <div className="bg-white p-6 border rounded-2xl shadow-xs"><div className="text-gray-500 text-xs font-semibold uppercase tracking-wider mb-1">Học viên trả phí</div><div className="text-3xl font-extrabold text-gray-900">{revenue.uniquePayingStudents || 0}</div></div>
+                    <div className="bg-white p-6 border rounded-2xl shadow-xs"><div className="text-gray-500 text-xs font-semibold uppercase tracking-wider mb-1">Giá trị đơn TB</div><div className="text-2xl font-extrabold text-gray-900">{revenue.averageOrderValue?.toLocaleString("vi-VN", { maximumFractionDigits: 0 })} ₫</div></div>
                   </div>
 
                   <h3 className="font-bold text-gray-800 mb-4 text-sm">Chi tiết từng khóa học</h3>
@@ -659,7 +669,8 @@ export default function Teacher() {
                         <tr>
                           <th className="px-4 py-3 font-semibold text-gray-700">Khóa học</th>
                           <th className="px-4 py-3 font-semibold text-right text-gray-700">Giá bán</th>
-                          <th className="px-4 py-3 font-semibold text-center text-gray-700">Lượt đăng ký</th>
+                          <th className="px-4 py-3 font-semibold text-center text-gray-700">Ghi danh / Đơn trả phí</th>
+                          <th className="px-4 py-3 font-semibold text-center text-gray-700">Tỷ lệ trả phí</th>
                           <th className="px-4 py-3 font-semibold text-right text-gray-700">Tổng doanh thu</th>
                           <th className="px-4 py-3 font-semibold text-right text-blue-600">Thực nhận 80%</th>
                         </tr>
@@ -669,7 +680,8 @@ export default function Teacher() {
                           <tr key={r.courseId} className="hover:bg-gray-50">
                             <td className="px-4 py-3 font-bold text-gray-900">{r.courseTitle}</td>
                             <td className="px-4 py-3 text-right">{r.price?.toLocaleString("vi-VN")} ₫</td>
-                            <td className="px-4 py-3 text-center font-bold">{r.soldCount}</td>
+                            <td className="px-4 py-3 text-center font-bold">{r.enrollmentCount || 0} / {r.soldCount}</td>
+                            <td className="px-4 py-3 text-center">{r.conversionRate || 0}%</td>
                             <td className="px-4 py-3 text-right font-medium text-gray-900">{r.totalRevenue?.toLocaleString("vi-VN")} ₫</td>
                             <td className="px-4 py-3 text-right font-bold text-blue-600">
                               {r.teacherEarnings?.toLocaleString("vi-VN")} ₫

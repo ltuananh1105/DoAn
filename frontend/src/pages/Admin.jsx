@@ -11,6 +11,7 @@ const courseStatusLabels = {
 };
 
 const accountStatusLabels = { active: "Đang hoạt động", locked: "Đã khóa", inactive: "Ngừng hoạt động" };
+const isoDate = (date) => date.toISOString().slice(0, 10);
 
 const adminMenuItems = [
   {
@@ -71,6 +72,8 @@ export default function Admin() {
   const [revenueData, setRevenueData] = useState(null);
   const [catName, setCatName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [reportFrom, setReportFrom] = useState(() => isoDate(new Date(Date.now() - 29 * 86400000)));
+  const [reportTo, setReportTo] = useState(() => isoDate(new Date()));
   const [showCreateUser, setShowCreateUser] = useState(false);
   const [userForm, setUserForm] = useState({ name: "", email: "", password: "", role: "student" });
 
@@ -105,7 +108,7 @@ export default function Admin() {
           setTeachers(data.filter((u) => u.role === "teacher"));
         }
       } else if (activeTab === "revenue") {
-        const res = await fetch(`${API}/revenue/admin`);
+        const res = await fetch(`${API}/revenue/admin?from=${reportFrom}&to=${reportTo}`);
         const data = await res.json();
         setRevenueData(data);
       } else if (activeTab === "settings") {
@@ -117,7 +120,7 @@ export default function Admin() {
       console.error(err);
     }
     setLoading(false);
-  }, [activeTab]);
+  }, [activeTab, reportFrom, reportTo]);
 
   useEffect(() => {
     loadData();
@@ -268,6 +271,22 @@ export default function Admin() {
   };
 
   // --- Export Handlers ---
+  const handleExportCourses = () => {
+    setExportColumns([
+      { key: "id", label: "Mã khóa học" }, { key: "title", label: "Tên khóa học" },
+      { key: "teacherName", label: "Giảng viên" }, { key: "categoryName", label: "Danh mục" },
+      { key: "price", label: "Giá niêm yết (VNĐ)" }, { key: "statusText", label: "Trạng thái" },
+      { key: "submittedAt", label: "Ngày gửi duyệt", format: (value) => value ? new Date(value).toLocaleString("vi-VN") : "—" },
+      { key: "reviewedAt", label: "Ngày xét duyệt", format: (value) => value ? new Date(value).toLocaleString("vi-VN") : "—" },
+      { key: "reviewNote", label: "Ghi chú xét duyệt" },
+    ]);
+    setExportData(filteredCourses.map((course) => ({ ...course, teacherName: course.teacher?.name, categoryName: course.category?.name, statusText: courseStatusLabels[course.status] || course.status })));
+    setExportFilename(`Danh_Sach_Khoa_Hoc_${isoDate(new Date())}`);
+    setExportTitle("BÁO CÁO DANH MỤC KHÓA HỌC");
+    setExportSubtitle("Dữ liệu theo bộ lọc hiện tại trên Cổng quản trị LearnUp");
+    setIsExportOpen(true);
+  };
+
   const handleExportStudents = () => {
     const columns = [
       { key: "id", label: "Mã HV" },
@@ -276,9 +295,10 @@ export default function Admin() {
       { key: "phone", label: "Số điện thoại" },
       { key: "province", label: "Tỉnh / Thành phố" },
       { key: "occupation", label: "Nghề nghiệp" },
+      { key: "statusText", label: "Trạng thái" },
     ];
     setExportColumns(columns);
-    setExportData(students);
+    setExportData(filteredStudents.map((item) => ({ ...item, statusText: accountStatusLabels[item.status || "active"] })));
     setExportFilename("Danh_Sach_Hoc_Vien_Toan_San");
     setExportTitle("DANH SÁCH HỌC VIÊN TRÊN HỆ THỐNG");
     setExportSubtitle("Trích xuất từ Cổng Quản trị viên LearnUp");
@@ -293,9 +313,10 @@ export default function Admin() {
       { key: "phone", label: "Số điện thoại" },
       { key: "province", label: "Địa bàn" },
       { key: "occupation", label: "Chuyên môn / Học vị" },
+      { key: "statusText", label: "Trạng thái" },
     ];
     setExportColumns(columns);
-    setExportData(teachers);
+    setExportData(filteredTeachers.map((item) => ({ ...item, statusText: accountStatusLabels[item.status || "active"] })));
     setExportFilename("Danh_Sach_Giang_Vien_LearnUp");
     setExportTitle("DANH SÁCH GIẢNG VIÊN HỢP TÁC");
     setExportSubtitle("Phòng Quản lý Đào tạo & Đối tác - LearnUp");
@@ -305,25 +326,31 @@ export default function Admin() {
   const handleExportRevenue = () => {
     const columns = [
       { key: "orderCode", label: "Mã đơn hàng" },
-      { key: "createdAtText", label: "Thời gian GD" },
+      { key: "transactionNo", label: "Mã giao dịch" },
+      { key: "completedAt", label: "Thời gian hoàn tất", format: (value) => value ? new Date(value).toLocaleString("vi-VN") : "—" },
       { key: "studentName", label: "Học viên thanh toán" },
       { key: "courseTitle", label: "Khóa học" },
-      { key: "amountText", label: "Số tiền (VNĐ)" },
+      { key: "amount", label: "Doanh thu gộp (VNĐ)" },
+      { key: "platformRevenue", label: "Phí nền tảng 20% (VNĐ)" },
+      { key: "teacherPayout", label: "Thanh toán GV 80% (VNĐ)" },
       { key: "paymentMethod", label: "Phương thức TT" },
     ];
-    const data = (revenueData?.recentOrders || []).map((r) => ({
+    const data = filteredOrders.map((r) => ({
       orderCode: r.orderCode,
-      createdAtText: r.createdAt ? new Date(r.createdAt).toLocaleString("vi-VN") : "—",
+      transactionNo: r.transactionNo || "—",
+      completedAt: r.completedAt || r.createdAt,
       studentName: r.student?.name,
       courseTitle: r.course?.title,
-      amountText: r.amount?.toLocaleString("vi-VN") + " ₫",
+      amount: r.amount || 0,
+      platformRevenue: (r.amount || 0) * 0.2,
+      teacherPayout: (r.amount || 0) * 0.8,
       paymentMethod: r.paymentMethod,
     }));
     setExportColumns(columns);
     setExportData(data);
-    setExportFilename("Bao_Cao_Doanh_Thu_Tong_Hop_San");
+    setExportFilename(`Bao_Cao_Doanh_Thu_${reportFrom}_${reportTo}`);
     setExportTitle("BÁO CÁO DOANH THU & GIAO DỊCH TOÀN HỆ THỐNG");
-    setExportSubtitle(`Phân tích tài chính Sàn LearnUp - Ngày: ${new Date().toLocaleDateString("vi-VN")}`);
+    setExportSubtitle(`Kỳ báo cáo: ${reportFrom} đến ${reportTo} · Chỉ bao gồm giao dịch COMPLETED`);
     setIsExportOpen(true);
   };
 
@@ -365,9 +392,7 @@ export default function Admin() {
               {/* TAB COURSES */}
               {activeTab === "courses" && (
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900 mb-4">
-                    Phê duyệt & Quản lý khóa học
-                  </h1>
+                  <div className="mb-4 flex items-center justify-between gap-3"><h1 className="text-2xl font-bold text-gray-900">Phê duyệt & Quản lý khóa học</h1><button onClick={handleExportCourses} className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700">📥 Xuất báo cáo</button></div>
                   {/* SEARCH & FILTER - COURSES */}
                   <div className="flex flex-col sm:flex-row gap-3 mb-4">
                     <div className="relative flex-1">
@@ -592,21 +617,19 @@ export default function Admin() {
               {/* TAB REVENUE */}
               {activeTab === "revenue" && revenueData && (
                 <div>
-                  <div className="flex justify-between items-center mb-6">
+                  <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
                     <div>
                       <h1 className="text-2xl font-bold text-gray-900">Doanh thu sàn LearnUp</h1>
                       <p className="text-xs text-gray-500">Phân tích dòng tiền toàn hệ thống và lịch sử giao dịch</p>
                     </div>
-                    <button
-                      onClick={handleExportRevenue}
-                      className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 flex items-center gap-2 shadow-sm"
-                    >
-                      <span>📥</span>
-                      <span>Xuất Báo Cáo Sàn</span>
-                    </button>
+                    <div className="flex flex-wrap items-end gap-2 text-xs">
+                      <label>Từ ngày<input type="date" value={reportFrom} max={reportTo} onChange={(e) => setReportFrom(e.target.value)} className="ml-1 rounded-lg border px-2 py-2" /></label>
+                      <label>Đến ngày<input type="date" value={reportTo} min={reportFrom} max={isoDate(new Date())} onChange={(e) => setReportTo(e.target.value)} className="ml-1 rounded-lg border px-2 py-2" /></label>
+                      <button onClick={handleExportRevenue} className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 flex items-center gap-2 shadow-sm"><span>📥</span><span>Xuất báo cáo</span></button>
+                    </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                  <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
                     <div className="bg-white p-6 border rounded-xl shadow-sm">
                       <div className="text-gray-500 text-sm font-medium mb-1">Tổng đơn hàng thành công</div>
                       <div className="text-3xl font-bold text-gray-900">{revenueData.totalCompletedOrders}</div>
@@ -623,6 +646,13 @@ export default function Admin() {
                       <div className="text-green-800 text-sm font-medium mb-1">Thanh toán GV (80%)</div>
                       <div className="text-3xl font-bold text-green-600">{revenueData.totalTeacherPayout?.toLocaleString("vi-VN")} ₫</div>
                     </div>
+                    <div className="bg-white p-6 border rounded-xl shadow-sm"><div className="text-gray-500 text-sm font-medium mb-1">Giá trị đơn trung bình</div><div className="text-2xl font-bold text-gray-900">{revenueData.averageOrderValue?.toLocaleString("vi-VN", { maximumFractionDigits: 0 })} ₫</div></div>
+                    <div className="bg-white p-6 border rounded-xl shadow-sm"><div className="text-gray-500 text-sm font-medium mb-1">Người mua duy nhất</div><div className="text-2xl font-bold text-gray-900">{revenueData.uniqueBuyers || 0}</div><div className={`text-xs ${(revenueData.revenueGrowthPercent || 0) >= 0 ? "text-green-600" : "text-red-600"}`}>Doanh thu {revenueData.revenueGrowthPercent > 0 ? "+" : ""}{revenueData.revenueGrowthPercent || 0}% so với kỳ trước</div></div>
+                  </div>
+
+                  <div className="mb-8 grid gap-6 lg:grid-cols-2">
+                    <div className="rounded-xl border bg-white p-5 shadow-sm"><h3 className="mb-4 font-bold">Xu hướng doanh thu theo ngày</h3><div className="flex h-40 items-end gap-1 overflow-x-auto">{(revenueData.dailyRevenue || []).map((day) => { const max = Math.max(...(revenueData.dailyRevenue || []).map((item) => item.revenue), 1); return <div key={day.date} className="group flex min-w-3 flex-1 items-end" title={`${day.date}: ${day.revenue.toLocaleString("vi-VN")} ₫`}><div className="w-full rounded-t bg-blue-500" style={{ height: `${Math.max(day.revenue / max * 100, day.revenue ? 4 : 1)}%` }} /></div>; })}</div></div>
+                    <div className="rounded-xl border bg-white p-5 shadow-sm"><h3 className="mb-4 font-bold">Khóa học tạo doanh thu cao nhất</h3><div className="space-y-3">{(revenueData.courseBreakdown || []).slice(0, 5).map((row, index) => <div key={row.courseId} className="flex justify-between gap-3 text-sm"><span className="line-clamp-1">{index + 1}. {row.courseTitle}</span><strong>{row.grossRevenue?.toLocaleString("vi-VN")} ₫</strong></div>)}</div></div>
                   </div>
 
                   <div className="flex items-center gap-3 mb-4">

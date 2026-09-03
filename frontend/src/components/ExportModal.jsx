@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { exportToCSV, exportToJSON, exportToTXT, exportToPDF } from '../utils/exportUtils';
+import { exportToCSV, exportToJSON, exportToTXT, exportToPDF, formatExportValue } from '../utils/exportUtils';
 
 export default function ExportModal({
   isOpen,
@@ -51,6 +51,10 @@ export default function ExportModal({
   const previewData = data.slice(0, 3);
 
   const handleExport = () => {
+    if (data.length === 0) {
+      alert('Không có dữ liệu phù hợp để xuất báo cáo.');
+      return;
+    }
     if (activeColumns.length === 0) {
       alert('Vui lòng chọn ít nhất một cột dữ liệu để xuất!');
       return;
@@ -71,7 +75,7 @@ export default function ExportModal({
       const filteredJson = data.map((row) => {
         const item = {};
         activeColumns.forEach((c) => {
-          item[c.label] = row[c.key];
+          item[c.label] = formatExportValue(c, row);
         });
         return item;
       });
@@ -303,7 +307,7 @@ export default function ExportModal({
                       <td className="px-3 py-2 text-center text-gray-400 font-mono">{idx + 1}</td>
                       {activeColumns.map((c) => (
                         <td key={c.key} className="px-3 py-2 text-gray-700 max-w-[200px] truncate">
-                          {row[c.key] !== undefined && row[c.key] !== null ? String(row[c.key]) : '—'}
+                          {formatExportValue(c, row) !== undefined && formatExportValue(c, row) !== null ? String(formatExportValue(c, row)) : '—'}
                         </td>
                       ))}
                     </tr>
@@ -336,7 +340,8 @@ export default function ExportModal({
             </button>
             <button
               onClick={handleExport}
-              className="px-5 py-2 text-xs font-bold text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition flex items-center gap-1.5 shadow-sm"
+              disabled={data.length === 0}
+              className="px-5 py-2 text-xs font-bold text-white bg-blue-600 rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition flex items-center gap-1.5 shadow-sm"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />

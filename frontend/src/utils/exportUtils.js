@@ -1,11 +1,33 @@
+const safeFilename = (filename, fallback = 'bao_cao') => {
+  const cleaned = String(filename || fallback).replace(/[<>:"/\\|?*]/g, '_')
+    .split('').map((char) => char.charCodeAt(0) < 32 ? '_' : char).join('').trim();
+  return cleaned || fallback;
+};
+
+const downloadBlob = (blob, filename) => {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', filename);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 0);
+};
+
+const cellValue = (column, row) => column.format ? column.format(row[column.key], row) : row[column.key];
+export const formatExportValue = (column, row) => cellValue(column, row);
+const protectSpreadsheetFormula = (value) => /^[=+\-@]/.test(value) ? `'${value}` : value;
+const escapeHtml = (value) => String(value ?? '').replace(/[&<>"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[char]);
+
 export const exportToCSV = (columns, data, filename = 'export.csv') => {
   const headers = columns.map((col) => `"${col.label.replace(/"/g, '""')}"`).join(',');
   const rows = data.map((row) =>
     columns
       .map((col) => {
-        let val = row[col.key];
+        let val = cellValue(col, row);
         if (val === null || val === undefined) val = '';
-        val = String(val).replace(/"/g, '""');
+        val = protectSpreadsheetFormula(String(val)).replace(/"/g, '""');
         return `"${val}"`;
       })
       .join(',')
@@ -13,23 +35,15 @@ export const exportToCSV = (columns, data, filename = 'export.csv') => {
 
   const csvContent = [headers, ...rows].join('\n');
   const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.setAttribute('download', filename.endsWith('.csv') ? filename : `${filename}.csv`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  const name = safeFilename(filename);
+  downloadBlob(blob, name.endsWith('.csv') ? name : `${name}.csv`);
 };
 
 export const exportToJSON = (data, filename = 'export.json') => {
   const jsonString = JSON.stringify(data, null, 2);
   const blob = new Blob([jsonString], { type: 'application/json;charset=utf-8;' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.setAttribute('download', filename.endsWith('.json') ? filename : `${filename}.json`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  const name = safeFilename(filename);
+  downloadBlob(blob, name.endsWith('.json') ? name : `${name}.json`);
 };
 
 export const exportToTXT = (columns, data, filename = 'export.txt') => {
@@ -40,16 +54,12 @@ export const exportToTXT = (columns, data, filename = 'export.txt') => {
 
   // Rows
   data.forEach((row) => {
-    txtContent += columns.map((col) => (row[col.key] !== undefined && row[col.key] !== null ? row[col.key] : '')).join('\t') + '\n';
+    txtContent += columns.map((col) => cellValue(col, row) ?? '').join('\t') + '\n';
   });
 
   const blob = new Blob([txtContent], { type: 'text/plain;charset=utf-8;' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.setAttribute('download', filename.endsWith('.txt') ? filename : `${filename}.txt`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  const name = safeFilename(filename);
+  downloadBlob(blob, name.endsWith('.txt') ? name : `${name}.txt`);
 };
 
 export const exportToPDF = ({
@@ -79,7 +89,7 @@ export const exportToPDF = ({
     <html lang="vi">
     <head>
       <meta charset="UTF-8" />
-      <title>${title}</title>
+      <title>${escapeHtml(title)}</title>
       <style>
         @page { size: A4; margin: 20mm; }
         body {
@@ -171,8 +181,8 @@ export const exportToPDF = ({
       </div>
 
       <div class="report-title">
-        <h1>${title}</h1>
-        <p>${subtitle}</p>
+        <h1>${escapeHtml(title)}</h1>
+        <p>${escapeHtml(subtitle)}</p>
       </div>
 
       <div class="meta-box">
@@ -184,7 +194,7 @@ export const exportToPDF = ({
         <thead>
           <tr>
             <th style="width: 40px; text-align: center;">STT</th>
-            ${columns.map((col) => `<th>${col.label}</th>`).join('')}
+            ${columns.map((col) => `<th>${escapeHtml(col.label)}</th>`).join('')}
           </tr>
         </thead>
         <tbody>
@@ -195,8 +205,8 @@ export const exportToPDF = ({
               <td style="text-align: center; color: #64748b;">${idx + 1}</td>
               ${columns
                 .map((col) => {
-                  const val = row[col.key];
-                  return `<td>${val !== undefined && val !== null ? val : ''}</td>`;
+                  const val = cellValue(col, row);
+                  return `<td>${escapeHtml(val)}</td>`;
                 })
                 .join('')}
             </tr>
@@ -206,7 +216,7 @@ export const exportToPDF = ({
         </tbody>
       </table>
 
-      ${footerNote ? `<div class="footer-note">📌 Ghi chú: ${footerNote}</div>` : ''}
+      ${footerNote ? `<div class="footer-note">📌 Ghi chú: ${escapeHtml(footerNote)}</div>` : ''}
 
       <div class="signatures">
         <div class="signature-col">
