@@ -76,7 +76,7 @@ export default function Settings() {
     setSavingProfile(true);
     setProfileMsg("");
 
-    const res = await fetch(`http://localhost:8080/api/users/${user.id}`, {
+    const res = await fetch(`/api/users/${user.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
@@ -105,7 +105,7 @@ export default function Settings() {
 
     setSavingPw(true);
     const res = await fetch(
-      `http://localhost:8080/api/users/${user.id}/password`,
+      `/api/users/${user.id}/password`,
       {
         method: "PUT",
         headers: { "Content-Type": "application/json" },

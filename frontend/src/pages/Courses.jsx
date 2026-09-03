@@ -19,7 +19,7 @@ export default function Courses() {
   const [selectedCategory, setSelectedCategory] = useState("");
 
   const loadCourses = () => {
-    fetch("http://localhost:8080/api/courses/public")
+    fetch("/api/courses/public")
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
@@ -49,7 +49,7 @@ export default function Courses() {
   useEffect(() => {
     loadCourses();
     if (user?.id && user?.role === "student") {
-      fetch(`http://localhost:8080/api/students/${user.id}/enrollments`)
+      fetch(`/api/students/${user.id}/enrollments`)
         .then((res) => res.json())
         .then((data) => {
           if (Array.isArray(data)) {
@@ -74,7 +74,7 @@ export default function Courses() {
 
   // Tạo đơn hàng chung
   const createOrder = async (courseId) => {
-    const orderRes = await fetch("http://localhost:8080/api/orders", {
+    const orderRes = await fetch("/api/orders", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ studentId: user.id, courseId }),
@@ -104,7 +104,7 @@ export default function Courses() {
     try {
       const orderData = await createOrder(payModal.courseId);
       if (!orderData.success) { alert(orderData.message || "Lỗi tạo đơn."); return; }
-      await fetch(`http://localhost:8080/api/orders/${orderData.orderId}/demo-pay`, { method: "POST" });
+      await fetch(`/api/orders/${orderData.orderId}/demo-pay`, { method: "POST" });
       setEnrolledIds((ids) => [...ids, payModal.courseId]);
       setPayModal(null);
       alert("Đăng ký & Kích hoạt khóa học thành công!");

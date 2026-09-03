@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 import ExportModal from "../components/ExportModal.jsx";
 
-const API = "http://localhost:8080/api";
+const API = "/api";
 
 const adminMenuItems = [
   {

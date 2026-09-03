@@ -36,18 +36,18 @@ export default function TeacherCourseDetail() {
 
   const loadAll = () => {
     setLoading(true);
-    fetch(`http://localhost:8080/api/courses/${courseId}`)
+    fetch(`/api/courses/${courseId}`)
       .then((res) => res.json())
       .then(setCourse);
 
-    fetch(`http://localhost:8080/api/courses/${courseId}/chapters`)
+    fetch(`/api/courses/${courseId}/chapters`)
       .then((res) => res.json())
       .then(async (chs) => {
         if (Array.isArray(chs)) {
           setChapters(chs);
           const entries = await Promise.all(
             chs.map((ch) =>
-              fetch(`http://localhost:8080/api/chapters/${ch.id}/lessons`)
+              fetch(`/api/chapters/${ch.id}/lessons`)
                 .then((res) => res.json())
                 .then((lessons) => [ch.id, Array.isArray(lessons) ? lessons : []])
                 .catch(() => [ch.id, []])
@@ -66,7 +66,7 @@ export default function TeacherCourseDetail() {
       })
       .catch(() => setLoading(false));
 
-    fetch(`http://localhost:8080/api/quizzes/course/${courseId}/manage`)
+    fetch(`/api/quizzes/course/${courseId}/manage`)
       .then((res) => res.json())
       .then((data) => setQuizzes(Array.isArray(data) ? data : []));
   };
@@ -96,7 +96,7 @@ export default function TeacherCourseDetail() {
       // 1. Cập nhật các chương
       for (const ch of draftChapters) {
         if (ch.id) {
-          await fetch(`http://localhost:8080/api/chapters/${ch.id}`, {
+          await fetch(`/api/chapters/${ch.id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ title: ch.title }),
@@ -109,7 +109,7 @@ export default function TeacherCourseDetail() {
         const lessons = draftLessons[chId] || [];
         for (const l of lessons) {
           if (l.id) {
-            await fetch(`http://localhost:8080/api/lessons/${l.id}`, {
+            await fetch(`/api/lessons/${l.id}`, {
               method: "PUT",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
@@ -136,7 +136,7 @@ export default function TeacherCourseDetail() {
     e.preventDefault();
     if (!newChapterTitle.trim()) return;
 
-    const res = await fetch(`http://localhost:8080/api/courses/${courseId}/chapters`, {
+    const res = await fetch(`/api/courses/${courseId}/chapters`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title: newChapterTitle }),
@@ -151,13 +151,13 @@ export default function TeacherCourseDetail() {
   // Xóa chương trong Edit Mode
   const handleDeleteChapter = async (chapterId) => {
     if (!window.confirm("Bạn có chắc muốn xóa chương này cùng toàn bộ bài học bên trong?")) return;
-    const res = await fetch(`http://localhost:8080/api/chapters/${chapterId}`, { method: "DELETE" });
+    const res = await fetch(`/api/chapters/${chapterId}`, { method: "DELETE" });
     if (res.ok) loadAll();
   };
 
   // Thêm bài học mới trong Edit Mode
   const handleAddLessonInline = async (chapterId) => {
-    const res = await fetch(`http://localhost:8080/api/chapters/${chapterId}/lessons`, {
+    const res = await fetch(`/api/chapters/${chapterId}/lessons`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -174,7 +174,7 @@ export default function TeacherCourseDetail() {
   // Xóa bài học trong Edit Mode
   const handleDeleteLesson = async (lessonId) => {
     if (!window.confirm("Bạn có chắc muốn xóa bài học này?")) return;
-    const res = await fetch(`http://localhost:8080/api/lessons/${lessonId}`, { method: "DELETE" });
+    const res = await fetch(`/api/lessons/${lessonId}`, { method: "DELETE" });
     if (res.ok) loadAll();
   };
 
@@ -183,7 +183,7 @@ export default function TeacherCourseDetail() {
     e.preventDefault();
     if (!quizForm.title.trim()) return;
 
-    const res = await fetch(`http://localhost:8080/api/quizzes/course/${courseId}`, {
+    const res = await fetch(`/api/quizzes/course/${courseId}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(quizForm),
@@ -199,7 +199,7 @@ export default function TeacherCourseDetail() {
 
   const handleDeleteQuiz = async (quizId) => {
     if (!window.confirm("Bạn có chắc muốn xóa bài Quiz này?")) return;
-    const res = await fetch(`http://localhost:8080/api/quizzes/${quizId}`, { method: "DELETE" });
+    const res = await fetch(`/api/quizzes/${quizId}`, { method: "DELETE" });
     if (res.ok) loadAll();
   };
 
@@ -214,7 +214,7 @@ export default function TeacherCourseDetail() {
       { content: questionForm.optD, isCorrect: questionForm.correctOpt === "D" },
     ].filter((o) => o.content.trim() !== "");
 
-    const res = await fetch(`http://localhost:8080/api/quizzes/${activeQuizForQuestion.id}/questions`, {
+    const res = await fetch(`/api/quizzes/${activeQuizForQuestion.id}/questions`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -233,7 +233,7 @@ export default function TeacherCourseDetail() {
 
   const handleDeleteQuestion = async (questionId) => {
     if (!window.confirm("Bạn có chắc muốn xóa câu hỏi này?")) return;
-    const res = await fetch(`http://localhost:8080/api/quizzes/questions/${questionId}`, {
+    const res = await fetch(`/api/quizzes/questions/${questionId}`, {
       method: "DELETE",
     });
     if (res.ok) loadAll();

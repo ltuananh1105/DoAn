@@ -28,7 +28,7 @@ export default function CourseDetail() {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`http://localhost:8080/api/courses/${courseId}`)
+    fetch(`/api/courses/${courseId}`)
       .then((res) => res.json())
       .then((data) => {
         setCourse(data);
@@ -39,14 +39,14 @@ export default function CourseDetail() {
         setLoading(false);
       });
 
-    fetch(`http://localhost:8080/api/courses/${courseId}/chapters`)
+    fetch(`/api/courses/${courseId}/chapters`)
       .then((res) => res.json())
       .then(async (chs) => {
         if (Array.isArray(chs)) {
           setChapters(chs);
           const entries = await Promise.all(
             chs.map((ch) =>
-              fetch(`http://localhost:8080/api/chapters/${ch.id}/lessons`)
+              fetch(`/api/chapters/${ch.id}/lessons`)
                 .then((res) => res.json())
                 .then((lessons) => [ch.id, Array.isArray(lessons) ? lessons : []])
                 .catch(() => [ch.id, []])
@@ -63,13 +63,13 @@ export default function CourseDetail() {
       })
       .catch(console.error);
 
-    fetch(`http://localhost:8080/api/quizzes/course/${courseId}`)
+    fetch(`/api/quizzes/course/${courseId}`)
       .then((res) => res.json())
       .then((data) => setQuizzes(Array.isArray(data) ? data : []))
       .catch(console.error);
 
     if (user?.id) {
-      fetch(`http://localhost:8080/api/progress/student/${user.id}/course/${courseId}`)
+      fetch(`/api/progress/student/${user.id}/course/${courseId}`)
         .then((res) => res.json())
         .then((data) => {
           if (data.success) setCourseProgress(data);
@@ -82,7 +82,7 @@ export default function CourseDetail() {
     if (!activeLesson?.id || !user?.id || progressSaving) return;
     setProgressSaving(true);
     try {
-      const response = await fetch("http://localhost:8080/api/progress/toggle", {
+      const response = await fetch("/api/progress/toggle", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ studentId: user.id, lessonId: activeLesson.id }),
@@ -115,7 +115,7 @@ export default function CourseDetail() {
   const handleStartQuiz = async (quizId) => {
     setQuizLoading(true);
     try {
-      const res = await fetch(`http://localhost:8080/api/quizzes/${quizId}`);
+      const res = await fetch(`/api/quizzes/${quizId}`);
       const data = await res.json();
       setQuizDetail(data);
       setActiveQuiz(quizId);
@@ -136,7 +136,7 @@ export default function CourseDetail() {
   const handleSubmitQuiz = async () => {
     if (!quizDetail || !user?.id) return;
     try {
-      const res = await fetch(`http://localhost:8080/api/quizzes/${quizDetail.id}/submit`, {
+      const res = await fetch(`/api/quizzes/${quizDetail.id}/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ studentId: user.id, answers }),

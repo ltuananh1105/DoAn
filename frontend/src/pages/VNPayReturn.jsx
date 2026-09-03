@@ -14,7 +14,7 @@ export default function VNPayReturn() {
     }
 
     if (params.vnp_ResponseCode) {
-      fetch("http://localhost:8080/api/orders/vnpay-callback", {
+      fetch("/api/orders/vnpay-callback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(params),

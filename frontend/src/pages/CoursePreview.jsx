@@ -20,7 +20,7 @@ export default function CoursePreview() {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`http://localhost:8080/api/courses/public/${courseId}`)
+    fetch(`/api/courses/public/${courseId}`)
       .then((res) => res.json())
       .then((data) => {
         setCourse(data);
@@ -31,14 +31,14 @@ export default function CoursePreview() {
         setLoading(false);
       });
 
-    fetch(`http://localhost:8080/api/courses/public/${courseId}/chapters`)
+    fetch(`/api/courses/public/${courseId}/chapters`)
       .then((res) => res.json())
       .then(async (chs) => {
         if (Array.isArray(chs)) {
           setChapters(chs);
           const entries = await Promise.all(
             chs.map((ch) =>
-              fetch(`http://localhost:8080/api/chapters/${ch.id}/lessons`)
+              fetch(`/api/chapters/${ch.id}/lessons`)
                 .then((res) => res.json())
                 .then((lessons) => [ch.id, Array.isArray(lessons) ? lessons : []])
                 .catch(() => [ch.id, []])
@@ -52,11 +52,11 @@ export default function CoursePreview() {
       .catch(console.error);
 
     if (user?.id && user?.role === "student") {
-      fetch(`http://localhost:8080/api/orders/check?studentId=${user.id}&courseId=${courseId}`)
+      fetch(`/api/orders/check?studentId=${user.id}&courseId=${courseId}`)
         .then((res) => res.json())
         .then((data) => setIsEnrolled(data.enrolled || data.purchased))
         .catch(() => {
-          fetch(`http://localhost:8080/api/students/${user.id}/enrollments`)
+          fetch(`/api/students/${user.id}/enrollments`)
             .then((res) => res.json())
             .then((data) => {
               if (Array.isArray(data)) {
@@ -82,7 +82,7 @@ export default function CoursePreview() {
   };
 
   const createOrder = async () => {
-    const orderRes = await fetch("http://localhost:8080/api/orders", {
+    const orderRes = await fetch("/api/orders", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ studentId: user.id, courseId }),
@@ -121,7 +121,7 @@ export default function CoursePreview() {
         setPaying(false);
         return;
       }
-      await fetch(`http://localhost:8080/api/orders/${orderData.orderId}/demo-pay`, {
+      await fetch(`/api/orders/${orderData.orderId}/demo-pay`, {
         method: "POST",
       });
       setIsEnrolled(true);

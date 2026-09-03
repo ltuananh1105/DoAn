@@ -50,13 +50,13 @@ export default function Student() {
     if (!user?.id) return;
     setLoading(true);
     try {
-      const resEn = await fetch(`http://localhost:8080/api/students/${user.id}/enrollments`);
+      const resEn = await fetch(`/api/students/${user.id}/enrollments`);
       const dataEn = await resEn.json();
       const enList = Array.isArray(dataEn) ? dataEn.filter((e) => e && e.course) : [];
       const enrollmentsWithProgress = await Promise.all(enList.map(async (enrollment) => {
         try {
           const progressRes = await fetch(
-            `http://localhost:8080/api/progress/student/${user.id}/course/${enrollment.course.id}`
+            `/api/progress/student/${user.id}/course/${enrollment.course.id}`
           );
           const progress = await progressRes.json();
           return { ...enrollment, progress: progress.success ? progress : null };
@@ -70,7 +70,7 @@ export default function Student() {
       for (const en of enList) {
         if (en.course?.id) {
           try {
-            const qRes = await fetch(`http://localhost:8080/api/quizzes/course/${en.course.id}`);
+            const qRes = await fetch(`/api/quizzes/course/${en.course.id}`);
             const qData = await qRes.json();
             if (Array.isArray(qData)) {
               qData.forEach((q) => allQuizzes.push({ ...q, courseTitle: en.course.title }));

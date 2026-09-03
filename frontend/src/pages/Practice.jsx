@@ -25,7 +25,7 @@ export default function Practice() {
   useEffect(() => {
     if (user?.id) {
       setLoading(true);
-      fetch(`http://localhost:8080/api/students/${user.id}/enrollments`)
+      fetch(`/api/students/${user.id}/enrollments`)
         .then((res) => res.json())
         .then(async (enList) => {
           if (!Array.isArray(enList)) {
@@ -36,7 +36,7 @@ export default function Practice() {
           for (const en of enList) {
             if (en.course?.id) {
               try {
-                const qRes = await fetch(`http://localhost:8080/api/quizzes/course/${en.course.id}`);
+                const qRes = await fetch(`/api/quizzes/course/${en.course.id}`);
                 const qData = await qRes.json();
                 if (Array.isArray(qData)) {
                   qData.forEach((q) =>
@@ -62,7 +62,7 @@ export default function Practice() {
 
   const handleStartQuiz = async (quizId) => {
     try {
-      const res = await fetch(`http://localhost:8080/api/quizzes/${quizId}`);
+      const res = await fetch(`/api/quizzes/${quizId}`);
       const data = await res.json();
       setActiveQuiz(data);
       setAnswers({});
@@ -80,7 +80,7 @@ export default function Practice() {
     if (!activeQuiz || !user?.id) return;
 
     try {
-      const res = await fetch(`http://localhost:8080/api/quizzes/${activeQuiz.id}/submit`, {
+      const res = await fetch(`/api/quizzes/${activeQuiz.id}/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -102,7 +102,7 @@ export default function Teacher() {
     setLoading(true);
 
     // 1. Danh sách khóa học
-    fetch(`http://localhost:8080/api/teacher/${user.id}/courses-detail`)
+    fetch(`/api/teacher/${user.id}/courses-detail`)
       .then((res) => res.json())
       .then((data) => {
         setCourses(Array.isArray(data) ? data : []);
@@ -114,19 +114,19 @@ export default function Teacher() {
       });
 
     // 2. Danh mục
-    fetch("http://localhost:8080/api/categories")
+    fetch("/api/categories")
       .then((res) => res.json())
       .then((data) => setCategories(Array.isArray(data) ? data : []))
       .catch(console.error);
 
     // 3. Học viên
-    fetch(`http://localhost:8080/api/teacher/${user.id}/students`)
+    fetch(`/api/teacher/${user.id}/students`)
       .then((res) => res.json())
       .then((data) => setStudents(Array.isArray(data) ? data : []))
       .catch(console.error);
 
     // 4. Doanh thu
-    fetch(`http://localhost:8080/api/teacher/${user.id}/revenue`)
+    fetch(`/api/teacher/${user.id}/revenue`)
       .then((res) => res.json())
       .then(setRevenue)
       .catch(console.error);
@@ -139,7 +139,7 @@ export default function Teacher() {
   // Tạo khóa học
   const handleCreateCourse = async (e) => {
     e.preventDefault();
-    const res = await fetch("http://localhost:8080/api/courses", {
+    const res = await fetch("/api/courses", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -180,7 +180,7 @@ export default function Teacher() {
     if (!editingCourse) return;
 
     try {
-      const res = await fetch(`http://localhost:8080/api/courses/${editingCourse.id}`, {
+      const res = await fetch(`/api/courses/${editingCourse.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -210,7 +210,7 @@ export default function Teacher() {
     e.stopPropagation();
     if (!window.confirm("Bạn có chắc chắn muốn xóa khóa học này?")) return;
     try {
-      const res = await fetch(`http://localhost:8080/api/teacher/${user.id}/courses/${courseId}`, {
+      const res = await fetch(`/api/teacher/${user.id}/courses/${courseId}`, {
         method: "DELETE",
       });
       const data = await res.json();
@@ -229,7 +229,7 @@ export default function Teacher() {
   const handleToggleVisibility = async (e, courseId) => {
     e.stopPropagation();
     try {
-      const res = await fetch(`http://localhost:8080/api/teacher/${user.id}/courses/${courseId}/toggle-visibility`, {
+      const res = await fetch(`/api/teacher/${user.id}/courses/${courseId}/toggle-visibility`, {
         method: "PUT",
       });
       const data = await res.json();
@@ -245,7 +245,7 @@ export default function Teacher() {
   const handleRemoveStudent = async (enrollmentId) => {
     if (!window.confirm("Bạn có chắc muốn xóa học viên khỏi khóa học này?")) return;
     try {
-      const res = await fetch(`http://localhost:8080/api/teacher/${user.id}/enrollments/${enrollmentId}`, {
+      const res = await fetch(`/api/teacher/${user.id}/enrollments/${enrollmentId}`, {
         method: "DELETE",
       });
       const data = await res.json();

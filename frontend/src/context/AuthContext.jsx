@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 const AuthContext = createContext(null);
 
 const STORAGE_KEY = "learnup_auth";
-const API_BASE = "http://localhost:8080/api";
+const API_BASE = "/api";
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
