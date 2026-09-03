@@ -31,19 +31,12 @@ export default function CoursePreview() {
         setLoading(false);
       });
 
-    fetch(`/api/courses/public/${courseId}/chapters`)
+    fetch(`/api/courses/public/${courseId}/curriculum`)
       .then((res) => res.json())
-      .then(async (chs) => {
+      .then((chs) => {
         if (Array.isArray(chs)) {
           setChapters(chs);
-          const entries = await Promise.all(
-            chs.map((ch) =>
-              fetch(`/api/chapters/${ch.id}/lessons`)
-                .then((res) => res.json())
-                .then((lessons) => [ch.id, Array.isArray(lessons) ? lessons : []])
-                .catch(() => [ch.id, []])
-            )
-          );
+          const entries = chs.map((ch) => [ch.id, Array.isArray(ch.lessons) ? ch.lessons : []]);
           setLessonsByChapter(Object.fromEntries(entries));
         } else {
           setChapters([]);

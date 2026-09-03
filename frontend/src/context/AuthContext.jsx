@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 const AuthContext = createContext(null);
 
 const STORAGE_KEY = "learnup_auth";
+const TOKEN_KEY = "learnup_token";
 const API_BASE = "/api";
 
 export function AuthProvider({ children }) {
@@ -11,7 +12,7 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
+    if (saved && localStorage.getItem(TOKEN_KEY)) {
       try {
         setUser(JSON.parse(saved));
       } catch {
@@ -34,6 +35,7 @@ export function AuthProvider({ children }) {
     }
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data.user));
+    localStorage.setItem(TOKEN_KEY, data.token);
     setUser(data.user);
     return data.user;
   };
@@ -47,11 +49,12 @@ export function AuthProvider({ children }) {
 
     if (!res.ok) throw new Error("Đăng ký thất bại");
 
-    const newUser = await res.json();
-    if (newUser.success === false) throw new Error(newUser.message || "Đăng ký thất bại");
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newUser));
-    setUser(newUser);
-    return newUser;
+    const data = await res.json();
+    if (data.success === false) throw new Error(data.message || "Đăng ký thất bại");
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data.user));
+    localStorage.setItem(TOKEN_KEY, data.token);
+    setUser(data.user);
+    return data.user;
   };
 
   const logout = () => {
@@ -59,6 +62,7 @@ export function AuthProvider({ children }) {
 
     // Xóa đúng Key "learnup_auth" đã dùng để lưu
     localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(TOKEN_KEY);
 
     // Xóa dọn dẹp các key phụ khác nếu có
     localStorage.removeItem("token");
