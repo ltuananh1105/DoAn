@@ -5,6 +5,7 @@ import com.learnup.backend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Service;
+import org.springframework.context.annotation.Profile;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +16,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/admin")
 @Service
+@Profile("dev")
 public class DataInitializer implements CommandLineRunner {
 
     @Autowired private UserRepository userRepository;
