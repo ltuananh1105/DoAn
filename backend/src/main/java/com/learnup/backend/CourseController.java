@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Objects;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -48,7 +49,7 @@ public class CourseController {
     public List<Chapter> getPublicCourseChapters(@PathVariable Long id) {
         return courseRepository.findById(id)
                 .filter(course -> "approved".equals(course.getStatus()))
-                .map(course -> chapterRepository.findByCourseId(id))
+                .map(course -> chapterRepository.findByCourseIdOrderByOrderIndexAscIdAsc(id))
                 .orElseGet(List::of);
     }
 
@@ -59,7 +60,7 @@ public class CourseController {
 
     @GetMapping("/{id}/chapters")
     public List<Chapter> getChaptersByCourseId(@PathVariable Long id) {
-        return chapterRepository.findByCourseId(id);
+        return chapterRepository.findByCourseIdOrderByOrderIndexAscIdAsc(id);
     }
 
     @PostMapping("/{id}/chapters")
@@ -67,6 +68,7 @@ public class CourseController {
         Course course = courseRepository.findById(id).orElseThrow();
         if (chapter.getTitle() == null || chapter.getTitle().isBlank()) throw new IllegalArgumentException("Tên chương không được để trống");
         chapter.setTitle(chapter.getTitle().trim());
+        chapter.setOrderIndex(nextChapterIndex(id));
         chapter.setCourse(course);
         return chapterRepository.save(chapter);
     }
@@ -137,5 +139,10 @@ public class CourseController {
         course.setTeacher(teacher.get());
         course.setCategory(category.get());
         return null;
+    }
+
+    private int nextChapterIndex(Long courseId) {
+        return chapterRepository.findByCourseId(courseId).stream()
+                .map(Chapter::getOrderIndex).filter(Objects::nonNull).max(Integer::compareTo).orElse(0) + 1;
     }
 }

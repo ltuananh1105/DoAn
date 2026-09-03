@@ -16,6 +16,7 @@ public class Lesson {
     private String title;
 
     private String videoUrl;
+    private Integer orderIndex;
 
     @ManyToOne
     @JoinColumn(name = "chapter_id", nullable = false)
@@ -29,6 +30,8 @@ public class Lesson {
 
     public String getVideoUrl() { return videoUrl; }
     public void setVideoUrl(String videoUrl) { this.videoUrl = videoUrl; }
+    public Integer getOrderIndex() { return orderIndex; }
+    public void setOrderIndex(Integer orderIndex) { this.orderIndex = orderIndex; }
 
     public Chapter getChapter() { return chapter; }
     public void setChapter(Chapter chapter) { this.chapter = chapter; }

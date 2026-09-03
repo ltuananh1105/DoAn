@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Objects;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -32,7 +33,7 @@ public class ChapterController {
 
     @GetMapping("/course/{courseId}")
     public List<Chapter> getChaptersByCourse(@PathVariable Long courseId) {
-        return chapterRepository.findByCourseId(courseId);
+        return chapterRepository.findByCourseIdOrderByOrderIndexAscIdAsc(courseId);
     }
 
     @PostMapping("/course/{courseId}")
@@ -40,6 +41,8 @@ public class ChapterController {
         Course course = courseRepository.findById(courseId).orElseThrow();
         if (chapter.getTitle() == null || chapter.getTitle().isBlank()) throw new IllegalArgumentException("Tên chương không được để trống");
         chapter.setTitle(chapter.getTitle().trim());
+        chapter.setOrderIndex(chapterRepository.findByCourseId(courseId).stream()
+                .map(Chapter::getOrderIndex).filter(Objects::nonNull).max(Integer::compareTo).orElse(0) + 1);
         chapter.setCourse(course);
         return chapterRepository.save(chapter);
     }
@@ -69,7 +72,7 @@ public class ChapterController {
 
     @GetMapping("/{chapterId}/lessons")
     public List<Lesson> getLessonsByChapter(@PathVariable Long chapterId) {
-        return lessonRepository.findByChapterId(chapterId);
+        return lessonRepository.findByChapterIdOrderByOrderIndexAscIdAsc(chapterId);
     }
 
     @PostMapping("/{chapterId}/lessons")
@@ -77,6 +80,8 @@ public class ChapterController {
         Chapter chapter = chapterRepository.findById(chapterId).orElseThrow();
         if (lesson.getTitle() == null || lesson.getTitle().isBlank()) throw new IllegalArgumentException("Tên bài học không được để trống");
         lesson.setTitle(lesson.getTitle().trim());
+        lesson.setOrderIndex(lessonRepository.findByChapterId(chapterId).stream()
+                .map(Lesson::getOrderIndex).filter(Objects::nonNull).max(Integer::compareTo).orElse(0) + 1);
         lesson.setChapter(chapter);
         return lessonRepository.save(lesson);
     }

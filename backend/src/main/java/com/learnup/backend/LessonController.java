@@ -25,7 +25,7 @@ public class LessonController {
 
     @GetMapping("/chapter/{chapterId}")
     public List<Lesson> getLessonsByChapter(@PathVariable Long chapterId) {
-        return lessonRepository.findByChapterId(chapterId);
+        return lessonRepository.findByChapterIdOrderByOrderIndexAscIdAsc(chapterId);
     }
 
     @PostMapping("/chapter/{chapterId}")
@@ -33,6 +33,8 @@ public class LessonController {
         Chapter chapter = chapterRepository.findById(chapterId).orElseThrow();
         if (lesson.getTitle() == null || lesson.getTitle().isBlank()) throw new IllegalArgumentException("Tên bài học không được để trống");
         lesson.setTitle(lesson.getTitle().trim());
+        lesson.setOrderIndex(lessonRepository.findByChapterId(chapterId).stream()
+                .map(Lesson::getOrderIndex).filter(java.util.Objects::nonNull).max(Integer::compareTo).orElse(0) + 1);
         lesson.setChapter(chapter);
         return lessonRepository.save(lesson);
     }

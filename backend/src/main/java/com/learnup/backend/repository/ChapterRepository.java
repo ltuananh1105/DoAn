@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface ChapterRepository extends JpaRepository<Chapter, Long> {
     List<Chapter> findByCourseId(Long courseId);
+    List<Chapter> findByCourseIdOrderByOrderIndexAscIdAsc(Long courseId);
 }
