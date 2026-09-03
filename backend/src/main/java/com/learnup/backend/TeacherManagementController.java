@@ -213,17 +213,11 @@ public class TeacherManagementController {
             List<Order> orders = orderRepository.findByCourseId(c.getId())
                     .stream().filter(o -> "COMPLETED".equals(o.getStatus())).toList();
             
-            // Nếu có order thì tính theo order, nếu không thì fallback theo enrollments
-            double courseRevenue = 0;
-            int count = 0;
-            if (!orders.isEmpty()) {
-                courseRevenue = orders.stream().mapToDouble(o -> o.getAmount() != null ? o.getAmount() : 0).sum();
-                count = orders.size();
-            } else {
-                long enrollCount = enrollmentRepository.countByCourseId(c.getId());
-                count = (int) enrollCount;
-                courseRevenue = count * (c.getPrice() != null ? c.getPrice() : 0);
-            }
+            // Doanh thu chỉ được ghi nhận từ giao dịch đã hoàn tất. Ghi danh miễn phí
+            // hoặc dữ liệu nhập tay không được xem là một giao dịch bán khóa học.
+            double courseRevenue = orders.stream()
+                    .mapToDouble(o -> o.getAmount() != null ? o.getAmount() : 0).sum();
+            int count = orders.size();
 
             double teacherEarnings = courseRevenue * 0.8;
             totalGrossRevenue += courseRevenue;

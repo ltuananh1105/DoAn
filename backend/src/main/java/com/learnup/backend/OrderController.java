@@ -58,7 +58,14 @@ public class OrderController {
         }
 
         Optional<Order> pending = orderRepository.findFirstByStudentIdAndCourseIdAndStatusOrderByCreatedAtDesc(studentId, courseId, "PENDING");
-        if (pending.isPresent()) return buildPaymentResponse(pending.get());
+        if (pending.isPresent()) {
+            Order pendingOrder = pending.get();
+            boolean stillValid = pendingOrder.getCreatedAt() != null
+                    && pendingOrder.getCreatedAt().isAfter(java.time.LocalDateTime.now().minusMinutes(15));
+            if (stillValid) return buildPaymentResponse(pendingOrder);
+            pendingOrder.setStatus("FAILED");
+            orderRepository.save(pendingOrder);
+        }
 
         Order order = new Order();
         order.setOrderCode("ORD" + System.currentTimeMillis());
