@@ -48,6 +48,7 @@ export function AuthProvider({ children }) {
     if (!res.ok) throw new Error("Đăng ký thất bại");
 
     const newUser = await res.json();
+    if (newUser.success === false) throw new Error(newUser.message || "Đăng ký thất bại");
     localStorage.setItem(STORAGE_KEY, JSON.stringify(newUser));
     setUser(newUser);
     return newUser;

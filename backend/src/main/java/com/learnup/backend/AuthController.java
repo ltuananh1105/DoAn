@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
@@ -34,13 +35,22 @@ public class AuthController {
 
     @PostMapping("/register")
     public Object register(@RequestBody User user) {
+        String name = user.getName() == null ? "" : user.getName().trim();
+        String email = user.getEmail() == null ? "" : user.getEmail().trim().toLowerCase();
+        String password = user.getPassword() == null ? "" : user.getPassword();
+        String role = user.getRole() == null ? "student" : user.getRole().toLowerCase();
+        if (name.isEmpty() || email.isEmpty() || password.length() < 6) return Map.of("success", false, "message", "Thông tin đăng ký không hợp lệ");
+        if (!email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) return Map.of("success", false, "message", "Email không hợp lệ");
+        if (!Set.of("student", "teacher").contains(role)) return Map.of("success", false, "message", "Vai trò không hợp lệ");
+        if (userRepository.findByEmail(email).isPresent()) return Map.of("success", false, "message", "Email đã được sử dụng");
+        user.setName(name); user.setEmail(email); user.setRole(role);
         User savedUser = userRepository.save(user);
         return toUserInfo(savedUser);
     }
 
     @PostMapping("/login")
     public Object login(@RequestBody Map<String, String> loginRequest) {
-        String email = loginRequest.get("email");
+        String email = loginRequest.get("email") == null ? "" : loginRequest.get("email").trim().toLowerCase();
         String password = loginRequest.get("password");
 
         Optional<User> userOpt = userRepository.findByEmail(email);

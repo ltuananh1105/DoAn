@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from "react";
-import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import ExportModal from "../components/ExportModal.jsx";
 
@@ -179,9 +178,12 @@ export default function Admin() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: catName }),
       });
-      if (res.ok) {
+      const data = await res.json();
+      if (res.ok && data.success !== false) {
         setCatName("");
         loadData();
+      } else {
+        alert(data.message || "Không thể thêm danh mục");
       }
     } catch (err) {
       console.error(err);
@@ -192,10 +194,11 @@ export default function Admin() {
     if (!window.confirm("Bạn có chắc muốn xóa danh mục này?")) return;
     try {
       const res = await fetch(`${API}/categories/${id}`, { method: "DELETE" });
-      if (res.ok) {
+      const data = await res.json();
+      if (res.ok && data.success !== false) {
         loadData();
       } else {
-        alert("Không thể xóa danh mục đang có khóa học");
+        alert(data.message || "Không thể xóa danh mục đang có khóa học");
       }
     } catch (err) {
       console.error(err);
