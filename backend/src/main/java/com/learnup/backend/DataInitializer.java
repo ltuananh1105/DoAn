@@ -32,7 +32,9 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (userRepository.count() == 0 || courseRepository.count() == 0) {
+        // Chỉ seed khi cơ sở dữ liệu hoàn toàn mới. Không tự xóa dữ liệu chỉ vì
+        // một bảng đang trống hoặc dữ liệu đang được nhập dở.
+        if (userRepository.count() == 0 && courseRepository.count() == 0) {
             try {
                 resetDatabase();
             } catch (Exception e) {
@@ -44,13 +46,6 @@ public class DataInitializer implements CommandLineRunner {
     @PostMapping("/reset-sample-data")
     @Transactional
     public Object resetApi() {
-        resetDatabase();
-        return Map.of("success", true, "message", "Đã reset và nạp dữ liệu mẫu demo thành công!");
-    }
-
-    @GetMapping("/reset-sample-data")
-    @Transactional
-    public Object resetApiGet() {
         resetDatabase();
         return Map.of("success", true, "message", "Đã reset và nạp dữ liệu mẫu demo thành công!");
     }
