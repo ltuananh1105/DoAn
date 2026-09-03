@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Optional;
 import com.learnup.backend.security.CurrentUser;
 
-@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/lessons")
 public class LessonController {

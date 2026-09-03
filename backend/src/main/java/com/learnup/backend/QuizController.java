@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 import java.time.Duration;
 import com.learnup.backend.security.CurrentUser;
 
-@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/quizzes")
 public class QuizController {

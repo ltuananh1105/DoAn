@@ -13,7 +13,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.Objects;
 
-@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {

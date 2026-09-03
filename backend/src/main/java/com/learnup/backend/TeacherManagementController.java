@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 import com.learnup.backend.security.CurrentUser;
 
-@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/teacher/{teacherId}")
 public class TeacherManagementController {

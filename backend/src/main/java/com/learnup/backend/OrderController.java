@@ -11,7 +11,6 @@ import java.util.*;
 import com.learnup.backend.security.CurrentUser;
 import org.springframework.beans.factory.annotation.Value;
 
-@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/orders")
 public class OrderController {

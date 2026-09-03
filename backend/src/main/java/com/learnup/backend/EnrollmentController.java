@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.Optional;
 import com.learnup.backend.security.CurrentUser;
 
-@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api")
 public class EnrollmentController {

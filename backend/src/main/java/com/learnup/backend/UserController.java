@@ -14,7 +14,6 @@ import java.util.Objects;
 import java.util.Set;
 import com.learnup.backend.security.CurrentUser;
 
-@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -48,8 +47,22 @@ public class UserController {
         }
 
         User user = optionalUser.get();
-        if (body.containsKey("name")) user.setName(body.get("name"));
-        if (body.containsKey("email")) user.setEmail(body.get("email"));
+        if (body.containsKey("name")) {
+            String name = body.get("name") == null ? "" : body.get("name").trim();
+            if (name.isEmpty()) return Map.of("success", false, "message", "Tên không được để trống");
+            user.setName(name);
+        }
+        if (body.containsKey("email")) {
+            String email = body.get("email") == null ? "" : body.get("email").trim().toLowerCase();
+            if (!email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
+                return Map.of("success", false, "message", "Email không hợp lệ");
+            }
+            Optional<User> owner = userRepository.findByEmail(email);
+            if (owner.isPresent() && !owner.get().getId().equals(id)) {
+                return Map.of("success", false, "message", "Email đã được sử dụng");
+            }
+            user.setEmail(email);
+        }
         if (body.containsKey("role")) {
             if (!currentUser.isAdmin()) return Map.of("success", false, "message", "Chỉ Admin được thay đổi vai trò");
             String role = body.get("role") == null ? "" : body.get("role").toLowerCase();
@@ -63,9 +76,6 @@ public class UserController {
         if (body.containsKey("occupation")) user.setOccupation(body.get("occupation"));
         if (body.containsKey("country")) user.setCountry(body.get("country"));
         if (body.containsKey("province")) user.setProvince(body.get("province"));
-        if (body.containsKey("password") && body.get("password") != null && !body.get("password").isEmpty()) {
-            user.setPassword(passwordEncoder.encode(body.get("password")));
-}
         userRepository.save(user);
 
         return Map.of("success", true, "user", user);

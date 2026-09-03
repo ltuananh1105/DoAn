@@ -18,7 +18,6 @@ import java.util.LinkedHashMap;
 import java.util.ArrayList;
 import com.learnup.backend.security.CurrentUser;
 
-@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/courses")
 public class CourseController {

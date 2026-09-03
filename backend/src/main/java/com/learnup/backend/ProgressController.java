@@ -19,7 +19,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import com.learnup.backend.security.CurrentUser;
 
-@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/progress")
 public class ProgressController {

@@ -17,7 +17,6 @@ import java.util.Optional;
 import java.util.Objects;
 import com.learnup.backend.security.CurrentUser;
 
-@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/chapters")
 public class ChapterController {
