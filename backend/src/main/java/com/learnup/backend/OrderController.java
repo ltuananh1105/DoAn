@@ -55,7 +55,7 @@ public class OrderController {
         if (studentOpt.isEmpty() || !"student".equalsIgnoreCase(studentOpt.get().getRole())) {
             return Map.of("success", false, "message", "Học viên không hợp lệ");
         }
-        if (!"approved".equals(course.getStatus())) return Map.of("success", false, "message", "Khóa học chưa được mở bán");
+        if (!("published".equals(course.getStatus()) || "approved".equals(course.getStatus()))) return Map.of("success", false, "message", "Khóa học chưa được mở bán");
         if (course.getPrice() == null || course.getPrice() <= 0) return Map.of("success", false, "message", "Khóa học này không cần thanh toán");
 
         if (enrollmentRepository.existsByStudentIdAndCourseId(studentId, courseId)) {

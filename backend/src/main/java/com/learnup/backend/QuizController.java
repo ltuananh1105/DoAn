@@ -54,7 +54,7 @@ public class QuizController {
 
     @GetMapping("/course/{courseId}/manage")
     public List<Map<String, Object>> getQuizForManagement(@PathVariable Long courseId) {
-        currentUser.requireCourseOwner(courseId);
+        currentUser.requireCourseAccess(courseId);
         return quizRepository.findByCourseId(courseId).stream()
                 .map(quiz -> buildQuizDetail(quiz, true))
                 .toList();
@@ -96,7 +96,7 @@ public class QuizController {
     // Tạo quiz
     @PostMapping("/course/{courseId}")
     public Object createQuiz(@PathVariable Long courseId, @RequestBody Map<String, Object> body) {
-        currentUser.requireCourseOwner(courseId);
+        currentUser.requireCourseEditable(courseId);
         Optional<Course> courseOpt = courseRepository.findById(courseId);
         if (courseOpt.isEmpty())
             return Map.of("error", "Không tìm thấy khóa học");
@@ -119,7 +119,7 @@ public class QuizController {
     // Sửa quiz
     @PutMapping("/{quizId}")
     public Object updateQuiz(@PathVariable Long quizId, @RequestBody Map<String, Object> body) {
-        currentUser.requireQuizOwner(quizId);
+        currentUser.requireQuizEditable(quizId);
         Optional<Quiz> opt = quizRepository.findById(quizId);
         if (opt.isEmpty()) return Map.of("success", false, "message", "Không tìm thấy quiz");
         Quiz q = opt.get();
@@ -142,7 +142,7 @@ public class QuizController {
     @DeleteMapping("/{quizId}")
     @Transactional
     public Object deleteQuiz(@PathVariable Long quizId) {
-        currentUser.requireQuizOwner(quizId);
+        currentUser.requireQuizEditable(quizId);
         if (!quizRepository.existsById(quizId))
             return Map.of("success", false, "message", "Không tìm thấy quiz");
         quizResultRepository.deleteByQuizId(quizId);
@@ -158,7 +158,7 @@ public class QuizController {
     // Thêm câu hỏi
     @PostMapping("/{quizId}/questions")
     public Object addQuestion(@PathVariable Long quizId, @RequestBody Map<String, Object> body) {
-        currentUser.requireQuizOwner(quizId);
+        currentUser.requireQuizEditable(quizId);
         Optional<Quiz> quizOpt = quizRepository.findById(quizId);
         if (quizOpt.isEmpty())
             return Map.of("success", false, "message", "Không tìm thấy quiz");
@@ -200,7 +200,7 @@ public class QuizController {
     @Transactional
     public Object deleteQuestion(@PathVariable Long questionId) {
         var question = questionRepository.findById(questionId).orElseThrow();
-        currentUser.requireQuizOwner(question.getQuiz().getId());
+        currentUser.requireQuizEditable(question.getQuiz().getId());
         if (!questionRepository.existsById(questionId))
             return Map.of("success", false, "message", "Không tìm thấy câu hỏi");
         questionOptionRepository.deleteByQuestionId(questionId);

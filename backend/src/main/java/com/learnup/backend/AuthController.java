@@ -29,6 +29,7 @@ public class AuthController {
         userInfo.put("name", user.getName());
         userInfo.put("email", user.getEmail());
         userInfo.put("role", user.getRole());
+        userInfo.put("status", user.getStatus() == null ? "active" : user.getStatus());
         userInfo.put("dateOfBirth", user.getDateOfBirth());
         userInfo.put("phone", user.getPhone());
         userInfo.put("occupation", user.getOccupation());
@@ -48,6 +49,7 @@ public class AuthController {
         if (!Set.of("student", "teacher").contains(role)) return Map.of("success", false, "message", "Vai trò không hợp lệ");
         if (userRepository.findByEmail(email).isPresent()) return Map.of("success", false, "message", "Email đã được sử dụng");
         user.setName(name); user.setEmail(email); user.setRole(role);
+        user.setStatus("active");
         user.setPassword(passwordEncoder.encode(password));
         User savedUser = userRepository.save(user);
         return Map.of("success", true, "user", toUserInfo(savedUser),
@@ -66,6 +68,11 @@ public class AuthController {
         }
 
         User user = userOpt.get();
+
+        String accountStatus = user.getStatus() == null ? "active" : user.getStatus();
+        if (!"active".equalsIgnoreCase(accountStatus)) {
+            return Map.of("success", false, "message", "Tài khoản đang bị khóa hoặc đã ngừng hoạt động");
+        }
 
         boolean encoded = user.getPassword() != null && user.getPassword().startsWith("$2");
         boolean validPassword = encoded ? passwordEncoder.matches(password, user.getPassword())

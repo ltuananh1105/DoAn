@@ -75,6 +75,30 @@ public class CurrentUser {
         requireCourseOwner(quiz.getCourse().getId());
     }
 
+    public void requireCourseEditable(Long courseId) {
+        requireCourseOwner(courseId);
+        var course = courses.findById(courseId).orElseThrow();
+        String status = course.getStatus() == null ? "draft" : course.getStatus().toLowerCase();
+        if (!("draft".equals(status) || "rejected".equals(status))) {
+            throw new AccessDeniedException("Chỉ được sửa nội dung khóa học ở trạng thái bản nháp hoặc bị từ chối");
+        }
+    }
+
+    public void requireChapterEditable(Long chapterId) {
+        var chapter = chapters.findById(chapterId).orElseThrow();
+        requireCourseEditable(chapter.getCourse().getId());
+    }
+
+    public void requireLessonEditable(Long lessonId) {
+        var lesson = lessons.findById(lessonId).orElseThrow();
+        requireChapterEditable(lesson.getChapter().getId());
+    }
+
+    public void requireQuizEditable(Long quizId) {
+        var quiz = quizzes.findById(quizId).orElseThrow();
+        requireCourseEditable(quiz.getCourse().getId());
+    }
+
     public void requireCourseAccess(Long courseId) {
         if (isAdmin()) return;
         var course = courses.findById(courseId).orElseThrow();

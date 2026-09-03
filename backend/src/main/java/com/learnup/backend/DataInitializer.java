@@ -35,6 +35,7 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        migrateLegacyStatuses();
         // Chỉ seed khi cơ sở dữ liệu hoàn toàn mới. Không tự xóa dữ liệu chỉ vì
         // một bảng đang trống hoặc dữ liệu đang được nhập dở.
         if (userRepository.count() == 0 && courseRepository.count() == 0) {
@@ -44,6 +45,20 @@ public class DataInitializer implements CommandLineRunner {
                 System.err.println("Auto reset error: " + e.getMessage());
             }
         }
+    }
+
+    private void migrateLegacyStatuses() {
+        List<User> users = userRepository.findAll();
+        users.stream().filter(user -> user.getStatus() == null || user.getStatus().isBlank())
+                .forEach(user -> user.setStatus("active"));
+        userRepository.saveAll(users);
+
+        List<Course> courses = courseRepository.findAll();
+        courses.forEach(course -> {
+            if ("approved".equalsIgnoreCase(course.getStatus())) course.setStatus("published");
+            if ("hidden".equalsIgnoreCase(course.getStatus())) course.setStatus("archived");
+        });
+        courseRepository.saveAll(courses);
     }
 
     @PostMapping("/reset-sample-data")
@@ -117,7 +132,7 @@ public class DataInitializer implements CommandLineRunner {
         // Course 1 (Teacher 1)
         Course c1 = saveCourse("Tiếng Anh Giao Tiếp Thực Chiến Cho Người Đi Làm",
                 "Khóa học chuẩn hóa phát âm, phản xạ giao tiếp tự tin trong môi trường công sở, viết email và đàm phán hợp đồng chuyên nghiệp.",
-                499000.0, "approved", t1, catGT);
+                499000.0, "published", t1, catGT);
         Chapter c1ch1 = chapter("Chương 1: Phản xạ giao tiếp công sở căn bản", c1);
         Lesson c1l1 = lesson("Bài 1: Tự tin giới thiệu bản thân & công việc", "https://www.youtube.com/watch?v=juKd26qkNAw", c1ch1);
         Lesson c1l2 = lesson("Bài 2: Viết Email và tin nhắn công việc chuyên nghiệp", "https://www.youtube.com/watch?v=juKd26qkNAw", c1ch1);
@@ -155,7 +170,7 @@ public class DataInitializer implements CommandLineRunner {
         // Course 2 (Teacher 2)
         Course c2 = saveCourse("Chinh Phục IELTS 7.0+ Toàn Diện 4 Kỹ Năng",
                 "Lộ trình bứt phá band điểm IELTS từ 5.5 lên 7.0+. Tập trung chuyên sâu Listening, Reading, Writing Task 2 và Speaking.",
-                890000.0, "approved", t2, catIELTS);
+                890000.0, "published", t2, catIELTS);
         Chapter c2ch1 = chapter("Chương 1: Chiến thuật Listening & Reading", c2);
         Lesson c2l1 = lesson("Bài 1: Phương pháp xử lý Multiple Choice trong Listening", "https://www.youtube.com/watch?v=juKd26qkNAw", c2ch1);
         Lesson c2l2 = lesson("Bài 2: Chiến lược Skimming & Scanning trong Reading", "https://www.youtube.com/watch?v=juKd26qkNAw", c2ch1);
@@ -184,7 +199,7 @@ public class DataInitializer implements CommandLineRunner {
         // Course 3 (Teacher 1)
         Course c3 = saveCourse("Bứt Phá TOEIC 750+ Cấp Tốc Trong 30 Ngày",
                 "Tổng hợp trọng tâm ngữ pháp và từ vựng TOEIC format mới, rèn luyện kỹ năng nghe Part 1-4 và đọc Part 5-7.",
-                350000.0, "approved", t1, catTOEIC);
+                350000.0, "published", t1, catTOEIC);
         Chapter c3ch1 = chapter("Chương 1: Trọng tâm Ngữ pháp TOEIC", c3);
         Lesson c3l1 = lesson("Bài 1: Dạng câu hỏi về Từ loại", "https://www.youtube.com/watch?v=juKd26qkNAw", c3ch1);
         Lesson c3l2 = lesson("Bài 2: Bẫy Mệnh đề quan hệ", "https://www.youtube.com/watch?v=juKd26qkNAw", c3ch1);
@@ -202,7 +217,7 @@ public class DataInitializer implements CommandLineRunner {
         // Course 4 (Teacher 3)
         Course c4 = saveCourse("Tiếng Anh Chuyên Ngành CNTT (IT English)",
                 "Cung cấp thuật ngữ IT, giao tiếp trong Daily Standup, Sprint Planning, đọc tài liệu kỹ thuật.",
-                550000.0, "approved", t3, catIT);
+                550000.0, "published", t3, catIT);
         Chapter c4ch1 = chapter("Chương 1: Giao tiếp Scrum/Agile", c4);
         Lesson c4l1 = lesson("Bài 1: Báo cáo tiến độ Daily Standup Meeting", "https://www.youtube.com/watch?v=juKd26qkNAw", c4ch1);
         Lesson c4l2 = lesson("Bài 2: Đọc hiểu API Specs & Git Workflow", "https://www.youtube.com/watch?v=juKd26qkNAw", c4ch1);
@@ -217,7 +232,7 @@ public class DataInitializer implements CommandLineRunner {
         // Course 6 (Teacher 3)
         Course c6 = saveCourse("Ngữ Pháp Tiếng Anh Nền Tảng A-Z",
                 "Hệ thống hóa toàn bộ ngữ pháp tiếng Anh từ cơ bản đến nâng cao.",
-                299000.0, "approved", t3, catNP);
+                299000.0, "published", t3, catNP);
         Chapter c6ch1 = chapter("Chương 1: Các thì cơ bản", c6);
         Lesson c6l1 = lesson("Bài 1: Hiện tại đơn & Tiếp diễn", "https://www.youtube.com/watch?v=juKd26qkNAw", c6ch1);
         Lesson c6l2 = lesson("Bài 2: Quá khứ đơn & Hoàn thành", "https://www.youtube.com/watch?v=juKd26qkNAw", c6ch1);
@@ -277,7 +292,7 @@ public class DataInitializer implements CommandLineRunner {
     private User saveUser(String name, String email, String role, String phone, String occupation, String province) {
         User u = new User();
         u.setName(name); u.setEmail(email); u.setPassword(passwordEncoder.encode("123456"));
-        u.setRole(role); u.setPhone(phone); u.setOccupation(occupation);
+        u.setRole(role); u.setStatus("active"); u.setPhone(phone); u.setOccupation(occupation);
         u.setCountry("Việt Nam"); u.setProvince(province);
         return userRepository.save(u);
     }

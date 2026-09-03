@@ -2,6 +2,7 @@ package com.learnup.backend.entity;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.Nationalized;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "courses")
@@ -23,7 +24,14 @@ public class Course {
     private Double price;
 
     @Nationalized
-    private String status; // "pending" | "approved" | "rejected"
+    private String status; // "draft" | "pending" | "published" | "rejected" | "suspended" | "archived"
+
+    @Nationalized
+    @Column(length = 1000)
+    private String reviewNote;
+
+    private LocalDateTime submittedAt;
+    private LocalDateTime reviewedAt;
 
     @ManyToOne
     @JoinColumn(name = "teacher_id", nullable = false)
@@ -48,6 +56,15 @@ public class Course {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public String getReviewNote() { return reviewNote; }
+    public void setReviewNote(String reviewNote) { this.reviewNote = reviewNote; }
+
+    public LocalDateTime getSubmittedAt() { return submittedAt; }
+    public void setSubmittedAt(LocalDateTime submittedAt) { this.submittedAt = submittedAt; }
+
+    public LocalDateTime getReviewedAt() { return reviewedAt; }
+    public void setReviewedAt(LocalDateTime reviewedAt) { this.reviewedAt = reviewedAt; }
 
     public User getTeacher() { return teacher; }
     public void setTeacher(User teacher) { this.teacher = teacher; }

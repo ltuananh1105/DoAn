@@ -40,7 +40,7 @@ public class ChapterController {
 
     @PostMapping("/course/{courseId}")
     public Chapter addChapter(@PathVariable Long courseId, @RequestBody Chapter chapter) {
-        currentUser.requireCourseOwner(courseId);
+        currentUser.requireCourseEditable(courseId);
         Course course = courseRepository.findById(courseId).orElseThrow();
         if (chapter.getTitle() == null || chapter.getTitle().isBlank()) throw new IllegalArgumentException("Tên chương không được để trống");
         chapter.setTitle(chapter.getTitle().trim());
@@ -52,7 +52,7 @@ public class ChapterController {
 
     @PutMapping("/{chapterId}")
     public Object updateChapter(@PathVariable Long chapterId, @RequestBody Map<String, Object> body) {
-        currentUser.requireChapterOwner(chapterId);
+        currentUser.requireChapterEditable(chapterId);
         Optional<Chapter> opt = chapterRepository.findById(chapterId);
         if (opt.isEmpty()) return Map.of("success", false, "message", "Không tìm thấy chương");
         Chapter ch = opt.get();
@@ -66,7 +66,7 @@ public class ChapterController {
     @DeleteMapping("/{chapterId}")
     @Transactional
     public Object deleteChapter(@PathVariable Long chapterId) {
-        currentUser.requireChapterOwner(chapterId);
+        currentUser.requireChapterEditable(chapterId);
         if (!chapterRepository.existsById(chapterId)) return Map.of("success", false, "message", "Không tìm thấy chương");
         List<Lesson> lessons = lessonRepository.findByChapterId(chapterId);
         for (Lesson lesson : lessons) lessonProgressRepository.deleteByLessonId(lesson.getId());
@@ -83,7 +83,7 @@ public class ChapterController {
 
     @PostMapping("/{chapterId}/lessons")
     public Lesson addLesson(@PathVariable Long chapterId, @RequestBody Lesson lesson) {
-        currentUser.requireChapterOwner(chapterId);
+        currentUser.requireChapterEditable(chapterId);
         Chapter chapter = chapterRepository.findById(chapterId).orElseThrow();
         if (lesson.getTitle() == null || lesson.getTitle().isBlank()) throw new IllegalArgumentException("Tên bài học không được để trống");
         lesson.setTitle(lesson.getTitle().trim());

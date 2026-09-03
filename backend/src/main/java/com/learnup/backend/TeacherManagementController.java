@@ -31,10 +31,7 @@ public class TeacherManagementController {
     @GetMapping("/courses-detail")
     public List<Map<String, Object>> getTeacherCourses(@PathVariable Long teacherId) {
         currentUser.requireTeacher(teacherId);
-        List<Course> courses = courseRepository.findAll()
-                .stream()
-                .filter(c -> c.getTeacher() != null && c.getTeacher().getId().equals(teacherId))
-                .toList();
+        List<Course> courses = courseRepository.findByTeacherId(teacherId);
 
         List<Map<String, Object>> result = new ArrayList<>();
         for (Course c : courses) {
@@ -44,6 +41,9 @@ public class TeacherManagementController {
             map.put("description", c.getDescription());
             map.put("price", c.getPrice());
             map.put("status", c.getStatus());
+            map.put("reviewNote", c.getReviewNote());
+            map.put("submittedAt", c.getSubmittedAt());
+            map.put("reviewedAt", c.getReviewedAt());
             map.put("category", c.getCategory());
             long enrollCount = enrollmentRepository.countByCourseId(c.getId());
             map.put("enrollmentCount", enrollCount);
@@ -59,10 +59,12 @@ public class TeacherManagementController {
         Optional<Course> opt = courseRepository.findById(courseId);
         if (opt.isEmpty()) return Map.of("success", false, "message", "Không tìm thấy khóa học");
         Course c = opt.get();
-        if ("hidden".equals(c.getStatus())) {
-            c.setStatus("approved");
+        if ("archived".equals(c.getStatus())) {
+            return Map.of("success", false, "message", "Khóa học đã lưu trữ cần Admin khôi phục");
+        } else if ("published".equals(c.getStatus()) || "approved".equals(c.getStatus())) {
+            c.setStatus("archived");
         } else {
-            c.setStatus("hidden");
+            return Map.of("success", false, "message", "Chỉ có thể lưu trữ khóa học đang xuất bản");
         }
         courseRepository.save(c);
         return Map.of("success", true, "newStatus", c.getStatus());
@@ -76,6 +78,10 @@ public class TeacherManagementController {
         Optional<Course> opt = courseRepository.findById(courseId);
         if (opt.isEmpty()) return Map.of("success", false, "message", "Không tìm thấy khóa học");
 
+        if (!"draft".equalsIgnoreCase(opt.get().getStatus())) {
+            return Map.of("success", false, "message", "Chỉ được xóa khóa học đang ở trạng thái bản nháp");
+        }
+
         long enrollCount = enrollmentRepository.countByCourseId(courseId);
         if (enrollCount > 0) {
             return Map.of("success", false,
@@ -84,6 +90,10 @@ public class TeacherManagementController {
         }
 
         // Xóa cascade
+        if (!chapterRepository.findByCourseId(courseId).isEmpty() || !quizRepository.findByCourseId(courseId).isEmpty()) {
+            return Map.of("success", false, "message", "Hãy xóa chương, bài học và quiz trước khi xóa bản nháp");
+        }
+
         List<Chapter> chapters = chapterRepository.findByCourseId(courseId);
         for (Chapter ch : chapters) {
             List<Lesson> lessons = lessonRepository.findByChapterId(ch.getId());
@@ -114,10 +124,7 @@ public class TeacherManagementController {
     @GetMapping("/students")
     public List<Map<String, Object>> getTeacherStudents(@PathVariable Long teacherId) {
         currentUser.requireTeacher(teacherId);
-        List<Course> teacherCourses = courseRepository.findAll()
-                .stream()
-                .filter(c -> c.getTeacher() != null && c.getTeacher().getId().equals(teacherId))
-                .toList();
+        List<Course> teacherCourses = courseRepository.findByTeacherId(teacherId);
 
         List<Map<String, Object>> result = new ArrayList<>();
 
@@ -210,10 +217,7 @@ public class TeacherManagementController {
     @GetMapping("/revenue")
     public Map<String, Object> getTeacherRevenue(@PathVariable Long teacherId) {
         currentUser.requireTeacher(teacherId);
-        List<Course> teacherCourses = courseRepository.findAll()
-                .stream()
-                .filter(c -> c.getTeacher() != null && c.getTeacher().getId().equals(teacherId))
-                .toList();
+        List<Course> teacherCourses = courseRepository.findByTeacherId(teacherId);
 
         double totalGrossRevenue = 0;
         int totalCoursesSold = 0;

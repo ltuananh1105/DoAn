@@ -24,6 +24,10 @@ public class User {
     @Nationalized
     private String role; // "admin" | "teacher" | "student"
 
+    @Nationalized
+    @Column
+    private String status = "active"; // "active" | "locked" | "inactive"
+
     private String dateOfBirth; // dạng "yyyy-MM-dd" từ input type="date"
 
     private String phone;
@@ -52,6 +56,9 @@ public class User {
 
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 
     public String getDateOfBirth() { return dateOfBirth; }
     public void setDateOfBirth(String dateOfBirth) { this.dateOfBirth = dateOfBirth; }

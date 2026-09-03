@@ -32,7 +32,7 @@ public class LessonController {
 
     @PostMapping("/chapter/{chapterId}")
     public Lesson addLesson(@PathVariable Long chapterId, @RequestBody Lesson lesson) {
-        currentUser.requireChapterOwner(chapterId);
+        currentUser.requireChapterEditable(chapterId);
         Chapter chapter = chapterRepository.findById(chapterId).orElseThrow();
         if (lesson.getTitle() == null || lesson.getTitle().isBlank()) throw new IllegalArgumentException("Tên bài học không được để trống");
         lesson.setTitle(lesson.getTitle().trim());
@@ -44,7 +44,7 @@ public class LessonController {
 
     @PutMapping("/{lessonId}")
     public Object updateLesson(@PathVariable Long lessonId, @RequestBody Map<String, Object> body) {
-        currentUser.requireLessonOwner(lessonId);
+        currentUser.requireLessonEditable(lessonId);
         Optional<Lesson> opt = lessonRepository.findById(lessonId);
         if (opt.isEmpty()) return Map.of("success", false, "message", "Không tìm thấy bài học");
         Lesson l = opt.get();
@@ -61,7 +61,7 @@ public class LessonController {
     @DeleteMapping("/{lessonId}")
     @org.springframework.transaction.annotation.Transactional
     public Object deleteLesson(@PathVariable Long lessonId) {
-        currentUser.requireLessonOwner(lessonId);
+        currentUser.requireLessonEditable(lessonId);
         if (!lessonRepository.existsById(lessonId)) return Map.of("success", false, "message", "Không tìm thấy bài học");
         lessonProgressRepository.deleteByLessonId(lessonId);
         lessonRepository.deleteById(lessonId);

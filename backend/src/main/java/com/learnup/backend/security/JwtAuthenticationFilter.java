@@ -36,7 +36,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         : userRepository.findById(userId);
                 String tokenRole = String.valueOf(claims.get("role"));
                 String tokenEmail = String.valueOf(claims.get("sub"));
-                if (user.isPresent() && tokenRole.equalsIgnoreCase(user.get().getRole())
+                String accountStatus = user.isPresent() && user.get().getStatus() != null
+                        ? user.get().getStatus() : "active";
+                if (user.isPresent() && "active".equalsIgnoreCase(accountStatus)
+                        && tokenRole.equalsIgnoreCase(user.get().getRole())
                         && tokenEmail.equalsIgnoreCase(user.get().getEmail())) {
                     String role = user.get().getRole().toUpperCase();
                     var authentication = new UsernamePasswordAuthenticationToken(claims, null,

@@ -51,7 +51,7 @@ public class EnrollmentController {
         }
 
         Course course = courseOpt.get();
-        if (!"approved".equals(course.getStatus())) {
+        if (!("published".equals(course.getStatus()) || "approved".equals(course.getStatus()))) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(Map.of("success", false, "message", "Khóa học chưa được mở đăng ký"));
         }

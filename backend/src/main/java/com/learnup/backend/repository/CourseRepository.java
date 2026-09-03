@@ -7,5 +7,6 @@ import java.util.List;
 public interface CourseRepository extends JpaRepository<Course, Long> {
     long countByCategoryId(Long categoryId);
     List<Course> findByStatus(String status);
+    List<Course> findByTeacherId(Long teacherId);
     boolean existsByTeacherId(Long teacherId);
 }

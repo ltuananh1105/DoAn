@@ -16,6 +16,8 @@ import java.util.Optional;
 import java.util.Objects;
 import java.util.LinkedHashMap;
 import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.util.Set;
 import com.learnup.backend.security.CurrentUser;
 
 @RestController
@@ -39,13 +41,13 @@ public class CourseController {
 
     @GetMapping("/public")
     public List<Course> getPublicCourses() {
-        return courseRepository.findByStatus("approved");
+        return courseRepository.findAll().stream().filter(this::isPublished).toList();
     }
 
     @GetMapping("/public/{id}")
     public Object getPublicCourseById(@PathVariable Long id) {
         return courseRepository.findById(id)
-                .filter(course -> "approved".equals(course.getStatus()))
+                .filter(this::isPublished)
                 .<Object>map(course -> course)
                 .orElseGet(() -> Map.of("success", false, "message", "Không tìm thấy khóa học đang mở"));
     }
@@ -53,14 +55,14 @@ public class CourseController {
     @GetMapping("/public/{id}/chapters")
     public List<Chapter> getPublicCourseChapters(@PathVariable Long id) {
         return courseRepository.findById(id)
-                .filter(course -> "approved".equals(course.getStatus()))
+                .filter(this::isPublished)
                 .map(course -> chapterRepository.findByCourseIdOrderByOrderIndexAscIdAsc(id))
                 .orElseGet(List::of);
     }
 
     @GetMapping("/public/{id}/curriculum")
     public List<Map<String, Object>> getPublicCurriculum(@PathVariable Long id) {
-        if (courseRepository.findById(id).filter(course -> "approved".equals(course.getStatus())).isEmpty()) return List.of();
+        if (courseRepository.findById(id).filter(this::isPublished).isEmpty()) return List.of();
         List<Map<String, Object>> result = new ArrayList<>();
         for (Chapter chapter : chapterRepository.findByCourseIdOrderByOrderIndexAscIdAsc(id)) {
             Map<String, Object> item = new LinkedHashMap<>();
@@ -86,7 +88,7 @@ public class CourseController {
 
     @PostMapping("/{id}/chapters")
     public Chapter addChapterToCourse(@PathVariable Long id, @RequestBody Chapter chapter) {
-        currentUser.requireCourseOwner(id);
+        currentUser.requireCourseEditable(id);
         Course course = courseRepository.findById(id).orElseThrow();
         if (chapter.getTitle() == null || chapter.getTitle().isBlank()) throw new IllegalArgumentException("Tên chương không được để trống");
         chapter.setTitle(chapter.getTitle().trim());
@@ -100,7 +102,10 @@ public class CourseController {
         if (course.getTeacher() != null) currentUser.requireTeacher(course.getTeacher().getId());
         String error = validateAndResolveCourse(course);
         if (error != null) return Map.of("success", false, "message", error);
-        course.setStatus("pending");
+        course.setStatus("draft");
+        course.setReviewNote(null);
+        course.setSubmittedAt(null);
+        course.setReviewedAt(null);
         return courseRepository.save(course);
     }
 
@@ -114,6 +119,9 @@ public class CourseController {
 
         Course course = optionalCourse.get();
         currentUser.requireCourseOwner(id);
+        if (!Set.of("draft", "rejected").contains(normalizedStatus(course))) {
+            return Map.of("success", false, "message", "Chỉ được sửa khóa học ở trạng thái bản nháp hoặc bị từ chối");
+        }
         updatedCourse.setTeacher(course.getTeacher());
         String error = validateAndResolveCourse(updatedCourse);
         if (error != null) return Map.of("success", false, "message", error);
@@ -122,6 +130,11 @@ public class CourseController {
         course.setPrice(updatedCourse.getPrice());
         course.setTeacher(updatedCourse.getTeacher());
         course.setCategory(updatedCourse.getCategory());
+        if ("rejected".equals(normalizedStatus(course))) {
+            course.setStatus("draft");
+            course.setReviewNote(null);
+            course.setReviewedAt(null);
+        }
         return courseRepository.save(course);
     }
 
@@ -129,24 +142,87 @@ public class CourseController {
     @DeleteMapping("/{id}")
     public Object deleteCourse(@PathVariable Long id) {
         currentUser.requireCourseOwner(id);
-        if (!courseRepository.existsById(id)) {
+        Course course = courseRepository.findById(id).orElse(null);
+        if (course == null) {
             return Map.of("success", false, "message", "Không tìm thấy khóa học");
+        }
+        if (!"draft".equals(normalizedStatus(course))) {
+            return Map.of("success", false, "message", "Chỉ được xóa khóa học đang ở trạng thái bản nháp");
+        }
+        if (!chapterRepository.findByCourseId(id).isEmpty()) {
+            return Map.of("success", false, "message", "Hãy xóa nội dung khóa học trước khi xóa bản nháp");
         }
         courseRepository.deleteById(id);
         return Map.of("success", true, "message", "Đã xóa khóa học");
     }
 
-    @PutMapping("/{id}/approve")
-    public Course approveCourse(@PathVariable Long id) {
+    @PutMapping("/{id}/submit")
+    public Object submitCourse(@PathVariable Long id) {
+        currentUser.requireCourseOwner(id);
         Course course = courseRepository.findById(id).orElseThrow();
-        course.setStatus("approved");
+        if (!Set.of("draft", "rejected").contains(normalizedStatus(course))) {
+            return Map.of("success", false, "message", "Khóa học không ở trạng thái có thể gửi duyệt");
+        }
+        List<Chapter> chapters = chapterRepository.findByCourseIdOrderByOrderIndexAscIdAsc(id);
+        if (chapters.isEmpty()) return Map.of("success", false, "message", "Khóa học cần có ít nhất một chương trước khi gửi duyệt");
+        boolean hasEmptyChapter = chapters.stream().anyMatch(chapter ->
+                lessonRepository.findByChapterIdOrderByOrderIndexAscIdAsc(chapter.getId()).isEmpty());
+        if (hasEmptyChapter) return Map.of("success", false, "message", "Mỗi chương cần có ít nhất một bài học");
+        course.setStatus("pending");
+        course.setReviewNote(null);
+        course.setSubmittedAt(LocalDateTime.now());
+        course.setReviewedAt(null);
+        return courseRepository.save(course);
+    }
+
+    @PutMapping("/{id}/approve")
+    public Object approveCourse(@PathVariable Long id) {
+        Course course = courseRepository.findById(id).orElseThrow();
+        if (!"pending".equals(normalizedStatus(course))) return Map.of("success", false, "message", "Chỉ được duyệt khóa học đang chờ duyệt");
+        course.setStatus("published");
+        course.setReviewNote(null);
+        course.setReviewedAt(LocalDateTime.now());
         return courseRepository.save(course);
     }
 
     @PutMapping("/{id}/reject")
-    public Course rejectCourse(@PathVariable Long id) {
+    public Object rejectCourse(@PathVariable Long id, @RequestBody(required = false) Map<String, String> body) {
         Course course = courseRepository.findById(id).orElseThrow();
+        if (!"pending".equals(normalizedStatus(course))) return Map.of("success", false, "message", "Chỉ được từ chối khóa học đang chờ duyệt");
+        String reason = body == null || body.get("reason") == null ? "" : body.get("reason").trim();
+        if (reason.length() < 10) return Map.of("success", false, "message", "Lý do từ chối phải có ít nhất 10 ký tự");
         course.setStatus("rejected");
+        course.setReviewNote(reason);
+        course.setReviewedAt(LocalDateTime.now());
+        return courseRepository.save(course);
+    }
+
+    @PutMapping("/{id}/suspend")
+    public Object suspendCourse(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        Course course = courseRepository.findById(id).orElseThrow();
+        if (!isPublished(course)) return Map.of("success", false, "message", "Chỉ được đình chỉ khóa học đang xuất bản");
+        String reason = body.get("reason") == null ? "" : body.get("reason").trim();
+        if (reason.length() < 10) return Map.of("success", false, "message", "Lý do đình chỉ phải có ít nhất 10 ký tự");
+        course.setStatus("suspended"); course.setReviewNote(reason); course.setReviewedAt(LocalDateTime.now());
+        return courseRepository.save(course);
+    }
+
+    @PutMapping("/{id}/restore")
+    public Object restoreCourse(@PathVariable Long id) {
+        Course course = courseRepository.findById(id).orElseThrow();
+        if (!Set.of("suspended", "archived").contains(normalizedStatus(course))) {
+            return Map.of("success", false, "message", "Khóa học không ở trạng thái có thể khôi phục");
+        }
+        course.setStatus("published"); course.setReviewNote(null); course.setReviewedAt(LocalDateTime.now());
+        return courseRepository.save(course);
+    }
+
+    @PutMapping("/{id}/archive")
+    public Object archiveCourse(@PathVariable Long id) {
+        Course course = courseRepository.findById(id).orElseThrow();
+        if ("pending".equals(normalizedStatus(course))) return Map.of("success", false, "message", "Không thể lưu trữ khóa học đang chờ duyệt");
+        if (!currentUser.isAdmin()) currentUser.requireCourseOwner(id);
+        course.setStatus("archived"); course.setReviewedAt(LocalDateTime.now());
         return courseRepository.save(course);
     }
 
@@ -170,5 +246,13 @@ public class CourseController {
     private int nextChapterIndex(Long courseId) {
         return chapterRepository.findByCourseId(courseId).stream()
                 .map(Chapter::getOrderIndex).filter(Objects::nonNull).max(Integer::compareTo).orElse(0) + 1;
+    }
+
+    private boolean isPublished(Course course) {
+        return Set.of("published", "approved").contains(normalizedStatus(course));
+    }
+
+    private String normalizedStatus(Course course) {
+        return course.getStatus() == null ? "draft" : course.getStatus().toLowerCase();
     }
 }
