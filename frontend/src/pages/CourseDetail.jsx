@@ -11,6 +11,13 @@ export default function CourseDetail() {
   const [activeLesson, setActiveLesson] = useState(null);
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [courseProgress, setCourseProgress] = useState({
+    totalLessons: 0,
+    completedLessons: 0,
+    progressPercent: 0,
+    completedLessonIds: [],
+  });
+  const [progressSaving, setProgressSaving] = useState(false);
 
   // Quiz state
   const [activeQuiz, setActiveQuiz] = useState(null);
@@ -60,7 +67,49 @@ export default function CourseDetail() {
       .then((res) => res.json())
       .then((data) => setQuizzes(Array.isArray(data) ? data : []))
       .catch(console.error);
-  }, [courseId]);
+
+    if (user?.id) {
+      fetch(`http://localhost:8080/api/progress/student/${user.id}/course/${courseId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) setCourseProgress(data);
+        })
+        .catch(console.error);
+    }
+  }, [courseId, user?.id]);
+
+  const handleToggleProgress = async () => {
+    if (!activeLesson?.id || !user?.id || progressSaving) return;
+    setProgressSaving(true);
+    try {
+      const response = await fetch("http://localhost:8080/api/progress/toggle", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ studentId: user.id, lessonId: activeLesson.id }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success) throw new Error(data.message || "Không thể cập nhật tiến độ");
+
+      setCourseProgress((current) => {
+        const completedIds = new Set(current.completedLessonIds || []);
+        if (data.isCompleted) completedIds.add(activeLesson.id);
+        else completedIds.delete(activeLesson.id);
+        const completedLessons = completedIds.size;
+        return {
+          ...current,
+          completedLessonIds: [...completedIds],
+          completedLessons,
+          progressPercent: current.totalLessons === 0
+            ? 0
+            : Math.round(completedLessons * 100 / current.totalLessons),
+        };
+      });
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setProgressSaving(false);
+    }
+  };
 
   // Bắt đầu làm quiz
   const handleStartQuiz = async (quizId) => {
@@ -258,7 +307,22 @@ export default function CourseDetail() {
           </div>
 
           <div className="mt-4">
-            <h1 className="text-2xl font-bold text-gray-900">{activeLesson?.title || course?.title}</h1>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <h1 className="text-2xl font-bold text-gray-900">{activeLesson?.title || course?.title}</h1>
+              {activeLesson && (
+                <button
+                  onClick={handleToggleProgress}
+                  disabled={progressSaving}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold border transition disabled:opacity-50 ${
+                    courseProgress.completedLessonIds?.includes(activeLesson.id)
+                      ? "bg-green-50 border-green-300 text-green-700"
+                      : "bg-blue-600 border-blue-600 text-white hover:bg-blue-700"
+                  }`}
+                >
+                  {courseProgress.completedLessonIds?.includes(activeLesson.id) ? "✓ Đã hoàn thành" : "Đánh dấu hoàn thành"}
+                </button>
+              )}
+            </div>
             <p className="text-sm text-gray-500 mt-1">{course?.description}</p>
           </div>
 
@@ -290,7 +354,18 @@ export default function CourseDetail() {
 
         {/* DANH SÁCH BÀI HỌC BÊN PHẢI */}
         <div className="w-full lg:w-80 space-y-4">
-          <h2 className="font-bold text-lg text-gray-900">Mục lục bài học</h2>
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <h2 className="font-bold text-lg text-gray-900">Mục lục bài học</h2>
+              <span className="text-xs font-bold text-blue-600">{courseProgress.progressPercent}%</span>
+            </div>
+            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div className="h-full bg-green-500 transition-all" style={{ width: `${courseProgress.progressPercent}%` }} />
+            </div>
+            <p className="text-[11px] text-gray-400 mt-1">
+              {courseProgress.completedLessons}/{courseProgress.totalLessons} bài đã hoàn thành
+            </p>
+          </div>
 
           {chapters.map((ch) => (
             <div key={ch.id} className="border rounded-xl bg-white overflow-hidden shadow-xs">
@@ -308,8 +383,12 @@ export default function CourseDetail() {
                         : "hover:bg-gray-50 text-gray-700"
                     }`}
                   >
-                    <span className="w-5 h-5 rounded-full bg-gray-200 text-gray-700 flex items-center justify-center font-mono text-[10px]">
-                      {idx + 1}
+                    <span className={`w-5 h-5 rounded-full flex items-center justify-center font-mono text-[10px] ${
+                      courseProgress.completedLessonIds?.includes(l.id)
+                        ? "bg-green-500 text-white"
+                        : "bg-gray-200 text-gray-700"
+                    }`}>
+                      {courseProgress.completedLessonIds?.includes(l.id) ? "✓" : idx + 1}
                     </span>
                     <span className="flex-1 truncate">{l.title}</span>
                   </button>

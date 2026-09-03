@@ -53,7 +53,18 @@ export default function Student() {
       const resEn = await fetch(`http://localhost:8080/api/students/${user.id}/enrollments`);
       const dataEn = await resEn.json();
       const enList = Array.isArray(dataEn) ? dataEn.filter((e) => e && e.course) : [];
-      setEnrollments(enList);
+      const enrollmentsWithProgress = await Promise.all(enList.map(async (enrollment) => {
+        try {
+          const progressRes = await fetch(
+            `http://localhost:8080/api/progress/student/${user.id}/course/${enrollment.course.id}`
+          );
+          const progress = await progressRes.json();
+          return { ...enrollment, progress: progress.success ? progress : null };
+        } catch {
+          return { ...enrollment, progress: null };
+        }
+      }));
+      setEnrollments(enrollmentsWithProgress);
 
       const allQuizzes = [];
       for (const en of enList) {
@@ -178,6 +189,15 @@ export default function Student() {
                             </span>
                             <h3 className="font-bold text-gray-900 mt-3 line-clamp-1">{e.course?.title}</h3>
                             <p className="text-xs text-gray-500 mt-1 line-clamp-2">{e.course?.description}</p>
+                            <div className="mt-4">
+                              <div className="flex justify-between text-[11px] mb-1">
+                                <span className="text-gray-500">Tiến độ</span>
+                                <strong className="text-blue-600">{e.progress?.progressPercent || 0}%</strong>
+                              </div>
+                              <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                                <div className="h-full bg-green-500" style={{ width: `${e.progress?.progressPercent || 0}%` }} />
+                              </div>
+                            </div>
                           </div>
                           <div className="mt-5 pt-4 border-t flex justify-between items-center">
                             <span className="text-xs text-gray-400">GV: {e.course?.teacher?.name || "LearnUp"}</span>
@@ -253,6 +273,15 @@ export default function Student() {
                                 {e.course?.category?.name || "Chưa phân loại"}
                               </span>
                               <p className="text-sm text-gray-600 mt-2 line-clamp-2">{e.course?.description}</p>
+                              <div className="mt-4">
+                                <div className="flex justify-between text-[11px] mb-1">
+                                  <span className="text-gray-500">{e.progress?.completedLessons || 0}/{e.progress?.totalLessons || 0} bài</span>
+                                  <strong className="text-blue-600">{e.progress?.progressPercent || 0}%</strong>
+                                </div>
+                                <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                                  <div className="h-full bg-green-500" style={{ width: `${e.progress?.progressPercent || 0}%` }} />
+                                </div>
+                              </div>
                             </div>
                             <div className="mt-4 pt-3 border-t text-xs font-bold text-blue-600 flex justify-between items-center">
                               <span>Vào học ngay →</span>
