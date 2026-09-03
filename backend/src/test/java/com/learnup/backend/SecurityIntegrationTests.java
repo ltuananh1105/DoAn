@@ -12,8 +12,10 @@ import com.learnup.backend.entity.User;
 import java.util.Optional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.mockito.Mockito.when;
+import org.springframework.http.MediaType;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -47,5 +49,27 @@ class SecurityIntegrationTests {
         String tampered = token.substring(0, token.length() - 1) + (token.endsWith("a") ? "b" : "a");
         mockMvc.perform(get("/api/users").header("Authorization", "Bearer " + tampered))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void lockedAccountTokenIsRejectedImmediately() throws Exception {
+        User student = new User(); student.setId(10L); student.setEmail("student@test.local");
+        student.setRole("student"); student.setStatus("locked");
+        when(userRepository.findById(10L)).thenReturn(Optional.of(student));
+        String token = jwtService.createToken(10L, student.getEmail(), student.getRole());
+        mockMvc.perform(get("/api/users/10").header("Authorization", "Bearer " + token))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void studentCannotCreateManagedAccount() throws Exception {
+        User student = new User(); student.setId(10L); student.setEmail("student@test.local");
+        student.setRole("student"); student.setStatus("active");
+        when(userRepository.findById(10L)).thenReturn(Optional.of(student));
+        String token = jwtService.createToken(10L, student.getEmail(), student.getRole());
+        mockMvc.perform(post("/api/users").header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"Teacher\",\"email\":\"teacher@test.local\",\"password\":\"123456\",\"role\":\"teacher\"}"))
+                .andExpect(status().isForbidden());
     }
 }
