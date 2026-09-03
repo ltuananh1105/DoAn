@@ -7,6 +7,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import com.learnup.backend.security.CurrentUser;
 
 @RestController
@@ -215,23 +218,39 @@ public class TeacherManagementController {
     // ===================== REVENUE =====================
 
     @GetMapping("/revenue")
-    public Map<String, Object> getTeacherRevenue(@PathVariable Long teacherId) {
+    public Map<String, Object> getTeacherRevenue(@PathVariable Long teacherId,
+            @RequestParam(required = false) LocalDate from,
+            @RequestParam(required = false) LocalDate to) {
         currentUser.requireTeacher(teacherId);
+        LocalDate endDate = to == null ? LocalDate.now() : to;
+        LocalDate startDate = from == null ? endDate.minusDays(29) : from;
+        if (startDate.isAfter(endDate)) throw new IllegalArgumentException("Ngày bắt đầu phải trước ngày kết thúc");
+        if (ChronoUnit.DAYS.between(startDate, endDate) > 366) throw new IllegalArgumentException("Khoảng báo cáo tối đa là 366 ngày");
         List<Course> teacherCourses = courseRepository.findByTeacherId(teacherId);
 
         double totalGrossRevenue = 0;
         int totalCoursesSold = 0;
+        long totalEnrollments = 0;
+        Set<Long> uniqueStudents = new HashSet<>();
         List<Map<String, Object>> coursesBreakdown = new ArrayList<>();
+        List<Map<String, Object>> transactions = new ArrayList<>();
 
         for (Course c : teacherCourses) {
             List<Order> orders = orderRepository.findByCourseId(c.getId())
-                    .stream().filter(o -> "COMPLETED".equals(o.getStatus())).toList();
+                    .stream().filter(o -> "COMPLETED".equals(o.getStatus()))
+                    .filter(o -> {
+                        LocalDateTime time = o.getCompletedAt() != null ? o.getCompletedAt() : o.getCreatedAt();
+                        return time != null && !time.toLocalDate().isBefore(startDate) && !time.toLocalDate().isAfter(endDate);
+                    }).toList();
             
             // Doanh thu chỉ được ghi nhận từ giao dịch đã hoàn tất. Ghi danh miễn phí
             // hoặc dữ liệu nhập tay không được xem là một giao dịch bán khóa học.
             double courseRevenue = orders.stream()
                     .mapToDouble(o -> o.getAmount() != null ? o.getAmount() : 0).sum();
             int count = orders.size();
+            long enrollmentCount = enrollmentRepository.countByCourseId(c.getId());
+            totalEnrollments += enrollmentCount;
+            orders.stream().filter(o -> o.getStudent() != null).forEach(o -> uniqueStudents.add(o.getStudent().getId()));
 
             double teacherEarnings = courseRevenue * 0.8;
             totalGrossRevenue += courseRevenue;
@@ -242,15 +261,34 @@ public class TeacherManagementController {
             breakdown.put("courseTitle", c.getTitle());
             breakdown.put("price", c.getPrice() != null ? c.getPrice() : 0);
             breakdown.put("soldCount", count);
+            breakdown.put("enrollmentCount", enrollmentCount);
+            breakdown.put("conversionRate", enrollmentCount == 0 ? 0 : Math.round((count * 1000.0 / enrollmentCount)) / 10.0);
             breakdown.put("totalRevenue", courseRevenue);
             breakdown.put("teacherEarnings", teacherEarnings);
             coursesBreakdown.add(breakdown);
+            for (Order order : orders) {
+                Map<String, Object> transaction = new LinkedHashMap<>();
+                transaction.put("orderCode", order.getOrderCode()); transaction.put("transactionNo", order.getTransactionNo());
+                transaction.put("completedAt", order.getCompletedAt() != null ? order.getCompletedAt() : order.getCreatedAt());
+                transaction.put("studentName", order.getStudent() == null ? "" : order.getStudent().getName());
+                transaction.put("studentEmail", order.getStudent() == null ? "" : order.getStudent().getEmail());
+                transaction.put("courseTitle", c.getTitle()); transaction.put("amount", order.getAmount());
+                transaction.put("teacherEarning", (order.getAmount() == null ? 0 : order.getAmount()) * 0.8);
+                transaction.put("paymentMethod", order.getPaymentMethod());
+                transactions.add(transaction);
+            }
         }
 
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("totalGrossRevenue", totalGrossRevenue);
         result.put("teacherNetEarnings", totalGrossRevenue * 0.8);
         result.put("totalCoursesSold", totalCoursesSold);
+        result.put("totalEnrollments", totalEnrollments);
+        result.put("uniquePayingStudents", uniqueStudents.size());
+        result.put("averageOrderValue", totalCoursesSold == 0 ? 0 : totalGrossRevenue / totalCoursesSold);
+        result.put("from", startDate); result.put("to", endDate); result.put("generatedAt", LocalDateTime.now());
+        transactions.sort((a, b) -> ((LocalDateTime) b.get("completedAt")).compareTo((LocalDateTime) a.get("completedAt")));
+        result.put("transactions", transactions);
         result.put("coursesBreakdown", coursesBreakdown);
         return result;
     }
