@@ -163,7 +163,8 @@ public class TeacherManagementController {
                 int passedQuizzes = 0;
                 double totalScore = 0;
                 for (Quiz q : quizzes) {
-                    Optional<QuizResult> qr = quizResultRepository.findByStudentIdAndQuizId(student.getId(), q.getId());
+                    Optional<QuizResult> qr = quizResultRepository
+                            .findTopByStudentIdAndQuizIdAndSubmittedAtIsNotNullOrderBySubmittedAtDesc(student.getId(), q.getId());
                     if (qr.isPresent()) {
                         quizzesTaken++;
                         if (Boolean.TRUE.equals(qr.get().getPassed())) passedQuizzes++;

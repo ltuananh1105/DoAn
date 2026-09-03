@@ -25,6 +25,14 @@ export default function CourseDetail() {
   const [answers, setAnswers] = useState({});
   const [quizResult, setQuizResult] = useState(null);
   const [quizLoading, setQuizLoading] = useState(false);
+  const [attemptId, setAttemptId] = useState(null);
+  const [remainingSeconds, setRemainingSeconds] = useState(0);
+
+  useEffect(() => {
+    if (!attemptId || quizResult) return;
+    const timer = setInterval(() => setRemainingSeconds((value) => Math.max(0, value - 1)), 1000);
+    return () => clearInterval(timer);
+  }, [attemptId, quizResult]);
 
   useEffect(() => {
     setLoading(true);
@@ -117,7 +125,15 @@ export default function CourseDetail() {
     try {
       const res = await fetch(`/api/quizzes/${quizId}`);
       const data = await res.json();
+      const startRes = await fetch(`/api/quizzes/${quizId}/start`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ studentId: user?.id }),
+      });
+      const attempt = await startRes.json();
+      if (!attempt.success) throw new Error(attempt.message || "Không thể bắt đầu quiz");
       setQuizDetail(data);
+      setAttemptId(attempt.attemptId);
+      setRemainingSeconds(attempt.remainingSeconds);
       setActiveQuiz(quizId);
       setAnswers({});
       setQuizResult(null);
@@ -139,7 +155,7 @@ export default function CourseDetail() {
       const res = await fetch(`/api/quizzes/${quizDetail.id}/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ studentId: user.id, answers }),
+        body: JSON.stringify({ studentId: user.id, attemptId, answers }),
       });
       const result = await res.json();
       if (!result.success) {
@@ -158,6 +174,7 @@ export default function CourseDetail() {
     setQuizDetail(null);
     setAnswers({});
     setQuizResult(null);
+    setAttemptId(null);
   };
 
   if (loading) {
@@ -217,7 +234,7 @@ export default function CourseDetail() {
 
             <div className="flex justify-center gap-3">
               <button
-                onClick={() => { setAnswers({}); setQuizResult(null); }}
+                onClick={() => handleStartQuiz(quizDetail.id)}
                 className="px-5 py-2.5 border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50"
               >
                 Làm lại
@@ -237,7 +254,7 @@ export default function CourseDetail() {
               <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-md">Bài Kiểm Tra</span>
               <h2 className="text-xl font-bold text-gray-900 mt-2">{quizDetail.title}</h2>
               <p className="text-xs text-gray-400 mt-0.5">
-                {quizDetail.timeLimitMinutes} phút · Điểm đạt: {quizDetail.passScore}%
+                Còn {Math.floor(remainingSeconds / 60)}:{String(remainingSeconds % 60).padStart(2, "0")} · Điểm đạt: {quizDetail.passScore}%
               </p>
             </div>
 

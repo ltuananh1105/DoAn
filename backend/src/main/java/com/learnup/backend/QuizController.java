@@ -7,6 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.time.LocalDateTime;
+import java.time.Duration;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -197,7 +199,43 @@ public class QuizController {
     }
 
     // Nộp bài quiz
+    @PostMapping("/{quizId}/start")
+    @Transactional
+    public Object startQuiz(@PathVariable Long quizId, @RequestBody Map<String, Object> body) {
+        Optional<Quiz> quizOpt = quizRepository.findById(quizId);
+        if (quizOpt.isEmpty()) return Map.of("success", false, "message", "Không tìm thấy quiz");
+        Quiz quiz = quizOpt.get();
+        Long studentId = parseLong(body.get("studentId"));
+        if (studentId == null) return Map.of("success", false, "message", "Học viên không hợp lệ");
+        Optional<User> studentOpt = userRepository.findById(studentId);
+        if (studentOpt.isEmpty() || !"student".equalsIgnoreCase(studentOpt.get().getRole())) {
+            return Map.of("success", false, "message", "Không tìm thấy học viên");
+        }
+        if (!enrollmentRepository.existsByStudentIdAndCourseId(studentId, quiz.getCourse().getId())) {
+            return Map.of("success", false, "message", "Học viên chưa ghi danh khóa học này");
+        }
+        int total = questionRepository.findByQuizIdOrderByOrderIndex(quizId).size();
+        if (total == 0) return Map.of("success", false, "message", "Quiz chưa có câu hỏi");
+
+        Optional<QuizResult> active = quizResultRepository
+                .findTopByStudentIdAndQuizIdAndSubmittedAtIsNullOrderByStartedAtDesc(studentId, quizId);
+        if (active.isPresent() && !isExpired(active.get(), quiz)) return startResponse(active.get(), quiz);
+        active.ifPresent(result -> {
+            result.setScore(0.0); result.setCorrectCount(0); result.setTotalQuestions(total);
+            result.setPassed(false); result.setSubmittedAt(LocalDateTime.now());
+            quizResultRepository.save(result);
+        });
+
+        QuizResult attempt = new QuizResult();
+        attempt.setStudent(studentOpt.get());
+        attempt.setQuiz(quiz);
+        attempt.setStartedAt(LocalDateTime.now());
+        attempt.setTotalQuestions(total);
+        return startResponse(quizResultRepository.save(attempt), quiz);
+    }
+
     @PostMapping("/{quizId}/submit")
+    @Transactional
     public Object submitQuiz(@PathVariable Long quizId, @RequestBody Map<String, Object> body) {
         Optional<Quiz> quizOpt = quizRepository.findById(quizId);
         if (quizOpt.isEmpty())
@@ -216,6 +254,20 @@ public class QuizController {
         }
         if (!enrollmentRepository.existsByStudentIdAndCourseId(studentId, quiz.getCourse().getId())) {
             return Map.of("success", false, "message", "Học viên chưa ghi danh khóa học này");
+        }
+        Long attemptId = parseLong(body.get("attemptId"));
+        if (attemptId == null) return Map.of("success", false, "message", "Lượt làm bài không hợp lệ");
+        Optional<QuizResult> attemptOpt = quizResultRepository.findById(attemptId);
+        if (attemptOpt.isEmpty()) return Map.of("success", false, "message", "Không tìm thấy lượt làm bài");
+        QuizResult result = attemptOpt.get();
+        if (result.getStudent() == null || !studentId.equals(result.getStudent().getId())
+                || result.getQuiz() == null || !quizId.equals(result.getQuiz().getId()) || result.getSubmittedAt() != null) {
+            return Map.of("success", false, "message", "Lượt làm bài đã kết thúc hoặc không hợp lệ");
+        }
+        if (isExpired(result, quiz)) {
+            result.setScore(0.0); result.setCorrectCount(0); result.setPassed(false);
+            result.setSubmittedAt(LocalDateTime.now()); quizResultRepository.save(result);
+            return Map.of("success", false, "message", "Đã hết thời gian làm bài");
         }
         @SuppressWarnings("unchecked")
         Map<String, Object> answers = (Map<String, Object>) body.get("answers");
@@ -264,7 +316,6 @@ public class QuizController {
         double score = total > 0 ? Math.round((double) correct / total * 100) : 0;
         boolean passed = score >= (quiz.getPassScore() != null ? quiz.getPassScore() : 80);
 
-        QuizResult result = quizResultRepository.findByStudentIdAndQuizId(studentId, quizId).orElse(new QuizResult());
         result.setStudent(studentOpt.get());
         result.setQuiz(quiz);
         result.setScore(score);
@@ -283,6 +334,33 @@ public class QuizController {
         response.put("passScore", quiz.getPassScore() != null ? quiz.getPassScore() : 80);
         response.put("questions", reviewQuestions);
         return response;
+    }
+
+    @GetMapping("/{quizId}/history/student/{studentId}")
+    public List<Map<String, Object>> getHistory(@PathVariable Long quizId, @PathVariable Long studentId) {
+        return quizResultRepository.findByStudentIdAndQuizIdAndSubmittedAtIsNotNullOrderBySubmittedAtDesc(studentId, quizId)
+                .stream().map(result -> Map.<String, Object>of(
+                        "id", result.getId(), "score", result.getScore() != null ? result.getScore() : 0,
+                        "passed", Boolean.TRUE.equals(result.getPassed()),
+                        "correct", result.getCorrectCount() != null ? result.getCorrectCount() : 0,
+                        "total", result.getTotalQuestions() != null ? result.getTotalQuestions() : 0,
+                        "submittedAt", result.getSubmittedAt())).toList();
+    }
+
+    private Long parseLong(Object value) {
+        try { return Long.parseLong(Objects.toString(value, "")); }
+        catch (NumberFormatException ex) { return null; }
+    }
+
+    private boolean isExpired(QuizResult attempt, Quiz quiz) {
+        int minutes = quiz.getTimeLimitMinutes() != null ? quiz.getTimeLimitMinutes() : 15;
+        return attempt.getStartedAt() == null || Duration.between(attempt.getStartedAt(), LocalDateTime.now()).toSeconds() > minutes * 60L + 5;
+    }
+
+    private Map<String, Object> startResponse(QuizResult attempt, Quiz quiz) {
+        long limitSeconds = (quiz.getTimeLimitMinutes() != null ? quiz.getTimeLimitMinutes() : 15) * 60L;
+        long elapsed = Math.max(0, Duration.between(attempt.getStartedAt(), LocalDateTime.now()).toSeconds());
+        return Map.of("success", true, "attemptId", attempt.getId(), "remainingSeconds", Math.max(0, limitSeconds - elapsed));
     }
 
     private Integer parseInteger(Object value, Integer defaultValue) {

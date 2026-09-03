@@ -23,6 +23,7 @@ public class QuizResult {
     private Integer correctCount;
     private Integer totalQuestions;
     private Boolean passed;
+    private LocalDateTime startedAt;
     private LocalDateTime submittedAt;
 
     public Long getId() { return id; }
@@ -45,6 +46,9 @@ public class QuizResult {
 
     public Boolean getPassed() { return passed; }
     public void setPassed(Boolean passed) { this.passed = passed; }
+
+    public LocalDateTime getStartedAt() { return startedAt; }
+    public void setStartedAt(LocalDateTime startedAt) { this.startedAt = startedAt; }
 
     public LocalDateTime getSubmittedAt() { return submittedAt; }
     public void setSubmittedAt(LocalDateTime submittedAt) { this.submittedAt = submittedAt; }

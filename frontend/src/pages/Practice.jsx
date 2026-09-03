@@ -8,8 +8,16 @@ export default function Practice() {
   const [activeQuiz, setActiveQuiz] = useState(null);
   const [answers, setAnswers] = useState({});
   const [quizResult, setQuizResult] = useState(null);
+  const [attemptId, setAttemptId] = useState(null);
+  const [remainingSeconds, setRemainingSeconds] = useState(0);
   const [loading, setLoading] = useState(true);
   const [quizSearch, setQuizSearch] = useState("");
+
+  useEffect(() => {
+    if (!attemptId || quizResult) return;
+    const timer = setInterval(() => setRemainingSeconds((value) => Math.max(0, value - 1)), 1000);
+    return () => clearInterval(timer);
+  }, [attemptId, quizResult]);
 
   const filteredQuizzes = useMemo(() => {
     return courseQuizzes.filter((q) => {
@@ -64,7 +72,15 @@ export default function Practice() {
     try {
       const res = await fetch(`/api/quizzes/${quizId}`);
       const data = await res.json();
+      const startRes = await fetch(`/api/quizzes/${quizId}/start`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ studentId: user?.id }),
+      });
+      const attempt = await startRes.json();
+      if (!attempt.success) throw new Error(attempt.message || "Không thể bắt đầu quiz");
       setActiveQuiz(data);
+      setAttemptId(attempt.attemptId);
+      setRemainingSeconds(attempt.remainingSeconds);
       setAnswers({});
       setQuizResult(null);
     } catch (e) {
@@ -85,6 +101,7 @@ export default function Practice() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           studentId: user.id,
+          attemptId,
           answers,
         }),
       });
@@ -193,7 +210,7 @@ export default function Practice() {
               </span>
               <h2 className="text-xl font-bold text-gray-900 mt-2">{activeQuiz.title}</h2>
               <p className="text-xs text-gray-500 mt-0.5">
-                Thời gian: {activeQuiz.timeLimitMinutes || 15} phút · Điểm đạt: {activeQuiz.passScore || 80}%
+                Còn {Math.floor(remainingSeconds / 60)}:{String(remainingSeconds % 60).padStart(2, "0")} · Điểm đạt: {activeQuiz.passScore || 80}%
               </p>
             </div>
             <button
@@ -219,10 +236,7 @@ export default function Practice() {
                 </p>
                 <div className="mt-5 flex justify-center gap-3">
                   <button
-                    onClick={() => {
-                      setQuizResult(null);
-                      setAnswers({});
-                    }}
+                    onClick={() => handleStartQuiz(activeQuiz.id)}
                     className="px-5 py-2.5 bg-blue-600 text-white font-bold text-xs rounded-xl hover:bg-blue-700 transition"
                   >
                     Làm lại bài thi

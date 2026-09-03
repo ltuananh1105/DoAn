@@ -8,6 +8,8 @@ import java.util.Optional;
 public interface QuizResultRepository extends JpaRepository<QuizResult, Long> {
     List<QuizResult> findByStudentId(Long studentId);
     List<QuizResult> findByQuizId(Long quizId);
-    Optional<QuizResult> findByStudentIdAndQuizId(Long studentId, Long quizId);
+    Optional<QuizResult> findTopByStudentIdAndQuizIdAndSubmittedAtIsNotNullOrderBySubmittedAtDesc(Long studentId, Long quizId);
+    Optional<QuizResult> findTopByStudentIdAndQuizIdAndSubmittedAtIsNullOrderByStartedAtDesc(Long studentId, Long quizId);
+    List<QuizResult> findByStudentIdAndQuizIdAndSubmittedAtIsNotNullOrderBySubmittedAtDesc(Long studentId, Long quizId);
     void deleteByQuizId(Long quizId);
 }
