@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 
@@ -46,7 +46,7 @@ export default function Student() {
   const isOverview = location.pathname === "/student";
   const isMyCourses = location.pathname === "/student/courses";
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     if (!user?.id) return;
     setLoading(true);
     try {
@@ -85,11 +85,11 @@ export default function Student() {
       console.error(err);
     }
     setLoading(false);
-  };
+  }, [user?.id]);
 
   useEffect(() => {
     loadData();
-  }, [user?.id]);
+  }, [loadData]);
 
   return (
     <div className="flex min-h-screen bg-gray-50 relative">

@@ -93,7 +93,7 @@ export default function Courses() {
         window.location.href = orderData.paymentUrl;
         return;
       }
-    } catch (err) { alert("Có lỗi xảy ra."); }
+    } catch { alert("Có lỗi xảy ra."); }
     setPaying(false);
   };
 
@@ -108,7 +108,7 @@ export default function Courses() {
       setEnrolledIds((ids) => [...ids, payModal.courseId]);
       setPayModal(null);
       alert("Đăng ký & Kích hoạt khóa học thành công!");
-    } catch (err) { alert("Có lỗi xảy ra."); }
+    } catch { alert("Có lỗi xảy ra."); }
     setPaying(false);
   };
 

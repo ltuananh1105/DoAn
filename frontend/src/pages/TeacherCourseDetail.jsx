@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 
 export default function TeacherCourseDetail() {
@@ -34,7 +34,7 @@ export default function TeacherCourseDetail() {
     correctOpt: "A",
   });
 
-  const loadAll = () => {
+  const loadAll = useCallback(() => {
     setLoading(true);
     fetch(`/api/courses/${courseId}`)
       .then((res) => res.json())
@@ -69,11 +69,11 @@ export default function TeacherCourseDetail() {
     fetch(`/api/quizzes/course/${courseId}/manage`)
       .then((res) => res.json())
       .then((data) => setQuizzes(Array.isArray(data) ? data : []));
-  };
+  }, [courseId]);
 
   useEffect(() => {
     loadAll();
-  }, [courseId]);
+  }, [loadAll]);
 
   // BẬT CHẾ ĐỘ SỬA
   const handleEnterEditMode = () => {

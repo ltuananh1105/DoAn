@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 import ExportModal from "../components/ExportModal.jsx";
 
@@ -79,7 +79,7 @@ export default function Admin() {
   const [exportTitle, setExportTitle] = useState("");
   const [exportSubtitle, setExportSubtitle] = useState("");
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     try {
       if (activeTab === "courses") {
@@ -107,11 +107,11 @@ export default function Admin() {
       console.error(err);
     }
     setLoading(false);
-  };
+  }, [activeTab]);
 
   useEffect(() => {
     loadData();
-  }, [activeTab]);
+  }, [loadData]);
 
   // Filtered derived data
   const filteredCourses = useMemo(() => {

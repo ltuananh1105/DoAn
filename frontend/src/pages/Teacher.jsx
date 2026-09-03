@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import ExportModal from "../components/ExportModal.jsx";
@@ -97,7 +97,7 @@ export default function Teacher() {
   const [exportTitle, setExportTitle] = useState("");
   const [exportSubtitle, setExportSubtitle] = useState("");
 
-  const loadData = () => {
+  const loadData = useCallback(() => {
     if (!user?.id) return;
     setLoading(true);
 
@@ -130,11 +130,11 @@ export default function Teacher() {
       .then((res) => res.json())
       .then(setRevenue)
       .catch(console.error);
-  };
+  }, [user?.id]);
 
   useEffect(() => {
     loadData();
-  }, [user?.id]);
+  }, [loadData]);
 
   // Tạo khóa học
   const handleCreateCourse = async (e) => {
