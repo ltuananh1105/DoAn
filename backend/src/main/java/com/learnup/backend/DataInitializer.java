@@ -16,7 +16,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/admin")
 @Service
-@Profile("dev")
+@Profile("legacy-seed")
 public class DataInitializer implements CommandLineRunner {
 
     @Autowired private UserRepository userRepository;
