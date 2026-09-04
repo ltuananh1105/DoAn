@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Báo cáo đồ án LearnUp - Lê Tuấn Anh</title>
+<style>
+@page { size: A4; margin: 2.5cm 2cm 2.5cm 3cm; }
+body { font-family: "Times New Roman", serif; font-size: 13pt; line-height: 1.5; color: #111; }
+p { margin: 0 0 8pt; text-align: justify; text-indent: 1.27cm; }
+h1 { font-size: 18pt; text-align: center; text-transform: uppercase; margin: 18pt 0 14pt; page-break-before: always; }
+h2 { font-size: 15pt; margin: 16pt 0 8pt; }
+h3 { font-size: 13pt; margin: 12pt 0 6pt; }
+.cover { text-align: center; page-break-after: always; }
+.cover p { text-align: center; text-indent: 0; }
+.school { font-weight: bold; font-size: 14pt; }
+.author { font-weight: bold; margin-top: 55pt; }
+.title { font-size: 20pt; font-weight: bold; text-transform: uppercase; margin: 45pt 0; }
+.city { margin-top: 80pt; font-weight: bold; }
+.page-break { page-break-before: always; }
+.no-indent { text-indent: 0; }
+.center { text-align: center; text-indent: 0; }
+.right { text-align: right; text-indent: 0; }
+.placeholder { border: 1.5pt dashed #777; background: #f6f6f6; padding: 30pt 12pt; margin: 10pt auto 4pt; text-align: center; color: #555; }
+.caption { text-align: center; text-indent: 0; font-style: italic; margin-bottom: 12pt; }
+table { width: 100%; border-collapse: collapse; margin: 8pt 0 12pt; font-size: 11.5pt; }
+th, td { border: 1px solid #333; padding: 5pt; vertical-align: top; }
+th { text-align: center; background: #eaf0f8; }
+ul, ol { margin: 4pt 0 10pt 1.1cm; }
+li { margin-bottom: 4pt; text-align: justify; }
+.toc td { border: none; padding: 2pt; }
+.diagram { border: 1px solid #777; padding: 10pt; margin: 10pt 0 4pt; background: #fff; }
+.box { border: 1.2pt solid #2457c5; background: #eef4ff; padding: 7pt; text-align: center; font-weight: bold; }
+.arrow { text-align: center; font-size: 17pt; font-weight: bold; padding: 2pt; }
+.actor { font-weight: bold; text-align: center; background: #f3f4f6; }
+.uml td { width: 33.33%; }
+.note { border-left: 3pt solid #2457c5; padding: 6pt 10pt; background: #f6f8fc; text-indent: 0; }
+.small { font-size: 10.5pt; }
+.references p { text-indent: -0.7cm; margin-left: 0.7cm; }
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <p class="school">BỘ GIÁO DỤC VÀ ĐÀO TẠO</p>
+  <p class="school">TRƯỜNG ĐẠI HỌC MỞ THÀNH PHỐ HỒ CHÍ MINH</p>
+  <p class="author">LÊ TUẤN ANH</p>
+  <p class="title">XÂY DỰNG WEBSITE HỌC TIẾNG ANH TRỰC TUYẾN TÍCH HỢP TRỢ LÝ AI HỖ TRỢ NGƯỜI HỌC</p>
+  <p><b>ĐỒ ÁN NGÀNH</b></p>
+  <p><b>NGÀNH CÔNG NGHỆ THÔNG TIN</b></p>
+  <p class="city">TP. HỒ CHÍ MINH, 2026</p>
+</section>
+
+<section class="cover">
+  <p class="school">BỘ GIÁO DỤC VÀ ĐÀO TẠO</p>
+  <p class="school">TRƯỜNG ĐẠI HỌC MỞ THÀNH PHỐ HỒ CHÍ MINH</p>
+  <p class="author">LÊ TUẤN ANH</p>
+  <p class="title">XÂY DỰNG WEBSITE HỌC TIẾNG ANH TRỰC TUYẾN TÍCH HỢP TRỢ LÝ AI HỖ TRỢ NGƯỜI HỌC</p>
+  <p><b>Mã số sinh viên:</b> 2354050005</p>
+  <p><b>ĐỒ ÁN NGÀNH – NGÀNH CÔNG NGHỆ THÔNG TIN</b></p>
+  <p style="margin-top:45pt"><b>Giảng viên hướng dẫn:</b> ThS. Nguyễn Thị Mai Trang</p>
+  <p class="city">TP. HỒ CHÍ MINH, 2026</p>
+</section>
+
+<h1>Lời cảm ơn</h1>
+<p>Trong quá trình thực hiện đồ án, em đã nhận được sự hướng dẫn, góp ý và hỗ trợ từ nhiều cá nhân. Trước hết, em xin chân thành cảm ơn ThS. Nguyễn Thị Mai Trang đã dành thời gian trao đổi, định hướng nội dung và chỉ ra những điểm cần điều chỉnh trong từng giai đoạn. Những góp ý của cô giúp em nhìn nhận bài toán không chỉ ở góc độ cài đặt kỹ thuật mà còn ở tính hợp lý của quy trình nghiệp vụ.</p>
+<p>Em xin cảm ơn quý thầy cô Trường Đại học Mở Thành phố Hồ Chí Minh đã trang bị kiến thức nền tảng về lập trình, cơ sở dữ liệu, phân tích thiết kế hệ thống và phát triển ứng dụng web. Đây là cơ sở để em có thể tự nghiên cứu React, Spring Boot, Spring Security và triển khai một hệ thống có nhiều vai trò người dùng.</p>
+<p>Em cũng cảm ơn gia đình và bạn bè đã động viên, hỗ trợ em kiểm thử giao diện và đưa ra phản hồi trong quá trình hoàn thiện sản phẩm. Do thời gian và kinh nghiệm còn hạn chế, báo cáo khó tránh khỏi thiếu sót. Em kính mong nhận được thêm nhận xét từ giảng viên để tiếp tục cải thiện đồ án.</p>
+<p class="right">Sinh viên thực hiện<br><b>Lê Tuấn Anh</b></p>
+
+<h1>Nhận xét của giáo viên hướng dẫn</h1>
+<div class="placeholder" style="height:350pt">Phần nhận xét của giáo viên hướng dẫn</div>
+
+<h1>Tóm tắt đồ án</h1>
+<p>Đồ án xây dựng LearnUp, một website học tiếng Anh trực tuyến phục vụ ba nhóm người dùng gồm học viên, giáo viên và quản trị viên. Hệ thống giải quyết một quy trình hoàn chỉnh: giáo viên xây dựng khóa học theo chương và bài học, gửi nội dung để quản trị viên kiểm duyệt; học viên tìm kiếm khóa học đã xuất bản, thực hiện thanh toán, học nội dung, đánh dấu tiến độ và làm bài kiểm tra; quản trị viên quản lý người dùng, danh mục, khóa học và theo dõi doanh thu.</p>
+<p>LearnUp được phát triển theo kiến trúc client–server. Giao diện sử dụng React 19, React Router, Tailwind CSS và Vite. Phía máy chủ sử dụng Java 21, Spring Boot 4.1, Spring Data JPA và Spring Security. Dữ liệu được lưu trên Microsoft SQL Server với 12 bảng có ràng buộc khóa chính, khóa ngoại và duy nhất. Cơ chế xác thực dùng JSON Web Token, mật khẩu được băm bằng BCrypt và quyền truy cập API được kiểm soát theo vai trò.</p>
+<p>Bên cạnh các chức năng học trực tuyến, hệ thống tích hợp trợ lý AI Gemini dưới dạng chatbox. Phản hồi được truyền theo luồng để giảm thời gian chờ cảm nhận và giữ phạm vi trợ giúp trong hoạt động học tiếng Anh. Hệ thống sử dụng thanh toán mô phỏng để minh họa quá trình tạo đơn, kích hoạt khóa học và tổng hợp doanh thu mà không phát sinh giao dịch tài chính thật. Kết quả kiểm thử cho thấy các luồng chính hoạt động thống nhất giữa giao diện, API và cơ sở dữ liệu.</p>
+<p class="no-indent"><b>Từ khóa:</b> học trực tuyến, React, Spring Boot, SQL Server, JWT, Gemini, quản lý khóa học.</p>
+
+<h1>Abstract</h1>
+<p>LearnUp is an online English-learning website designed for students, teachers, and administrators. It supports an end-to-end workflow in which teachers organize courses into chapters and lessons and submit them for review; administrators moderate course content and manage users; students discover published courses, complete payments, study lessons, track progress, and take quizzes.</p>
+<p>The application follows a client–server architecture. Its frontend is built with React 19, React Router, Tailwind CSS, and Vite. The backend uses Java 21, Spring Boot 4.1, Spring Data JPA, and Spring Security. Microsoft SQL Server stores the data in twelve related tables. Authentication is stateless and based on JSON Web Tokens, passwords are protected with BCrypt, and API access is restricted according to user roles.</p>
+<p>LearnUp also provides a Gemini-powered AI tutor in the form of a chatbox. Streaming responses improve perceived responsiveness while the assistant remains focused on English-learning support. A simulated payment flow demonstrates order creation, course activation, revenue dashboards, and report export without processing real financial transactions. Functional verification indicates that the principal workflows are consistently connected across the user interface, REST APIs, and database.</p>
+<p class="no-indent"><b>Keywords:</b> e-learning, React, Spring Boot, SQL Server, JWT, Gemini, course management.</p>
+
+<h1>Mục lục</h1>
+<table class="toc">
+<tr><td>CHƯƠNG 1. TỔNG QUAN ĐỀ TÀI</td><td>1</td></tr>
+<tr><td>1.1. Bối cảnh và lý do chọn đề tài</td><td>1</td></tr>
+<tr><td>1.2. Phát biểu bài toán</td><td>2</td></tr>
+<tr><td>1.3. Mục tiêu, đối tượng và phạm vi</td><td>3</td></tr>
+<tr><td>1.4. Phương pháp thực hiện</td><td>5</td></tr>
+<tr><td>CHƯƠNG 2. CƠ SỞ LÝ THUYẾT VÀ CÔNG NGHỆ</td><td>7</td></tr>
+<tr><td>CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG</td><td>13</td></tr>
+<tr><td>CHƯƠNG 4. CÀI ĐẶT VÀ KẾT QUẢ</td><td>30</td></tr>
+<tr><td>CHƯƠNG 5. KIỂM THỬ VÀ ĐÁNH GIÁ</td><td>41</td></tr>
+<tr><td>CHƯƠNG 6. KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN</td><td>48</td></tr>
+<tr><td>TÀI LIỆU THAM KHẢO</td><td>51</td></tr>
+<tr><td>PHỤ LỤC</td><td>53</td></tr>
+</table>
+<p class="note">Trong Microsoft Word, chọn toàn bộ mục lục và cập nhật số trang sau khi chèn ảnh chụp giao diện.</p>
+
+<h1>Danh mục từ viết tắt</h1>
+<table><tr><th>Từ viết tắt</th><th>Diễn giải</th></tr>
+<tr><td>AI</td><td>Artificial Intelligence – Trí tuệ nhân tạo</td></tr>
+<tr><td>API</td><td>Application Programming Interface – Giao diện lập trình ứng dụng</td></tr>
+<tr><td>CSDL</td><td>Cơ sở dữ liệu</td></tr>
+<tr><td>ERD</td><td>Entity Relationship Diagram – Sơ đồ thực thể liên kết</td></tr>
+<tr><td>HTTP</td><td>Hypertext Transfer Protocol</td></tr>
+<tr><td>JPA</td><td>Java Persistence API</td></tr>
+<tr><td>JSON</td><td>JavaScript Object Notation</td></tr>
+<tr><td>JWT</td><td>JSON Web Token</td></tr>
+<tr><td>REST</td><td>Representational State Transfer</td></tr>
+<tr><td>SSE</td><td>Server-Sent Events</td></tr>
+<tr><td>UML</td><td>Unified Modeling Language</td></tr></table>
+
+<h1>Chương 1. Tổng quan đề tài</h1>
+<h2>1.1. Bối cảnh và lý do chọn đề tài</h2>
+<p>Học trực tuyến đem lại sự linh hoạt về thời gian và địa điểm, nhưng hiệu quả không chỉ phụ thuộc vào số lượng video hay tài liệu. Người học cần biết nên học nội dung nào, đã hoàn thành đến đâu và kết quả đánh giá phản ánh điều gì. Giáo viên cũng cần một quy trình rõ ràng để xây dựng, cập nhật và phân phối nội dung. Ở cấp vận hành, quản trị viên phải kiểm soát chất lượng khóa học, tài khoản và giao dịch mà không can thiệp tùy tiện vào nội dung chuyên môn.</p>
+<p>Từ nhu cầu đó, đề tài lựa chọn xây dựng LearnUp như một hệ thống quản lý học tiếng Anh trực tuyến có quy trình tương đối đầy đủ. Giá trị chính của đề tài nằm ở sự kết nối giữa ba vai trò trên cùng dữ liệu: nội dung do giáo viên tạo chỉ xuất hiện công khai sau khi được duyệt; học viên chỉ truy cập nội dung đã ghi danh; doanh thu được hình thành từ các đơn hàng hoàn tất. Trợ lý AI được đặt ở vị trí công cụ hỗ trợ hỏi đáp thay vì thay thế hoạt động giảng dạy và đánh giá.</p>
+<h2>1.2. Phát biểu bài toán</h2>
+<p>Hệ thống cần tiếp nhận thông tin tài khoản, nội dung khóa học, đơn thanh toán, trạng thái học và kết quả quiz. Từ dữ liệu này, hệ thống cung cấp danh sách khóa học công khai, không gian quản lý riêng theo vai trò, nội dung học theo cấu trúc, thống kê doanh thu và phản hồi từ trợ lý AI. Mỗi thao tác phải tuân theo quyền sở hữu và trạng thái nghiệp vụ, chẳng hạn giáo viên không được sửa khóa học của người khác, học viên không thể học khóa chưa mua và khóa đang chờ duyệt không được bán.</p>
+<h2>1.3. Mục tiêu đề tài</h2>
+<h3>1.3.1. Mục tiêu tổng quát</h3>
+<p>Xây dựng website LearnUp có giao diện dễ sử dụng, backend cung cấp REST API, dữ liệu quan hệ nhất quán và cơ chế bảo vệ theo vai trò; qua đó mô phỏng được các hoạt động chính của một nền tảng đào tạo tiếng Anh trực tuyến.</p>
+<h3>1.3.2. Mục tiêu cụ thể</h3>
+<ul><li>Quản lý tài khoản học viên, giáo viên và quản trị viên; hỗ trợ khóa, mở hoặc ngừng hoạt động tài khoản.</li>
+<li>Tổ chức khóa học theo danh mục, chương, bài học và quiz.</li>
+<li>Xây dựng quy trình khóa học gồm nháp, chờ duyệt, xuất bản, từ chối, tạm ngưng và lưu trữ.</li>
+<li>Cho phép học viên thanh toán, ghi danh, học bài, lưu tiến độ và xem lịch sử làm quiz.</li>
+<li>Cung cấp dashboard người dùng, giáo viên và quản trị viên; hỗ trợ thống kê và xuất báo cáo.</li>
+<li>Tích hợp chatbox Gemini hỗ trợ giải thích kiến thức và luyện tiếng Anh.</li>
+<li>Áp dụng JWT, BCrypt, CORS và kiểm tra quyền sở hữu tại backend.</li></ul>
+<h2>1.4. Đối tượng và phạm vi</h2>
+<table><tr><th>Nội dung</th><th>Phạm vi thực hiện</th></tr>
+<tr><td>Người dùng</td><td>Học viên, giáo viên và quản trị viên.</td></tr>
+<tr><td>Nội dung học</td><td>Khóa học tiếng Anh, chương, video bài học, quiz trắc nghiệm và tiến độ.</td></tr>
+<tr><td>Thanh toán</td><td>Chỉ mô phỏng thanh toán để phục vụ kiểm thử và trình diễn; không kết nối cổng thanh toán thật.</td></tr>
+<tr><td>AI</td><td>Chatbox trợ lý học tập dùng Gemini; chưa cá nhân hóa dài hạn theo hồ sơ năng lực.</td></tr>
+<tr><td>Triển khai</td><td>Chạy trên môi trường local; chưa cấu hình hạ tầng production và tên miền.</td></tr>
+<tr><td>Thiết bị</td><td>Ứng dụng web responsive; chưa phát triển ứng dụng mobile native.</td></tr></table>
+<h2>1.5. Phương pháp thực hiện</h2>
+<p>Đồ án được thực hiện theo hướng lặp và tăng trưởng. Ban đầu, yêu cầu được phân nhóm theo tác nhân và luồng dữ liệu. Sau đó mô hình quan hệ, API và giao diện được xây dựng theo từng chức năng nhỏ. Mỗi thay đổi được kiểm tra bằng dữ liệu mẫu và luồng thao tác trên giao diện, sau đó mới tích hợp vào nhánh phát triển. Cách làm này giúp phát hiện sớm sai lệch giữa frontend, backend và cơ sở dữ liệu.</p>
+<h2>1.6. Bố cục báo cáo</h2>
+<p>Ngoài phần mở đầu, báo cáo gồm sáu chương. Chương 1 nêu bài toán và phạm vi. Chương 2 trình bày cơ sở lý thuyết và công nghệ. Chương 3 phân tích yêu cầu, kiến trúc, UML và cơ sở dữ liệu. Chương 4 mô tả quá trình cài đặt và kết quả giao diện. Chương 5 trình bày kiểm thử, đánh giá. Chương 6 tổng kết kết quả và định hướng tiếp tục phát triển.</p>
+
+<h1>Chương 2. Cơ sở lý thuyết và công nghệ</h1>
+<h2>2.1. Hệ thống học trực tuyến</h2>
+<p>Một hệ thống học trực tuyến không chỉ hiển thị tài liệu mà còn quản lý vòng đời nội dung, quyền truy cập và dấu vết học tập. Trong LearnUp, Course là đơn vị thương mại và học tập; Chapter và Lesson tạo thứ tự nội dung; Enrollment biểu diễn quyền tham gia; LessonProgress và QuizResult phản ánh hoạt động của học viên. Cách phân tách này giúp việc thống kê và mở rộng nghiệp vụ rõ ràng hơn.</p>
+<h2>2.2. Kiến trúc client–server và REST API</h2>
+<p>Frontend và backend được tách thành hai ứng dụng. React gửi yêu cầu HTTP đến các endpoint dưới tiền tố <i>/api</i>, nhận dữ liệu JSON rồi cập nhật giao diện. Backend xác thực token, kiểm tra quyền, thực hiện nghiệp vụ và truy vấn dữ liệu qua repository. Việc tách biệt giúp giao diện không phụ thuộc vào cách lưu dữ liệu và backend có thể phục vụ thêm ứng dụng khác trong tương lai.</p>
+<h2>2.3. React, Vite và Tailwind CSS</h2>
+<p>React tổ chức giao diện thành component và quản lý trạng thái theo hướng khai báo. React Router ánh xạ URL với trang và ProtectedRoute bảo vệ vùng chức năng. Context API lưu trạng thái xác thực dùng chung. Vite phụ trách môi trường phát triển và đóng gói; Tailwind CSS hỗ trợ xây dựng bố cục responsive theo các lớp tiện ích. Các thành phần Header, Footer, modal thanh toán, modal xuất báo cáo và chatbox được tái sử dụng giữa nhiều trang.</p>
+<h2>2.4. Spring Boot, Spring Data JPA và SQL Server</h2>
+<p>Spring Boot cung cấp nền tảng cho ứng dụng Java, quản lý cấu hình, dependency injection và vòng đời bean. Controller tiếp nhận HTTP request; service phụ trách tích hợp bên ngoài; repository kế thừa JPA để truy vấn entity. Microsoft SQL Server chịu trách nhiệm lưu trữ bền vững, bảo đảm toàn vẹn tham chiếu và hỗ trợ truy vấn tổng hợp phục vụ dashboard.</p>
+<h2>2.5. Xác thực JWT và bảo vệ mật khẩu</h2>
+<p>Sau khi đăng nhập hợp lệ, backend phát hành JWT chứa định danh và vai trò. Frontend gắn token vào tiêu đề Authorization của yêu cầu cần bảo vệ. Bộ lọc JWT xác minh chữ ký và thời hạn trước khi thiết lập ngữ cảnh người dùng. Mật khẩu không được lưu ở dạng rõ mà được băm bằng BCrypt. Ngoài kiểm tra vai trò tại cấu hình Spring Security, backend còn kiểm tra chủ sở hữu tài nguyên để ngăn truy cập ngang giữa các tài khoản cùng vai trò.</p>
+<h2>2.6. Server-Sent Events và Gemini API</h2>
+<p>Chatbox gửi câu hỏi đến backend thay vì gọi Gemini trực tiếp từ trình duyệt, nhờ đó khóa API không xuất hiện trong frontend. Backend xây dựng ngữ cảnh hỗ trợ học tiếng Anh và chuyển tiếp yêu cầu đến Gemini. Endpoint streaming trả nội dung theo kiểu Server-Sent Events để giao diện hiển thị dần câu trả lời. Khi streaming không khả dụng, hệ thống vẫn có endpoint phản hồi thông thường và hiển thị thông báo lỗi thân thiện.</p>
+<h2>2.7. So sánh và lý do lựa chọn</h2>
+<table><tr><th>Thành phần</th><th>Lựa chọn</th><th>Lý do</th></tr>
+<tr><td>Frontend</td><td>React + Vite</td><td>Tổ chức component rõ ràng, thời gian phát triển nhanh, phù hợp SPA.</td></tr>
+<tr><td>Backend</td><td>Spring Boot</td><td>Hệ sinh thái đầy đủ cho web, dữ liệu và bảo mật.</td></tr>
+<tr><td>CSDL</td><td>SQL Server</td><td>Quản lý tốt dữ liệu quan hệ, ràng buộc và công cụ SSMS trực quan.</td></tr>
+<tr><td>Xác thực</td><td>JWT</td><td>Phù hợp backend stateless và frontend tách rời.</td></tr>
+<tr><td>AI</td><td>Gemini API</td><td>Hỗ trợ hội thoại và truyền phản hồi theo luồng qua API.</td></tr></table>
+
+<h1>Chương 3. Phân tích và thiết kế hệ thống</h1>
+<h2>3.1. Tác nhân và yêu cầu chức năng</h2>
+<table><tr><th>Tác nhân</th><th>Nhóm chức năng</th></tr>
+<tr><td>Khách</td><td>Xem trang chủ, giới thiệu, danh mục và chi tiết khóa học công khai; đăng ký, đăng nhập.</td></tr>
+<tr><td>Học viên</td><td>Thanh toán, xem khóa đã ghi danh, học bài, đánh dấu tiến độ, làm quiz, xem lịch sử và cập nhật hồ sơ.</td></tr>
+<tr><td>Giáo viên</td><td>Tạo và sửa khóa học, quản lý chương/bài/quiz, gửi duyệt, quản lý học viên, theo dõi doanh thu và xuất báo cáo.</td></tr>
+<tr><td>Quản trị viên</td><td>Quản lý tài khoản và danh mục; duyệt, từ chối, tạm ngưng, khôi phục hoặc lưu trữ khóa học; xem dashboard doanh thu.</td></tr>
+<tr><td>Dịch vụ ngoài</td><td>Gemini cung cấp phản hồi cho trợ lý học tập; thanh toán được mô phỏng nội bộ.</td></tr></table>
+
+<h2>3.2. Sơ đồ use case tổng quát</h2>
+<p class="center"><img src="file:///C:/DoAn/bao_cao/so_do/01-use-case.svg" style="width:100%;max-width:16cm"></p><p class="caption">Hình 3.1. Sơ đồ use case tổng quát của LearnUp</p>
+
+<h2>3.3. Đặc tả các use case chính</h2>
+<h3>3.3.1. UC01 – Đăng nhập</h3>
+<table><tr><th>Mục</th><th>Mô tả</th></tr><tr><td>Tác nhân</td><td>Học viên, giáo viên, quản trị viên.</td></tr><tr><td>Tiền điều kiện</td><td>Tài khoản tồn tại và có trạng thái active.</td></tr><tr><td>Luồng chính</td><td>Người dùng nhập email, mật khẩu; backend kiểm tra BCrypt; phát hành JWT; frontend lưu phiên và chuyển tới trang đúng vai trò.</td></tr><tr><td>Ngoại lệ</td><td>Sai thông tin, tài khoản bị khóa/ngừng hoạt động hoặc dữ liệu thiếu.</td></tr><tr><td>Hậu điều kiện</td><td>Người dùng có phiên xác thực hợp lệ trong thời hạn cấu hình.</td></tr></table>
+<h3>3.3.2. UC02 – Giáo viên tạo và gửi duyệt khóa học</h3>
+<table><tr><th>Mục</th><th>Mô tả</th></tr><tr><td>Tác nhân</td><td>Giáo viên.</td></tr><tr><td>Tiền điều kiện</td><td>Đăng nhập vai trò teacher.</td></tr><tr><td>Luồng chính</td><td>Tạo khóa học ở trạng thái draft; thêm chương, bài học và quiz; kiểm tra nội dung; gửi duyệt để chuyển sang pending.</td></tr><tr><td>Ngoại lệ</td><td>Thiếu tiêu đề/danh mục, giá không hợp lệ, khóa học không thuộc giáo viên hoặc trạng thái không cho phép sửa.</td></tr><tr><td>Hậu điều kiện</td><td>Khóa học xuất hiện trong danh sách chờ duyệt của admin.</td></tr></table>
+<h3>3.3.3. UC03 – Quản trị viên kiểm duyệt khóa học</h3>
+<table><tr><th>Mục</th><th>Mô tả</th></tr><tr><td>Tác nhân</td><td>Quản trị viên.</td></tr><tr><td>Tiền điều kiện</td><td>Khóa học ở trạng thái pending.</td></tr><tr><td>Luồng chính</td><td>Xem thông tin và chương trình học; chọn duyệt; backend ghi thời điểm đánh giá và chuyển trạng thái sang published.</td></tr><tr><td>Luồng thay thế</td><td>Admin nhập lý do từ chối; khóa học chuyển rejected để giáo viên chỉnh sửa.</td></tr><tr><td>Hậu điều kiện</td><td>Khóa published xuất hiện công khai hoặc khóa rejected quay lại giáo viên.</td></tr></table>
+<h3>3.3.4. UC04 – Thanh toán và ghi danh</h3>
+<table><tr><th>Mục</th><th>Mô tả</th></tr><tr><td>Tác nhân</td><td>Học viên.</td></tr><tr><td>Tiền điều kiện</td><td>Đăng nhập, khóa học đã published và chưa sở hữu.</td></tr><tr><td>Luồng chính</td><td>Xác nhận mô phỏng; tạo order PENDING; hoàn tất order với phương thức DEMO_PAY; tạo enrollment duy nhất.</td></tr><tr><td>Ngoại lệ</td><td>Khóa chưa mở bán, đã mua, dữ liệu đơn không hợp lệ hoặc đơn không còn hiệu lực.</td></tr><tr><td>Hậu điều kiện</td><td>Học viên truy cập được nội dung khóa học; không phát sinh giao dịch tài chính thật.</td></tr></table>
+<h3>3.3.5. UC05 – Học và cập nhật tiến độ</h3>
+<table><tr><th>Mục</th><th>Mô tả</th></tr><tr><td>Tác nhân</td><td>Học viên.</td></tr><tr><td>Tiền điều kiện</td><td>Có enrollment hợp lệ.</td></tr><tr><td>Luồng chính</td><td>Mở khóa học, chọn bài, xem video, đánh dấu hoàn thành; backend tạo hoặc cập nhật LessonProgress.</td></tr><tr><td>Ngoại lệ</td><td>Truy cập khóa chưa ghi danh hoặc bài học không thuộc khóa.</td></tr><tr><td>Hậu điều kiện</td><td>Dashboard tính lại tỷ lệ hoàn thành.</td></tr></table>
+<h3>3.3.6. UC06 – Trò chuyện với trợ lý AI</h3>
+<table><tr><th>Mục</th><th>Mô tả</th></tr><tr><td>Tác nhân</td><td>Người dùng đã đăng nhập.</td></tr><tr><td>Tiền điều kiện</td><td>Backend có GEMINI_API_KEY hợp lệ.</td></tr><tr><td>Luồng chính</td><td>Nhập câu hỏi; frontend gọi API streaming; backend gửi yêu cầu Gemini; từng phần phản hồi được hiển thị trong chatbox.</td></tr><tr><td>Ngoại lệ</td><td>Thiếu khóa API, model quá tải, timeout hoặc lỗi mạng; giao diện cho phép thử lại.</td></tr><tr><td>Hậu điều kiện</td><td>Người dùng nhận hướng dẫn học tập; nội dung không tự động thay đổi dữ liệu khóa học.</td></tr></table>
+
+<h2>3.4. Kiến trúc tổng thể</h2>
+<p class="center"><img src="file:///C:/DoAn/bao_cao/so_do/02-kien-truc.svg" style="width:100%;max-width:16cm"></p><p class="caption">Hình 3.2. Kiến trúc tổng thể hệ thống</p>
+
+<h2>3.5. Sơ đồ lớp miền nghiệp vụ</h2>
+<p class="center"><img src="file:///C:/DoAn/bao_cao/so_do/03-lop.svg" style="width:100%;max-width:16cm"></p><p class="caption">Hình 3.3. Sơ đồ lớp miền nghiệp vụ</p>
+
+<h2>3.6. Sơ đồ tuần tự</h2>
+<h3>3.6.1. Tuần tự đăng nhập</h3>
+<p class="center"><img src="file:///C:/DoAn/bao_cao/so_do/04-tuan-tu-dang-nhap.svg" style="width:100%;max-width:16cm"></p><p class="caption">Hình 3.4. Sơ đồ tuần tự đăng nhập</p>
+<h3>3.6.2. Tuần tự thanh toán khóa học</h3>
+<p class="center"><img src="file:///C:/DoAn/bao_cao/so_do/05-tuan-tu-thanh-toan.svg" style="width:100%;max-width:16cm"></p><p class="caption">Hình 3.5. Sơ đồ tuần tự thanh toán và ghi danh</p>
+
+<h2>3.7. Sơ đồ hoạt động duyệt khóa học</h2>
+<p class="center"><img src="file:///C:/DoAn/bao_cao/so_do/06-hoat-dong.svg" style="width:100%;max-width:16cm"></p><p class="caption">Hình 3.6. Sơ đồ hoạt động kiểm duyệt khóa học</p>
+
+<h2>3.8. Sơ đồ trạng thái khóa học</h2>
+<p class="center"><img src="file:///C:/DoAn/bao_cao/so_do/07-trang-thai.svg" style="width:100%;max-width:16cm"></p><p class="caption">Hình 3.7. Sơ đồ trạng thái khóa học</p>
+
+<h2>3.9. Thiết kế cơ sở dữ liệu</h2>
+<p class="center"><img src="file:///C:/DoAn/bao_cao/so_do/08-erd.svg" style="width:100%;max-width:16cm"></p><p class="caption">Hình 3.8. Sơ đồ ERD rút gọn</p>
+<table><tr><th>Bảng</th><th>Mục đích và ràng buộc chính</th></tr>
+<tr><td>users</td><td>Tài khoản và hồ sơ; email duy nhất; role gồm admin/teacher/student; status gồm active/locked/inactive.</td></tr>
+<tr><td>categories</td><td>Danh mục khóa học; tên duy nhất.</td></tr>
+<tr><td>courses</td><td>Thông tin khóa, giá, quy trình duyệt; liên kết giáo viên và danh mục.</td></tr>
+<tr><td>chapters</td><td>Chương thuộc khóa học, có thứ tự.</td></tr>
+<tr><td>lessons</td><td>Bài học thuộc chương, đường dẫn video và thứ tự.</td></tr>
+<tr><td>enrollments</td><td>Liên kết học viên–khóa học; cặp student/course duy nhất.</td></tr>
+<tr><td>orders</td><td>Đơn thanh toán; order_code duy nhất; lưu phương thức, giao dịch và thời gian.</td></tr>
+<tr><td>lesson_progress</td><td>Trạng thái hoàn thành bài; cặp student/lesson duy nhất.</td></tr>
+<tr><td>quizzes</td><td>Bài kiểm tra theo khóa, điểm đạt và thời gian giới hạn.</td></tr>
+<tr><td>questions</td><td>Câu hỏi, giải thích do giáo viên cung cấp và thứ tự.</td></tr>
+<tr><td>question_options</td><td>Các lựa chọn và cờ đáp án đúng.</td></tr>
+<tr><td>quiz_results</td><td>Điểm, số câu đúng, trạng thái đạt và thời gian làm bài.</td></tr></table>
+<h2>3.10. Yêu cầu phi chức năng</h2>
+<ul><li><b>Bảo mật:</b> không trả mật khẩu qua JSON; kiểm tra JWT, vai trò, trạng thái tài khoản và quyền sở hữu.</li><li><b>Toàn vẹn:</b> dùng khóa ngoại và ràng buộc duy nhất cho email, ghi danh và tiến độ.</li><li><b>Khả dụng:</b> giao diện responsive, thông báo lỗi có nội dung và trạng thái tải rõ ràng.</li><li><b>Hiệu năng:</b> AI truyền dữ liệu theo luồng; thư viện xuất Excel được tải động; API chỉ trả dữ liệu đúng phạm vi.</li><li><b>Bảo trì:</b> tách component, controller, entity, repository và cấu hình môi trường.</li></ul>
+
+<h1>Chương 4. Cài đặt và kết quả</h1>
+<h2>4.1. Môi trường phát triển</h2>
+<table><tr><th>Thành phần</th><th>Công nghệ</th></tr><tr><td>Frontend</td><td>React 19.2, React Router 7.18, Tailwind CSS 4.3, Vite 8.1</td></tr><tr><td>Backend</td><td>Java 21, Spring Boot 4.1, Spring Web MVC, Spring Data JPA, Spring Security</td></tr><tr><td>CSDL</td><td>Microsoft SQL Server, quản trị bằng SSMS</td></tr><tr><td>Dịch vụ</td><td>Gemini API; thanh toán mô phỏng nội bộ</td></tr><tr><td>Công cụ</td><td>Visual Studio Code, Git/GitHub, trình duyệt Chrome</td></tr></table>
+<h2>4.2. Tổ chức mã nguồn</h2>
+<p>Project chia thành thư mục frontend và backend. Frontend có pages, components, context, layouts và utils. Backend đặt controller, entity, repository, security và service trong package <i>com.learnup.backend</i>. File SQLQuery1.sql tạo toàn bộ cấu trúc cùng dữ liệu minh họa, có thể chạy lại mà không xóa dữ liệu. Cấu hình nhạy cảm được nhận qua biến môi trường.</p>
+<h2>4.3. Các nhóm chức năng đã triển khai</h2>
+<h3>4.3.1. Trang công khai và tài khoản</h3><p>Khách có thể xem trang chủ, trang giới thiệu, tìm kiếm/lọc khóa học và xem trước chương trình. Đăng ký cho phép chọn vai trò học viên hoặc giáo viên. Sau đăng nhập, hệ thống chuyển người dùng đến dashboard phù hợp. Trang cài đặt hỗ trợ cập nhật hồ sơ và đổi mật khẩu.</p>
+<div class="placeholder">CHÈN ẢNH THỰC TẾ: Trang chủ LearnUp trên màn hình desktop</div><p class="caption">Hình 4.1. Giao diện trang chủ</p>
+<div class="placeholder">CHÈN ẢNH THỰC TẾ: Trang danh sách và bộ lọc khóa học</div><p class="caption">Hình 4.2. Giao diện khám phá khóa học</p>
+<div class="placeholder">CHÈN ẢNH THỰC TẾ: Màn hình đăng nhập và đăng ký</div><p class="caption">Hình 4.3. Giao diện xác thực</p>
+<h3>4.3.2. Khu vực học viên</h3><p>Dashboard hiển thị các khóa đã mua và tỷ lệ hoàn thành. Trang học trình bày danh sách chương, bài học, video, tiến độ và quiz. Học viên có thể xem lịch sử làm bài và tiếp tục từ nội dung đang học.</p>
+<div class="placeholder">CHÈN ẢNH THỰC TẾ: Dashboard học viên có nhiều khóa và tiến độ khác nhau</div><p class="caption">Hình 4.4. Dashboard học viên</p>
+<div class="placeholder">CHÈN ẢNH THỰC TẾ: Trang học gồm chương, video và nút hoàn thành</div><p class="caption">Hình 4.5. Giao diện học bài</p>
+<div class="placeholder">CHÈN ẢNH THỰC TẾ: Màn hình làm quiz và kết quả</div><p class="caption">Hình 4.6. Giao diện bài kiểm tra</p>
+<h3>4.3.3. Khu vực giáo viên</h3><p>Giáo viên quản lý vòng đời khóa học và nội dung chi tiết. Hệ thống chỉ cho sửa/xóa ở trạng thái phù hợp và xác minh giáo viên sở hữu khóa học. Danh sách học viên tổng hợp từ ghi danh; báo cáo doanh thu tính từ đơn COMPLETED và tách doanh thu gộp, phí nền tảng, phần thanh toán giáo viên.</p>
+<div class="placeholder">CHÈN ẢNH THỰC TẾ: Dashboard và danh sách khóa học của giáo viên</div><p class="caption">Hình 4.7. Khu vực giáo viên</p>
+<div class="placeholder">CHÈN ẢNH THỰC TẾ: Trang quản lý chương, bài học và quiz</div><p class="caption">Hình 4.8. Quản lý nội dung khóa học</p>
+<div class="placeholder">CHÈN ẢNH THỰC TẾ: Danh sách học viên và dashboard doanh thu</div><p class="caption">Hình 4.9. Quản lý học viên và doanh thu</p>
+<h3>4.3.4. Khu vực quản trị viên</h3><p>Admin quản lý học viên, giáo viên, danh mục và tất cả khóa học. Quản trị viên có thể khóa/mở tài khoản, đặt lại mật khẩu, xem chi tiết khóa đang chờ duyệt, ghi lý do từ chối, tạm ngưng khóa vi phạm và khôi phục khi đã xử lý. Dashboard thống kê doanh thu theo thời gian và xếp hạng khóa học.</p>
+<div class="placeholder">CHÈN ẢNH THỰC TẾ: Dashboard quản trị và các thẻ thống kê</div><p class="caption">Hình 4.10. Dashboard quản trị viên</p>
+<div class="placeholder">CHÈN ẢNH THỰC TẾ: Quản lý người dùng với trạng thái tài khoản</div><p class="caption">Hình 4.11. Quản lý học viên và giáo viên</p>
+<div class="placeholder">CHÈN ẢNH THỰC TẾ: Danh sách chờ duyệt và trang xem xét khóa học</div><p class="caption">Hình 4.12. Quy trình kiểm duyệt khóa học</p>
+<h3>4.3.5. Thanh toán mô phỏng</h3><p>Khi học viên xác nhận đăng ký, backend tạo mã đơn duy nhất ở trạng thái PENDING. Endpoint thanh toán demo chuyển đơn sang COMPLETED, ghi phương thức DEMO_PAY và tạo quyền học. Chức năng này chỉ minh họa nghiệp vụ, không chuyển hướng ra ngoài và không phát sinh giao dịch thật.</p>
+<div class="placeholder">CHÈN ẢNH THỰC TẾ: Modal xác nhận thanh toán demo và thông báo kích hoạt khóa học</div><p class="caption">Hình 4.13. Luồng thanh toán mô phỏng</p>
+<h3>4.3.6. Trợ lý AI</h3><p>Nút trợ lý xuất hiện cố định để người dùng có thể đặt câu hỏi trong quá trình học. Chatbox hiển thị lịch sử trong phiên, trạng thái đang phản hồi và nội dung nhận dần từ endpoint SSE. Prompt hệ thống định hướng trợ lý giải thích rõ ràng, đưa ví dụ và hỗ trợ luyện tập tiếng Anh. AI không trực tiếp chấm quiz hay thay đổi dữ liệu nghiệp vụ.</p>
+<div class="placeholder">CHÈN ẢNH THỰC TẾ: Chatbox đang nhận phản hồi Gemini theo từng phần</div><p class="caption">Hình 4.14. Trợ lý học tập AI</p>
+<h2>4.4. API tiêu biểu</h2>
+<table><tr><th>Phương thức</th><th>Endpoint</th><th>Chức năng</th><th>Quyền</th></tr>
+<tr><td>POST</td><td>/api/auth/register, /login</td><td>Đăng ký, đăng nhập</td><td>Công khai</td></tr>
+<tr><td>GET</td><td>/api/courses/public</td><td>Danh sách khóa xuất bản</td><td>Công khai</td></tr>
+<tr><td>POST/PUT</td><td>/api/courses</td><td>Tạo, cập nhật khóa</td><td>Teacher</td></tr>
+<tr><td>PUT</td><td>/api/courses/{id}/submit</td><td>Gửi duyệt</td><td>Teacher sở hữu</td></tr>
+<tr><td>PUT</td><td>/api/courses/{id}/approve, /reject</td><td>Kiểm duyệt</td><td>Admin</td></tr>
+<tr><td>POST</td><td>/api/orders</td><td>Tạo đơn thanh toán</td><td>Student</td></tr>
+<tr><td>POST</td><td>/api/progress/toggle</td><td>Cập nhật bài hoàn thành</td><td>Student đã ghi danh</td></tr>
+<tr><td>POST</td><td>/api/quizzes/{id}/submit</td><td>Chấm và lưu kết quả</td><td>Student</td></tr>
+<tr><td>GET</td><td>/api/revenue/admin</td><td>Thống kê doanh thu</td><td>Admin</td></tr>
+<tr><td>POST</td><td>/api/ai/chat/stream</td><td>Trò chuyện AI theo luồng</td><td>Đã đăng nhập</td></tr></table>
+
+<h1>Chương 5. Kiểm thử và đánh giá</h1>
+<h2>5.1. Chiến lược kiểm thử</h2>
+<p>Kiểm thử tập trung vào các luồng xuyên suốt thay vì chỉ kiểm tra từng màn hình. Với mỗi chức năng, dữ liệu đầu vào hợp lệ, không hợp lệ và trường hợp không đủ quyền đều được xem xét. Frontend được kiểm tra lint và build production; backend được biên dịch và chạy bộ kiểm thử Maven. Các API nhạy cảm được gọi bằng tài khoản sai vai trò để xác nhận mã 401 hoặc 403.</p>
+<h2>5.2. Kịch bản kiểm thử chức năng</h2>
+<table><tr><th>Mã</th><th>Kịch bản</th><th>Kết quả mong đợi</th></tr>
+<tr><td>TC01</td><td>Đăng nhập đúng bằng tài khoản active</td><td>Trả JWT, thông tin không có mật khẩu, chuyển đúng dashboard.</td></tr>
+<tr><td>TC02</td><td>Đăng nhập sai mật khẩu hoặc tài khoản locked</td><td>Từ chối và hiển thị thông báo rõ ràng.</td></tr>
+<tr><td>TC03</td><td>Giáo viên tạo khóa, thêm nội dung và gửi duyệt</td><td>Trạng thái lần lượt draft và pending.</td></tr>
+<tr><td>TC04</td><td>Giáo viên sửa khóa published</td><td>Backend từ chối theo quy tắc trạng thái.</td></tr>
+<tr><td>TC05</td><td>Admin duyệt khóa pending</td><td>Khóa thành published và xuất hiện ở trang công khai.</td></tr>
+<tr><td>TC06</td><td>Admin từ chối nhưng không nhập lý do</td><td>Không thực hiện; yêu cầu lý do hợp lệ.</td></tr>
+<tr><td>TC07</td><td>Học viên mua khóa published chưa sở hữu</td><td>Tạo đơn; khi thanh toán thành công tạo enrollment.</td></tr>
+<tr><td>TC08</td><td>Tạo lại đơn khi đã mua</td><td>Không tạo giao dịch hoàn tất trùng.</td></tr>
+<tr><td>TC09</td><td>Học viên truy cập khóa chưa ghi danh</td><td>Backend từ chối truy cập.</td></tr>
+<tr><td>TC10</td><td>Đánh dấu hoàn thành bài thuộc khóa đã mua</td><td>Lưu tiến độ duy nhất và cập nhật tỷ lệ.</td></tr>
+<tr><td>TC11</td><td>Nộp quiz với danh sách đáp án</td><td>Chấm trên backend, lưu điểm và trạng thái đạt.</td></tr>
+<tr><td>TC12</td><td>Teacher gọi API quản lý user của admin</td><td>Nhận HTTP 403.</td></tr>
+<tr><td>TC13</td><td>Gửi request với JWT hết hạn</td><td>Nhận HTTP 401 dạng JSON.</td></tr>
+<tr><td>TC14</td><td>Chat AI khi model phản hồi bình thường</td><td>Nội dung xuất hiện dần, giao diện không bị treo.</td></tr>
+<tr><td>TC15</td><td>Chat AI khi thiếu key hoặc model quá tải</td><td>Thông báo lỗi có thể hiểu và cho phép thử lại.</td></tr>
+<tr><td>TC16</td><td>Lọc dashboard và xuất báo cáo</td><td>Số liệu khớp các đơn COMPLETED trong phạm vi chọn.</td></tr></table>
+<h2>5.3. Kiểm thử giao diện và tích hợp</h2>
+<p>Giao diện được kiểm tra tại các kích thước desktop, tablet và mobile. Các điểm cần chú ý gồm menu responsive, footer, sidebar dashboard, bảng có nhiều cột, modal và nút chat cố định. Kiểm thử tích hợp xác nhận URL API, tên trường JSON, trạng thái tải và xử lý response rỗng. Dữ liệu SQL mở rộng tạo nhiều người dùng, khóa học và đơn hàng nhằm quan sát phân trang, bộ lọc và biểu đồ trong điều kiện gần thực tế hơn.</p>
+<div class="placeholder">CHÈN ẢNH THỰC TẾ: Kết quả npm run lint, npm run build và mvnw test</div><p class="caption">Hình 5.1. Kết quả kiểm tra kỹ thuật</p>
+<h2>5.4. Đánh giá kết quả</h2>
+<p>Phiên bản hiện tại đáp ứng các mục tiêu cốt lõi: ba vai trò có chức năng và phạm vi dữ liệu riêng; vòng đời khóa học rõ ràng; việc mua khóa gắn với ghi danh; tiến độ và quiz được lưu; báo cáo dựa trên giao dịch hoàn tất; trợ lý AI hoạt động độc lập với nghiệp vụ chấm điểm. Kiến trúc tách frontend–backend giúp việc sửa giao diện không làm thay đổi cấu trúc dữ liệu và ngược lại.</p>
+<h2>5.5. Hạn chế</h2>
+<ul><li>Ứng dụng mới chạy local, chưa có HTTPS, tên miền, giám sát và sao lưu production.</li><li>Video hiện được quản lý bằng URL, chưa có kho lưu trữ và xử lý streaming riêng.</li><li>Thanh toán thực tế cần tài khoản merchant, quy trình đối soát và chính sách hoàn tiền.</li><li>Chat AI chưa lưu lịch sử dài hạn, chưa có hạn mức theo người dùng và bộ lọc an toàn chuyên sâu.</li><li>Quiz mới hỗ trợ dạng lựa chọn, chưa có bài nói, bài viết và chấm tự luận.</li><li>Chưa có email xác minh, quên mật khẩu qua email và xác thực đa yếu tố.</li><li>Kiểm thử tự động frontend và kiểm thử tải vẫn còn hạn chế.</li></ul>
+
+<h1>Chương 6. Kết luận và hướng phát triển</h1>
+<h2>6.1. Kết luận</h2>
+<p>Đồ án đã xây dựng được LearnUp như một website học tiếng Anh trực tuyến có luồng nghiệp vụ tương đối hoàn chỉnh. Sản phẩm không dừng ở việc hiển thị nội dung mà kết nối quá trình tạo khóa, kiểm duyệt, mở bán, thanh toán, ghi danh, học tập, đánh giá và báo cáo. Hệ thống sử dụng React ở frontend, Spring Boot ở backend và SQL Server cho lớp dữ liệu; các thành phần giao tiếp qua REST API và JSON.</p>
+<p>Về bảo mật, ứng dụng áp dụng JWT, BCrypt và phân quyền theo vai trò, đồng thời kiểm tra quyền sở hữu tài nguyên trong các thao tác quan trọng. Về dữ liệu, 12 bảng phản ánh được người dùng, nội dung, giao dịch và kết quả học. Trợ lý Gemini được chuyển thành chatbox hỗ trợ học tập, sử dụng phản hồi streaming để tạo trải nghiệm tự nhiên hơn và không can thiệp vào đáp án quiz.</p>
+<p>Quá trình thực hiện giúp sinh viên củng cố khả năng phân tích nghiệp vụ, thiết kế cơ sở dữ liệu, tổ chức REST API, phát triển giao diện component, xử lý bảo mật và tích hợp dịch vụ bên ngoài. Những kết quả đạt được tạo nền tảng đủ rõ để tiếp tục triển khai sản phẩm trong môi trường thực tế.</p>
+<h2>6.2. Hướng phát triển</h2>
+<ul><li>Triển khai frontend, backend và SQL Server trên hạ tầng cloud có HTTPS, logging, giám sát và sao lưu.</li><li>Bổ sung xác minh email, quên mật khẩu, refresh token, giới hạn tần suất và quản lý phiên.</li><li>Xây dựng upload video/tài liệu, phụ đề, ghi chú bài học và thảo luận giữa học viên–giáo viên.</li><li>Mở rộng quiz sang câu tự luận, bài nói, ngân hàng câu hỏi, trộn đề và phân tích độ khó.</li><li>Lưu lịch sử chat, bổ sung ngữ cảnh từ nội dung khóa học và hạn mức sử dụng AI có kiểm soát.</li><li>Hoàn thiện thanh toán thật, hóa đơn, hoàn tiền, đối soát và lịch thanh toán cho giáo viên.</li><li>Bổ sung đánh giá khóa học, chứng chỉ hoàn thành, thông báo và lịch học.</li><li>Tăng độ phủ kiểm thử tự động, kiểm thử tải, kiểm thử bảo mật và quy trình CI/CD.</li></ul>
+
+<h1>Tài liệu tham khảo</h1>
+<div class="references">
+<p>[1] React Team, “React Documentation,” https://react.dev/, truy cập tháng 9/2026.</p>
+<p>[2] Spring Team, “Spring Boot Reference Documentation,” https://docs.spring.io/spring-boot/, truy cập tháng 9/2026.</p>
+<p>[3] Spring Team, “Spring Security Reference,” https://docs.spring.io/spring-security/reference/, truy cập tháng 9/2026.</p>
+<p>[4] Microsoft, “SQL Server documentation,” https://learn.microsoft.com/sql/sql-server/, truy cập tháng 9/2026.</p>
+<p>[5] Google, “Gemini API documentation,” https://ai.google.dev/gemini-api/docs, truy cập tháng 9/2026.</p>
+<p>[6] IETF, “RFC 7519: JSON Web Token (JWT),” https://www.rfc-editor.org/rfc/rfc7519, 2015.</p>
+<p>[7] Vite Team, “Vite Guide,” https://vite.dev/guide/, truy cập tháng 9/2026.</p>
+<p>[8] Tailwind Labs, “Tailwind CSS Documentation,” https://tailwindcss.com/docs, truy cập tháng 9/2026.</p>
+</div>
+
+<h1>Phụ lục</h1>
+<h2>Phụ lục A. Cấu hình chạy local</h2>
+<ol><li>Mở SQLQuery1.sql bằng SSMS và Execute để tạo database learnup_db cùng dữ liệu mẫu.</li><li>Cấu hình DB_URL, DB_USERNAME, DB_PASSWORD, JWT_SECRET, CORS_ALLOWED_ORIGIN và GEMINI_API_KEY bằng biến môi trường.</li><li>Chạy backend bằng <i>mvnw.cmd spring-boot:run</i> tại thư mục backend.</li><li>Chạy frontend bằng <i>npm run dev</i> tại thư mục frontend.</li><li>Truy cập http://localhost:5173 và đăng nhập bằng tài khoản mẫu.</li></ol>
+<h2>Phụ lục B. Tài khoản và dữ liệu mẫu</h2>
+<p>File SQL tạo các tài khoản admin@gmail.com, teacher@gmail.com đến teacher7@gmail.com và student@gmail.com đến student20@gmail.com. Mật khẩu demo chung là 123456. Một số tài khoản được đặt trạng thái locked hoặc inactive có chủ đích để kiểm thử quản trị.</p>
+<h2>Phụ lục C. Danh sách ảnh cần chụp</h2>
+<ol><li>Trang chủ và trang giới thiệu.</li><li>Danh sách, bộ lọc và chi tiết khóa học.</li><li>Đăng nhập, đăng ký và cài đặt tài khoản.</li><li>Dashboard học viên, trang học và quiz.</li><li>Dashboard giáo viên, quản lý nội dung, học viên và doanh thu.</li><li>Dashboard admin, quản lý tài khoản, danh mục và kiểm duyệt khóa học.</li><li>Thanh toán và kết quả thanh toán.</li><li>Chatbox AI đang nhận phản hồi.</li><li>Kết quả lint, build và test backend.</li></ol>
+
+</body></html>
