@@ -233,9 +233,10 @@ export default function Teacher() {
     }
   };
 
-  // Ẩn / Mở lại khóa học
+  // Ngừng phát hành khóa học nhưng vẫn giữ lịch sử học tập và giao dịch
   const handleToggleVisibility = async (e, courseId) => {
     e.stopPropagation();
+    if (!window.confirm("Ngừng phát hành khóa học này? Khóa học sẽ không còn hiển thị để đăng ký mới, nhưng dữ liệu học viên và doanh thu vẫn được giữ lại.")) return;
     try {
       const res = await fetch(`/api/teacher/${user.id}/courses/${courseId}/toggle-visibility`, {
         method: "PUT",
@@ -243,7 +244,7 @@ export default function Teacher() {
       const data = await res.json();
       if (data.success) {
         loadData();
-      } else alert(data.message || "Không thể lưu trữ khóa học");
+      } else alert(data.message || "Không thể ngừng phát hành khóa học");
     } catch (err) {
       console.error(err);
     }
@@ -501,7 +502,7 @@ export default function Teacher() {
                               onClick={(e) => handleToggleVisibility(e, c.id)}
                               className="px-2.5 py-1 bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-semibold rounded-lg transition"
                             >
-                              Lưu trữ
+                              Ngừng phát hành
                             </button>
                           )}
                           {c.status === "draft" && <button
