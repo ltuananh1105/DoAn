@@ -201,3 +201,164 @@ IF NOT EXISTS (SELECT 1 FROM quiz_results r JOIN users u ON u.id=r.student_id JO
 IF NOT EXISTS (SELECT 1 FROM quiz_results r JOIN users u ON u.id=r.student_id JOIN quizzes q ON q.id=r.quiz_id WHERE u.email='student3@gmail.com' AND q.title=N'Kiểm tra Đánh giá Giao tiếp Công sở (Quiz 1)') INSERT INTO quiz_results(student_id,quiz_id,score,correct_count,total_questions,passed,started_at,submitted_at) SELECT u.id,q.id,100,3,3,1,DATEADD(minute,-11,DATEADD(day,-3,SYSDATETIME())),DATEADD(day,-3,SYSDATETIME()) FROM users u CROSS JOIN quizzes q WHERE u.email='student3@gmail.com' AND q.title=N'Kiểm tra Đánh giá Giao tiếp Công sở (Quiz 1)';
 IF NOT EXISTS (SELECT 1 FROM quiz_results r JOIN users u ON u.id=r.student_id JOIN quizzes q ON q.id=r.quiz_id WHERE u.email='student4@gmail.com' AND q.title=N'IELTS Diagnostic Assessment (Band 7.0 Test)') INSERT INTO quiz_results(student_id,quiz_id,score,correct_count,total_questions,passed,started_at,submitted_at) SELECT u.id,q.id,90,2,2,1,DATEADD(minute,-17,DATEADD(day,-2,SYSDATETIME())),DATEADD(day,-2,SYSDATETIME()) FROM users u CROSS JOIN quizzes q WHERE u.email='student4@gmail.com' AND q.title=N'IELTS Diagnostic Assessment (Band 7.0 Test)';
 IF NOT EXISTS (SELECT 1 FROM quiz_results r JOIN users u ON u.id=r.student_id JOIN quizzes q ON q.id=r.quiz_id WHERE u.email='student5@gmail.com' AND q.title=N'Kiểm tra Đánh giá Giao tiếp Công sở (Quiz 1)') INSERT INTO quiz_results(student_id,quiz_id,score,correct_count,total_questions,passed,started_at,submitted_at) SELECT u.id,q.id,100,3,3,1,DATEADD(minute,-10,DATEADD(day,-1,SYSDATETIME())),DATEADD(day,-1,SYSDATETIME()) FROM users u CROSS JOIN quizzes q WHERE u.email='student5@gmail.com' AND q.title=N'Kiểm tra Đánh giá Giao tiếp Công sở (Quiz 1)';
+
+-- ================================================================
+-- EXTENDED DEMO DATA: dữ liệu đủ lớn cho danh sách và dashboard
+-- Khối này vẫn có thể chạy lại an toàn và không xóa dữ liệu hiện có.
+-- ================================================================
+
+-- ADDITIONAL TEACHERS
+INSERT INTO users(name,email,password,role,status,date_of_birth,phone,occupation,country,province)
+SELECT v.name,v.email,'$2a$10$2gYfQrr6anokDjvVCN6A7uSOln5uDP41pyrUqLI6Kk/QJJb9MRoU2','teacher',v.status,v.dob,v.phone,v.occupation,N'Việt Nam',v.province
+FROM (VALUES
+    (N'Nguyễn Khánh Vy','teacher4@gmail.com','active','1990-04-18','0904100001',N'Giảng viên tiếng Anh thương mại',N'Hà Nội'),
+    (N'Phạm Hoàng Nam','teacher5@gmail.com','active','1987-09-12','0904100002',N'Giảng viên luyện thi TOEIC',N'TP. Hồ Chí Minh'),
+    (N'Đặng Minh Châu','teacher6@gmail.com','active','1992-01-25','0904100003',N'Chuyên gia phát âm và giao tiếp',N'Đà Nẵng'),
+    (N'Vũ Thanh Hà','teacher7@gmail.com','inactive','1989-07-06','0904100004',N'Giảng viên IELTS',N'Hải Phòng')
+) v(name,email,status,dob,phone,occupation,province)
+WHERE NOT EXISTS (SELECT 1 FROM users u WHERE u.email=v.email);
+
+-- ADDITIONAL STUDENTS
+INSERT INTO users(name,email,password,role,status,date_of_birth,phone,occupation,country,province)
+SELECT v.name,v.email,'$2a$10$2gYfQrr6anokDjvVCN6A7uSOln5uDP41pyrUqLI6Kk/QJJb9MRoU2','student',v.status,v.dob,v.phone,v.occupation,N'Việt Nam',v.province
+FROM (VALUES
+    (N'Đỗ Gia Hân','student6@gmail.com','active','2003-02-14','0904200001',N'Sinh viên',N'Hà Nội'),
+    (N'Nguyễn Hải Đăng','student7@gmail.com','active','1998-06-21','0904200002',N'Nhân viên kinh doanh',N'TP. Hồ Chí Minh'),
+    (N'Lâm Ngọc Anh','student8@gmail.com','active','2001-11-09','0904200003',N'Nhân viên nhân sự',N'Bình Dương'),
+    (N'Bùi Quốc Khánh','student9@gmail.com','active','1996-03-30','0904200004',N'Lập trình viên',N'Đà Nẵng'),
+    (N'Trương Thảo My','student10@gmail.com','active','2002-08-17','0904200005',N'Sinh viên',N'Cần Thơ'),
+    (N'Phan Minh Nhật','student11@gmail.com','active','1995-12-03','0904200006',N'Chuyên viên tài chính',N'Hà Nội'),
+    (N'Hoàng Bảo Trâm','student12@gmail.com','active','1999-05-28','0904200007',N'Nhân viên marketing',N'TP. Hồ Chí Minh'),
+    (N'Võ Đức Anh','student13@gmail.com','active','2000-10-11','0904200008',N'Kỹ sư xây dựng',N'Đồng Nai'),
+    (N'Đinh Phương Uyên','student14@gmail.com','active','2004-01-19','0904200009',N'Sinh viên',N'Huế'),
+    (N'Mai Tuấn Kiệt','student15@gmail.com','active','1997-07-22','0904200010',N'Nhân viên xuất nhập khẩu',N'Hải Phòng'),
+    (N'Lý Quỳnh Như','student16@gmail.com','active','2001-04-05','0904200011',N'Thiết kế đồ họa',N'TP. Hồ Chí Minh'),
+    (N'Trần Hoàng Phúc','student17@gmail.com','active','1994-09-16','0904200012',N'Quản lý nhà hàng',N'Khánh Hòa'),
+    (N'Ngô Thanh Tâm','student18@gmail.com','locked','2002-12-24','0904200013',N'Sinh viên',N'Hà Nội'),
+    (N'Phạm Mỹ Duyên','student19@gmail.com','inactive','1998-02-07','0904200014',N'Nhân viên văn phòng',N'Đà Nẵng'),
+    (N'Đặng Quốc Việt','student20@gmail.com','active','1993-06-13','0904200015',N'Kỹ sư cơ khí',N'Bắc Ninh')
+) v(name,email,status,dob,phone,occupation,province)
+WHERE NOT EXISTS (SELECT 1 FROM users u WHERE u.email=v.email);
+
+-- ADDITIONAL COURSES WITH REAL WORKFLOW STATES
+INSERT INTO courses(title,description,price,status,submitted_at,reviewed_at,review_note,teacher_id,category_id)
+SELECT v.title,v.description,v.price,v.status,
+       CASE WHEN v.status IN ('pending','published','rejected') THEN DATEADD(day,v.submitted_days,SYSDATETIME()) END,
+       CASE WHEN v.status IN ('published','rejected') THEN DATEADD(day,v.reviewed_days,SYSDATETIME()) END,
+       v.review_note,u.id,c.id
+FROM (VALUES
+    (N'Phát Âm Tiếng Anh Chuẩn IPA Từ Cơ Bản',N'Làm chủ 44 âm IPA, khẩu hình và trọng âm để giao tiếp rõ ràng, tự nhiên.',429000.0,N'published',-80,-78,CAST(NULL AS NVARCHAR(1000)),'teacher6@gmail.com',N'Tiếng Anh Giao Tiếp'),
+    (N'English for Business Communication',N'Giao tiếp trong họp, email, thuyết trình và đàm phán với đối tác quốc tế.',649000.0,N'published',-68,-66,CAST(NULL AS NVARCHAR(1000)),'teacher4@gmail.com',N'Tiếng Anh Thương Mại & CNTT'),
+    (N'TOEIC 500 Nền Tảng Cho Người Mới Bắt Đầu',N'Lộ trình ngữ pháp và từ vựng cốt lõi dành cho người mất gốc.',379000.0,N'published',-52,-50,CAST(NULL AS NVARCHAR(1000)),'teacher5@gmail.com',N'Luyện thi TOEIC'),
+    (N'IELTS Writing Task 2 Chuyên Sâu',N'Phân tích đề, xây dựng luận điểm và sửa các lỗi thường gặp trong bài viết học thuật.',759000.0,N'pending',-3,0,CAST(NULL AS NVARCHAR(1000)),'teacher2@gmail.com',N'Luyện thi IELTS'),
+    (N'Giao Tiếp Tiếng Anh Khi Du Lịch',N'Mẫu câu thực tế tại sân bay, khách sạn, nhà hàng và các tình huống khẩn cấp.',289000.0,N'draft',0,0,CAST(NULL AS NVARCHAR(1000)),'teacher6@gmail.com',N'Tiếng Anh Giao Tiếp'),
+    (N'Tiếng Anh Cho Phỏng Vấn Xin Việc',N'Chuẩn bị hồ sơ, giới thiệu kinh nghiệm và trả lời câu hỏi phỏng vấn bằng tiếng Anh.',459000.0,N'rejected',-14,-12,N'Cần bổ sung bài thực hành và mô tả đầu ra cho từng chương.','teacher4@gmail.com',N'Tiếng Anh Thương Mại & CNTT'),
+    (N'Ngữ Pháp Ứng Dụng Trong Giao Tiếp',N'Biến kiến thức ngữ pháp thành phản xạ qua các tình huống giao tiếp thường ngày.',329000.0,N'archived',-120,-118,CAST(NULL AS NVARCHAR(1000)),'teacher3@gmail.com',N'Ngữ Pháp & Từ Vựng Căn Bản')
+) v(title,description,price,status,submitted_days,reviewed_days,review_note,teacher_email,category_name)
+JOIN users u ON u.email=v.teacher_email
+JOIN categories c ON c.name=v.category_name
+WHERE NOT EXISTS (SELECT 1 FROM courses x WHERE x.title=v.title);
+
+-- CONTENT FOR THE NEW PUBLISHED COURSES
+INSERT INTO chapters(title,order_index,course_id)
+SELECT v.chapter_title,v.order_index,c.id
+FROM (VALUES
+    (N'Phát Âm Tiếng Anh Chuẩn IPA Từ Cơ Bản',N'Chương 1: Nền tảng bảng phiên âm IPA',1),
+    (N'Phát Âm Tiếng Anh Chuẩn IPA Từ Cơ Bản',N'Chương 2: Trọng âm và ngữ điệu',2),
+    (N'English for Business Communication',N'Chương 1: Email và trao đổi công việc',1),
+    (N'English for Business Communication',N'Chương 2: Họp và thuyết trình',2),
+    (N'TOEIC 500 Nền Tảng Cho Người Mới Bắt Đầu',N'Chương 1: Ngữ pháp TOEIC cốt lõi',1),
+    (N'TOEIC 500 Nền Tảng Cho Người Mới Bắt Đầu',N'Chương 2: Làm quen Listening và Reading',2)
+) v(course_title,chapter_title,order_index)
+JOIN courses c ON c.title=v.course_title
+WHERE NOT EXISTS (SELECT 1 FROM chapters ch WHERE ch.course_id=c.id AND ch.title=v.chapter_title);
+
+INSERT INTO lessons(title,video_url,order_index,chapter_id)
+SELECT v.lesson_title,'https://www.youtube.com/watch?v=juKd26qkNAw',v.order_index,ch.id
+FROM (VALUES
+    (N'Chương 1: Nền tảng bảng phiên âm IPA',N'IPA 1: Nguyên âm đơn và khẩu hình',1),
+    (N'Chương 1: Nền tảng bảng phiên âm IPA',N'IPA 2: Nguyên âm đôi thường gặp',2),
+    (N'Chương 2: Trọng âm và ngữ điệu',N'IPA 3: Trọng âm trong từ và câu',1),
+    (N'Chương 2: Trọng âm và ngữ điệu',N'IPA 4: Nối âm trong giao tiếp',2),
+    (N'Chương 1: Email và trao đổi công việc',N'Business 1: Cấu trúc email chuyên nghiệp',1),
+    (N'Chương 1: Email và trao đổi công việc',N'Business 2: Phản hồi và theo dõi công việc',2),
+    (N'Chương 2: Họp và thuyết trình',N'Business 3: Điều hành cuộc họp',1),
+    (N'Chương 2: Họp và thuyết trình',N'Business 4: Trình bày số liệu',2),
+    (N'Chương 1: Ngữ pháp TOEIC cốt lõi',N'TOEIC 500 - Bài 1: Các loại từ',1),
+    (N'Chương 1: Ngữ pháp TOEIC cốt lõi',N'TOEIC 500 - Bài 2: Thì và hòa hợp chủ vị',2),
+    (N'Chương 2: Làm quen Listening và Reading',N'TOEIC 500 - Bài 3: Nghe tranh và hỏi đáp',1),
+    (N'Chương 2: Làm quen Listening và Reading',N'TOEIC 500 - Bài 4: Đọc hiểu đoạn ngắn',2)
+) v(chapter_title,lesson_title,order_index)
+JOIN chapters ch ON ch.title=v.chapter_title
+WHERE NOT EXISTS (SELECT 1 FROM lessons l WHERE l.chapter_id=ch.id AND l.title=v.lesson_title);
+
+-- ADDITIONAL ORDERS: completed, failed and pending across 90 days
+INSERT INTO orders(order_code,student_id,course_id,amount,payment_method,status,transaction_no,created_at,completed_at)
+SELECT v.order_code,u.id,c.id,c.price,v.payment_method,v.status,
+       CASE WHEN v.status='COMPLETED' THEN CONCAT('DEMO-TXN-',v.order_code) END,
+       DATEADD(day,v.days_ago,SYSDATETIME()),
+       CASE WHEN v.status='COMPLETED' THEN DATEADD(minute,5,DATEADD(day,v.days_ago,SYSDATETIME())) END
+FROM (VALUES
+    ('DEMO-015','student6@gmail.com',N'Phát Âm Tiếng Anh Chuẩn IPA Từ Cơ Bản','VNPAY','COMPLETED',-88),
+    ('DEMO-016','student6@gmail.com',N'Tiếng Anh Giao Tiếp Thực Chiến Cho Người Đi Làm','MOMO','COMPLETED',-72),
+    ('DEMO-017','student7@gmail.com',N'English for Business Communication','VNPAY','COMPLETED',-67),
+    ('DEMO-018','student7@gmail.com',N'Tiếng Anh Chuyên Ngành CNTT (IT English)','BANK_TRANSFER','COMPLETED',-44),
+    ('DEMO-019','student8@gmail.com',N'Phát Âm Tiếng Anh Chuẩn IPA Từ Cơ Bản','MOMO','COMPLETED',-61),
+    ('DEMO-020','student8@gmail.com',N'Ngữ Pháp Tiếng Anh Nền Tảng A-Z','VNPAY','COMPLETED',-39),
+    ('DEMO-021','student9@gmail.com',N'TOEIC 500 Nền Tảng Cho Người Mới Bắt Đầu','VNPAY','COMPLETED',-49),
+    ('DEMO-022','student9@gmail.com',N'Bứt Phá TOEIC 750+ Cấp Tốc Trong 30 Ngày','MOMO','COMPLETED',-27),
+    ('DEMO-023','student10@gmail.com',N'Chinh Phục IELTS 7.0+ Toàn Diện 4 Kỹ Năng','BANK_TRANSFER','COMPLETED',-45),
+    ('DEMO-024','student10@gmail.com',N'Phát Âm Tiếng Anh Chuẩn IPA Từ Cơ Bản','VNPAY','COMPLETED',-31),
+    ('DEMO-025','student11@gmail.com',N'English for Business Communication','MOMO','COMPLETED',-36),
+    ('DEMO-026','student11@gmail.com',N'Tiếng Anh Giao Tiếp Thực Chiến Cho Người Đi Làm','VNPAY','COMPLETED',-22),
+    ('DEMO-027','student12@gmail.com',N'Tiếng Anh Giao Tiếp Thực Chiến Cho Người Đi Làm','VNPAY','COMPLETED',-29),
+    ('DEMO-028','student12@gmail.com',N'Chinh Phục IELTS 7.0+ Toàn Diện 4 Kỹ Năng','MOMO','COMPLETED',-18),
+    ('DEMO-029','student13@gmail.com',N'Tiếng Anh Chuyên Ngành CNTT (IT English)','BANK_TRANSFER','COMPLETED',-25),
+    ('DEMO-030','student13@gmail.com',N'English for Business Communication','VNPAY','COMPLETED',-16),
+    ('DEMO-031','student14@gmail.com',N'TOEIC 500 Nền Tảng Cho Người Mới Bắt Đầu','MOMO','COMPLETED',-21),
+    ('DEMO-032','student14@gmail.com',N'Ngữ Pháp Tiếng Anh Nền Tảng A-Z','VNPAY','COMPLETED',-12),
+    ('DEMO-033','student15@gmail.com',N'English for Business Communication','BANK_TRANSFER','COMPLETED',-19),
+    ('DEMO-034','student15@gmail.com',N'Phát Âm Tiếng Anh Chuẩn IPA Từ Cơ Bản','VNPAY','COMPLETED',-9),
+    ('DEMO-035','student16@gmail.com',N'Chinh Phục IELTS 7.0+ Toàn Diện 4 Kỹ Năng','VNPAY','COMPLETED',-15),
+    ('DEMO-036','student16@gmail.com',N'Tiếng Anh Giao Tiếp Thực Chiến Cho Người Đi Làm','MOMO','COMPLETED',-8),
+    ('DEMO-037','student17@gmail.com',N'TOEIC 500 Nền Tảng Cho Người Mới Bắt Đầu','VNPAY','COMPLETED',-13),
+    ('DEMO-038','student17@gmail.com',N'Bứt Phá TOEIC 750+ Cấp Tốc Trong 30 Ngày','BANK_TRANSFER','COMPLETED',-6),
+    ('DEMO-039','student20@gmail.com',N'Tiếng Anh Chuyên Ngành CNTT (IT English)','MOMO','COMPLETED',-11),
+    ('DEMO-040','student20@gmail.com',N'English for Business Communication','VNPAY','COMPLETED',-4),
+    ('DEMO-041','student6@gmail.com',N'Ngữ Pháp Tiếng Anh Nền Tảng A-Z','VNPAY','FAILED',-24),
+    ('DEMO-042','student8@gmail.com',N'Chinh Phục IELTS 7.0+ Toàn Diện 4 Kỹ Năng','MOMO','FAILED',-17),
+    ('DEMO-043','student11@gmail.com',N'TOEIC 500 Nền Tảng Cho Người Mới Bắt Đầu','VNPAY','FAILED',-7),
+    ('DEMO-044','student14@gmail.com',N'English for Business Communication','BANK_TRANSFER','FAILED',-5),
+    ('DEMO-045','student20@gmail.com',N'Ngữ Pháp Tiếng Anh Nền Tảng A-Z','MOMO','FAILED',-3),
+    ('DEMO-046','student10@gmail.com',N'English for Business Communication','VNPAY','PENDING',0)
+) v(order_code,student_email,course_title,payment_method,status,days_ago)
+JOIN users u ON u.email=v.student_email
+JOIN courses c ON c.title=v.course_title
+WHERE NOT EXISTS (SELECT 1 FROM orders o WHERE o.order_code=v.order_code);
+
+-- Derive enrollments once more after adding the extended successful orders.
+INSERT INTO enrollments(student_id,course_id)
+SELECT DISTINCT o.student_id,o.course_id
+FROM orders o
+WHERE o.status='COMPLETED'
+  AND NOT EXISTS (SELECT 1 FROM enrollments e WHERE e.student_id=o.student_id AND e.course_id=o.course_id);
+
+-- REALISTIC PROGRESS FOR THE NEW STUDENTS
+INSERT INTO lesson_progress(student_id,lesson_id,is_completed)
+SELECT u.id,l.id,
+       CASE WHEN (ABS(CHECKSUM(u.email,l.title)) % 5)=0 THEN 0 ELSE 1 END
+FROM users u
+JOIN enrollments e ON e.student_id=u.id
+JOIN chapters ch ON ch.course_id=e.course_id
+JOIN lessons l ON l.chapter_id=ch.id
+WHERE u.email IN ('student6@gmail.com','student7@gmail.com','student8@gmail.com','student9@gmail.com','student10@gmail.com','student11@gmail.com','student12@gmail.com','student13@gmail.com','student14@gmail.com','student15@gmail.com','student16@gmail.com','student17@gmail.com','student20@gmail.com')
+  AND (ABS(CHECKSUM(u.email,l.title)) % 3)<>0
+  AND NOT EXISTS (SELECT 1 FROM lesson_progress p WHERE p.student_id=u.id AND p.lesson_id=l.id);
+
+-- Summary returned by SSMS after execution.
+SELECT N'Người dùng' AS [Loại dữ liệu], COUNT(*) AS [Tổng số] FROM users
+UNION ALL SELECT N'Khóa học',COUNT(*) FROM courses
+UNION ALL SELECT N'Bài học',COUNT(*) FROM lessons
+UNION ALL SELECT N'Đơn hàng',COUNT(*) FROM orders
+UNION ALL SELECT N'Ghi danh',COUNT(*) FROM enrollments
+UNION ALL SELECT N'Kết quả quiz',COUNT(*) FROM quiz_results;
