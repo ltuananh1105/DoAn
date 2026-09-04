@@ -62,6 +62,35 @@ const adminMenuItems = [
   },
 ];
 
+const money = (value) => `${Number(value || 0).toLocaleString("vi-VN", { maximumFractionDigits: 0 })} ₫`;
+const compactMoney = (value) => new Intl.NumberFormat("vi-VN", { notation: "compact", maximumFractionDigits: 1 }).format(value || 0);
+
+function MetricCard({ label, value, note, tone = "default" }) {
+  const tones = { default: "text-slate-950", blue: "text-blue-700", green: "text-emerald-700" };
+  return <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"><p className="text-sm font-medium text-slate-500">{label}</p><p className={`mt-2 text-2xl font-bold tracking-tight ${tones[tone]}`}>{value}</p>{note && <p className="mt-2 text-xs leading-5 text-slate-500">{note}</p>}</div>;
+}
+
+function RevenueChart({ data = [] }) {
+  const width = 720, height = 230, left = 55, right = 16, top = 18, bottom = 34;
+  const plotWidth = width - left - right, plotHeight = height - top - bottom;
+  const maxValue = Math.max(...data.map(item => Number(item.revenue || 0)), 1);
+  const points = data.map((item, index) => ({ ...item, x: left + (data.length <= 1 ? plotWidth / 2 : index * plotWidth / (data.length - 1)), y: top + plotHeight - Number(item.revenue || 0) / maxValue * plotHeight }));
+  const line = points.map((point, index) => `${index ? "L" : "M"}${point.x},${point.y}`).join(" ");
+  const area = points.length ? `${line} L${points.at(-1).x},${top + plotHeight} L${points[0].x},${top + plotHeight} Z` : "";
+  const labels = [1, .75, .5, .25, 0];
+  const labelEvery = Math.max(1, Math.ceil(data.length / 6));
+  return <div className="overflow-x-auto"><svg viewBox={`0 0 ${width} ${height}`} className="min-w-[620px] w-full" role="img" aria-label="Biểu đồ doanh thu theo ngày">
+    <defs><linearGradient id="revenueArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#3b82f6" stopOpacity=".22"/><stop offset="1" stopColor="#3b82f6" stopOpacity=".02"/></linearGradient></defs>
+    {labels.map(ratio => { const y = top + (1 - ratio) * plotHeight; return <g key={ratio}><line x1={left} y1={y} x2={width - right} y2={y} stroke="#e2e8f0" strokeDasharray="3 4"/><text x={left - 8} y={y + 4} textAnchor="end" fontSize="10" fill="#64748b">{compactMoney(maxValue * ratio)}</text></g>; })}
+    {area && <path d={area} fill="url(#revenueArea)"/>}<path d={line} fill="none" stroke="#2563eb" strokeWidth="2.5" strokeLinejoin="round"/>
+    {points.map((point, index) => <g key={point.date}><circle cx={point.x} cy={point.y} r="3.5" fill="#fff" stroke="#2563eb" strokeWidth="2"><title>{`${point.date}: ${money(point.revenue)} · ${point.orders} đơn`}</title></circle>{(index % labelEvery === 0 || index === points.length - 1) && <text x={point.x} y={height - 10} textAnchor="middle" fontSize="10" fill="#64748b">{new Date(`${point.date}T00:00:00`).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" })}</text>}</g>)}
+  </svg></div>;
+}
+
+function CourseRanking({ rows = [], totalRevenue = 0 }) {
+  return <div className="space-y-4">{rows.slice(0, 5).map((row, index) => { const share = totalRevenue ? row.grossRevenue / totalRevenue * 100 : 0; return <div key={row.courseId}><div className="flex items-start gap-3"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-slate-100 text-xs font-bold text-slate-600">{index + 1}</span><div className="min-w-0 flex-1"><div className="flex justify-between gap-3 text-sm"><span className="truncate font-medium text-slate-800" title={row.courseTitle}>{row.courseTitle}</span><strong className="shrink-0 text-slate-900">{money(row.grossRevenue)}</strong></div><div className="mt-2 h-1.5 overflow-hidden rounded bg-slate-100"><div className="h-full rounded bg-blue-600" style={{ width: `${Math.max(share, 1)}%` }}/></div><div className="mt-1 flex justify-between text-[11px] text-slate-500"><span>{row.orders} đơn · {row.teacherName}</span><span>{share.toLocaleString("vi-VN", { maximumFractionDigits: 1 })}%</span></div></div></div></div>; })}{!rows.length && <div className="py-16 text-center text-sm text-slate-400">Chưa có giao dịch trong kỳ báo cáo.</div>}</div>;
+}
+
 export default function Admin() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("courses");
@@ -635,30 +664,22 @@ export default function Admin() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
-                    <div className="bg-white p-6 border rounded-xl shadow-sm">
-                      <div className="text-gray-500 text-sm font-medium mb-1">Tổng đơn hàng thành công</div>
-                      <div className="text-3xl font-bold text-gray-900">{revenueData.totalCompletedOrders}</div>
-                    </div>
-                    <div className="bg-white p-6 border rounded-xl shadow-sm">
-                      <div className="text-gray-500 text-sm font-medium mb-1">Tổng giao dịch (Gross)</div>
-                      <div className="text-3xl font-bold text-gray-900">{revenueData.totalGrossRevenue?.toLocaleString("vi-VN")} ₫</div>
-                    </div>
-                    <div className="bg-white p-6 border rounded-xl shadow-sm bg-blue-50 border-blue-100">
-                      <div className="text-blue-800 text-sm font-medium mb-1">Sàn giữ lại (Net - 20%)</div>
-                      <div className="text-3xl font-bold text-blue-600">{revenueData.platformNetRevenue?.toLocaleString("vi-VN")} ₫</div>
-                    </div>
-                    <div className="bg-white p-6 border rounded-xl shadow-sm bg-green-50 border-green-100">
-                      <div className="text-green-800 text-sm font-medium mb-1">Thanh toán GV (80%)</div>
-                      <div className="text-3xl font-bold text-green-600">{revenueData.totalTeacherPayout?.toLocaleString("vi-VN")} ₫</div>
-                    </div>
-                    <div className="bg-white p-6 border rounded-xl shadow-sm"><div className="text-gray-500 text-sm font-medium mb-1">Giá trị đơn trung bình</div><div className="text-2xl font-bold text-gray-900">{revenueData.averageOrderValue?.toLocaleString("vi-VN", { maximumFractionDigits: 0 })} ₫</div></div>
-                    <div className="bg-white p-6 border rounded-xl shadow-sm"><div className="text-gray-500 text-sm font-medium mb-1">Người mua duy nhất</div><div className="text-2xl font-bold text-gray-900">{revenueData.uniqueBuyers || 0}</div><div className={`text-xs ${(revenueData.revenueGrowthPercent || 0) >= 0 ? "text-green-600" : "text-red-600"}`}>Doanh thu {revenueData.revenueGrowthPercent > 0 ? "+" : ""}{revenueData.revenueGrowthPercent || 0}% so với kỳ trước</div></div>
+                  <div className="mb-5 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                    <MetricCard label="Tổng doanh thu" value={money(revenueData.totalGrossRevenue)} note={`${revenueData.revenueGrowthPercent > 0 ? "+" : ""}${revenueData.revenueGrowthPercent || 0}% so với kỳ trước`} />
+                    <MetricCard label="Doanh thu nền tảng" value={money(revenueData.platformNetRevenue)} note="20% doanh thu giao dịch thành công" tone="blue" />
+                    <MetricCard label="Thanh toán giáo viên" value={money(revenueData.totalTeacherPayout)} note="80% doanh thu giao dịch thành công" tone="green" />
+                    <MetricCard label="Đơn hàng thành công" value={Number(revenueData.totalCompletedOrders || 0).toLocaleString("vi-VN")} note={`${revenueData.orderGrowthPercent > 0 ? "+" : ""}${revenueData.orderGrowthPercent || 0}% so với kỳ trước`} />
                   </div>
 
-                  <div className="mb-8 grid gap-6 lg:grid-cols-2">
-                    <div className="rounded-xl border bg-white p-5 shadow-sm"><h3 className="mb-4 font-bold">Xu hướng doanh thu theo ngày</h3><div className="flex h-40 items-end gap-1 overflow-x-auto">{(revenueData.dailyRevenue || []).map((day) => { const max = Math.max(...(revenueData.dailyRevenue || []).map((item) => item.revenue), 1); return <div key={day.date} className="group flex min-w-3 flex-1 items-end" title={`${day.date}: ${day.revenue.toLocaleString("vi-VN")} ₫`}><div className="w-full rounded-t bg-blue-500" style={{ height: `${Math.max(day.revenue / max * 100, day.revenue ? 4 : 1)}%` }} /></div>; })}</div></div>
-                    <div className="rounded-xl border bg-white p-5 shadow-sm"><h3 className="mb-4 font-bold">Khóa học tạo doanh thu cao nhất</h3><div className="space-y-3">{(revenueData.courseBreakdown || []).slice(0, 5).map((row, index) => <div key={row.courseId} className="flex justify-between gap-3 text-sm"><span className="line-clamp-1">{index + 1}. {row.courseTitle}</span><strong>{row.grossRevenue?.toLocaleString("vi-VN")} ₫</strong></div>)}</div></div>
+                  <div className="mb-8 grid gap-3 sm:grid-cols-3">
+                    <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3"><p className="text-xs text-slate-500">Giá trị đơn trung bình</p><p className="mt-1 font-semibold text-slate-900">{money(revenueData.averageOrderValue)}</p></div>
+                    <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3"><p className="text-xs text-slate-500">Người mua trong kỳ</p><p className="mt-1 font-semibold text-slate-900">{Number(revenueData.uniqueBuyers || 0).toLocaleString("vi-VN")} học viên</p></div>
+                    <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3"><p className="text-xs text-slate-500">Thời gian báo cáo</p><p className="mt-1 font-semibold text-slate-900">{new Date(`${revenueData.from}T00:00:00`).toLocaleDateString("vi-VN")} – {new Date(`${revenueData.to}T00:00:00`).toLocaleDateString("vi-VN")}</p></div>
+                  </div>
+
+                  <div className="mb-8 grid gap-6 xl:grid-cols-[1.35fr_.85fr]">
+                    <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"><div className="mb-2 flex items-start justify-between"><div><h3 className="font-semibold text-slate-900">Doanh thu theo ngày</h3><p className="mt-1 text-xs text-slate-500">Tổng giá trị các giao dịch đã hoàn thành</p></div><span className="rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700">{money(revenueData.totalGrossRevenue)}</span></div><RevenueChart data={revenueData.dailyRevenue || []} /></section>
+                    <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"><div className="mb-5"><h3 className="font-semibold text-slate-900">Khóa học nổi bật</h3><p className="mt-1 text-xs text-slate-500">Xếp hạng theo doanh thu trong kỳ</p></div><CourseRanking rows={revenueData.courseBreakdown || []} totalRevenue={revenueData.totalGrossRevenue || 0} /></section>
                   </div>
 
                   <div className="flex items-center gap-3 mb-4">
