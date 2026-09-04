@@ -228,7 +228,7 @@ export default function Practice() {
                   {quizResult.score}%
                 </div>
                 <div className={`text-xl font-bold mb-2 ${quizResult.passed ? "text-green-700" : "text-red-700"}`}>
-                  {quizResult.passed ? "🎉 XUẤT SẮC! BẠN ĐÃ ĐẠT BÀI KIỂM TRA" : "❌ CHƯA ĐẠT ĐIỂM YÊU CẦU"}
+                  {quizResult.passed ? "ĐÃ ĐẠT BÀI KIỂM TRA" : "CHƯA ĐẠT ĐIỂM YÊU CẦU"}
                 </div>
                 <p className="text-sm text-gray-600">
                   Trả lời đúng <strong>{quizResult.correct}</strong> trên tổng số <strong>{quizResult.total}</strong> câu hỏi.
@@ -265,7 +265,7 @@ export default function Practice() {
                         }`}
                       >
                         <div className="font-bold text-sm text-gray-900 mb-2 flex items-start gap-2">
-                          <span>{isUserCorrect ? "✅" : "❌"}</span>
+                          <span className={isUserCorrect ? "text-green-700" : "text-red-700"}>{isUserCorrect ? "Đúng" : "Sai"}</span>
                           <span>Câu {idx + 1}: {q.content}</span>
                         </div>
 

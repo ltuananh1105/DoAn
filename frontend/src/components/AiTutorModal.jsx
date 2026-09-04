@@ -4,7 +4,7 @@ const API_BASE = import.meta.env.VITE_API_URL || "/api";
 const STORAGE_KEY = "learnup_ai_conversation";
 const WELCOME_MESSAGE = {
   sender: "ai",
-  text: "👋 Xin chào! Tôi là **LearnUp AI**. Tôi có thể giúp bạn luyện giao tiếp, sửa câu, giải thích ngữ pháp và học từ vựng tiếng Anh.",
+  text: "Xin chào, tôi là trợ lý học tập LearnUp. Tôi có thể giúp bạn luyện giao tiếp, sửa câu, giải thích ngữ pháp và học từ vựng tiếng Anh.",
 };
 
 function loadConversation() {

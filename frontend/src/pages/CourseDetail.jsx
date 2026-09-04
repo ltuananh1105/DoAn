@@ -216,7 +216,7 @@ export default function CourseDetail() {
                 return (
                   <div key={q.id} className={`p-4 rounded-xl border text-sm ${isCorrect ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"}`}>
                     <div className="font-semibold text-gray-900 mb-2">
-                      {isCorrect ? "✅" : "❌"} Câu {idx + 1}: {q.content}
+                      <span className={isCorrect ? "text-green-700" : "text-red-700"}>{isCorrect ? "Đúng" : "Sai"}</span> · Câu {idx + 1}: {q.content}
                     </div>
                     <div className="text-xs text-gray-600">
                       Bạn chọn: <strong>{selectedOpt?.content || "Chưa chọn"}</strong>

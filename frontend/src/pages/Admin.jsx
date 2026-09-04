@@ -398,7 +398,7 @@ export default function Admin() {
               {/* TAB COURSES */}
               {activeTab === "courses" && (
                 <div>
-                  <div className="mb-4 flex items-center justify-between gap-3"><h1 className="text-2xl font-bold text-gray-900">Phê duyệt & Quản lý khóa học</h1><button onClick={handleExportCourses} className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700">📥 Xuất báo cáo</button></div>
+                  <div className="mb-4 flex items-center justify-between gap-3"><h1 className="text-2xl font-bold text-gray-900">Phê duyệt & Quản lý khóa học</h1><button onClick={handleExportCourses} className="rounded-lg bg-green-700 px-4 py-2 text-sm font-medium text-white hover:bg-green-800">Xuất báo cáo</button></div>
                   {/* SEARCH & FILTER - COURSES */}
                   <div className="flex flex-col sm:flex-row gap-3 mb-4">
                     <div className="relative flex-1">
@@ -510,7 +510,7 @@ export default function Admin() {
                     </div>
                     <div className="flex gap-2">
                       <button onClick={() => { setUserForm({ name: "", email: "", password: "", role: "student" }); setShowCreateUser(true); }} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">+ Thêm học viên</button>
-                      <button onClick={handleExportStudents} className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 flex items-center gap-2 shadow-sm"><span>📥</span><span>Xuất báo cáo</span></button>
+                      <button onClick={handleExportStudents} className="px-4 py-2 bg-green-700 text-white rounded-lg text-sm font-medium hover:bg-green-800">Xuất báo cáo</button>
                     </div>
                   </div>
                   {/* SEARCH - STUDENTS */}
@@ -571,7 +571,7 @@ export default function Admin() {
                     </div>
                     <div className="flex gap-2">
                       <button onClick={() => { setUserForm({ name: "", email: "", password: "", role: "teacher" }); setShowCreateUser(true); }} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">+ Thêm giảng viên</button>
-                      <button onClick={handleExportTeachers} className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 flex items-center gap-2 shadow-sm"><span>📥</span><span>Xuất báo cáo</span></button>
+                      <button onClick={handleExportTeachers} className="px-4 py-2 bg-green-700 text-white rounded-lg text-sm font-medium hover:bg-green-800">Xuất báo cáo</button>
                     </div>
                   </div>
                   {/* SEARCH - TEACHERS */}
@@ -631,7 +631,7 @@ export default function Admin() {
                     <div className="flex flex-wrap items-end gap-2 text-xs">
                       <label>Từ ngày<input type="date" value={reportFrom} max={reportTo} onChange={(e) => setReportFrom(e.target.value)} className="ml-1 rounded-lg border px-2 py-2" /></label>
                       <label>Đến ngày<input type="date" value={reportTo} min={reportFrom} max={isoDate(new Date())} onChange={(e) => setReportTo(e.target.value)} className="ml-1 rounded-lg border px-2 py-2" /></label>
-                      <button onClick={handleExportRevenue} className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 flex items-center gap-2 shadow-sm"><span>📥</span><span>Xuất báo cáo</span></button>
+                      <button onClick={handleExportRevenue} className="px-4 py-2 bg-green-700 text-white rounded-lg text-sm font-medium hover:bg-green-800">Xuất báo cáo</button>
                     </div>
                   </div>
 

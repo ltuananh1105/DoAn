@@ -409,7 +409,7 @@ export default function Teacher() {
                       <p className="text-xs text-gray-500 mt-0.5">Bấm trực tiếp vào khóa học để quản lý bài giảng & Quiz</p>
                     </div>
 
-                    <div className="flex gap-2"><button onClick={handleExportCourses} className="px-4 py-2.5 bg-green-600 text-white rounded-xl text-sm font-bold hover:bg-green-700">📥 Xuất báo cáo</button><button onClick={() => setShowCreateModal(true)} className="px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition flex items-center gap-2 shadow-sm"><span>+</span><span>Tạo Khóa Học Mới</span></button></div>
+                    <div className="flex gap-2"><button onClick={handleExportCourses} className="px-4 py-2.5 bg-green-700 text-white rounded-xl text-sm font-semibold hover:bg-green-800">Xuất báo cáo</button><button onClick={() => setShowCreateModal(true)} className="px-5 py-2.5 bg-blue-700 text-white rounded-xl text-sm font-semibold hover:bg-blue-800 transition flex items-center gap-2"><span>+</span><span>Tạo khóa học</span></button></div>
                   </div>
 
                   {/* SEARCH & FILTER - KHÓA HỌC */}
@@ -535,7 +535,6 @@ export default function Teacher() {
                       onClick={handleExportStudents}
                       className="px-4 py-2 bg-green-600 text-white rounded-xl text-xs font-bold hover:bg-green-700 flex items-center gap-2 shadow-sm transition"
                     >
-                      <span>📥</span>
                       <span>Xuất Báo Cáo Học Viên</span>
                     </button>
                   </div>
@@ -637,7 +636,7 @@ export default function Teacher() {
                     <div className="flex flex-wrap items-end gap-2 text-xs">
                       <label>Từ ngày<input type="date" value={reportFrom} max={reportTo} onChange={(e) => setReportFrom(e.target.value)} className="ml-1 rounded-xl border px-2 py-2" /></label>
                       <label>Đến ngày<input type="date" value={reportTo} min={reportFrom} max={isoDate(new Date())} onChange={(e) => setReportTo(e.target.value)} className="ml-1 rounded-xl border px-2 py-2" /></label>
-                      <button onClick={handleExportRevenue} className="px-4 py-2 bg-green-600 text-white rounded-xl text-xs font-bold hover:bg-green-700 flex items-center gap-2 shadow-sm transition"><span>📥</span><span>Xuất báo cáo</span></button>
+                      <button onClick={handleExportRevenue} className="px-4 py-2 bg-green-700 text-white rounded-xl text-xs font-semibold hover:bg-green-800 transition">Xuất báo cáo</button>
                     </div>
                   </div>
 
