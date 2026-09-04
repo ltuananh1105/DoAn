@@ -20,8 +20,8 @@ export default function Footer() {
 
   return (
     <footer className="border-t border-slate-200 bg-white">
-      <div className="app-container grid gap-10 py-12 md:grid-cols-[1.5fr_1fr_1fr] lg:gap-16">
-        <div className="max-w-md">
+      <div className="app-container grid grid-cols-1 gap-10 py-12 md:grid-cols-3 lg:gap-16">
+        <div className="max-w-md md:pr-6">
           <Link to="/" className="inline-flex items-center gap-2.5" aria-label="LearnUp - Trang chủ">
             <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-700 font-bold text-white">L</span>
             <span className="text-lg font-bold tracking-tight text-slate-900">LearnUp</span>
