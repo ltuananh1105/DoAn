@@ -449,7 +449,7 @@ export default function Teacher() {
                   </div>
 
                   {/* DANH SÁCH KHÓA HỌC DẠNG CARD */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                     {filteredCourses.map((c) => (
                       <div
                         key={c.id}

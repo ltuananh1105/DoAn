@@ -180,7 +180,7 @@ export default function Student() {
                       <Link to="/student/courses" className="text-sm text-blue-600 font-semibold hover:underline">Xem tất cả →</Link>
                     </div>
 
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
                       {enrollments.map((e) => (
                         <div key={e.id} className="bg-white border rounded-2xl p-5 shadow-sm flex flex-col justify-between">
                           <div>
@@ -257,7 +257,7 @@ export default function Student() {
                       <button onClick={() => setCourseSearch("")} className="text-blue-600 font-semibold text-sm hover:underline">Xóa bộ lọc</button>
                     </div>
                   ) : (
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
                       {filteredEnrollments.map((e) => (
                         <Link
                           key={e.id}
