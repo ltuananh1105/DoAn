@@ -357,7 +357,7 @@ export default function Admin() {
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* SIDEBAR */}
-      <aside className="w-64 bg-white border-r flex-shrink-0 sticky top-0 h-screen overflow-y-auto hidden md:block">
+      <aside className="sticky top-16 hidden h-[calc(100vh-64px)] w-64 flex-shrink-0 overflow-y-auto border-r bg-white md:block">
         <div className="p-6">
           <h2 className="text-xl font-bold text-gray-800">LearnUp Admin</h2>
           <p className="text-xs text-gray-500 mt-1">{user?.email}</p>
@@ -381,8 +381,14 @@ export default function Admin() {
       </aside>
 
       {/* CONTENT */}
-      <main className="flex-1 p-8">
+      <main className="min-w-0 flex-1 p-4 sm:p-6 lg:p-8">
         <div className="max-w-6xl mx-auto">
+          <div className="mb-5 md:hidden">
+            <label className="mb-1.5 block text-xs font-semibold uppercase text-gray-500">Khu vực quản trị</label>
+            <select value={activeTab} onChange={(event) => setActiveTab(event.target.value)} className="ui-input">
+              {adminMenuItems.map((item) => <option key={item.key} value={item.key}>{item.label}</option>)}
+            </select>
+          </div>
           {loading ? (
             <div className="flex justify-center items-center py-20">
               <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>

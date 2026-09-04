@@ -30,6 +30,11 @@ button:disabled { cursor: not-allowed; }
 .shadow-2xl, .shadow-xl, .shadow-lg { box-shadow: 0 8px 24px rgb(15 23 42 / 0.08); }
 .shadow-md, .shadow-sm { box-shadow: 0 1px 3px rgb(15 23 42 / 0.08); }
 .hover\:scale-105:hover, .hover\:scale-110:hover { transform: none; }
+.font-extrabold { font-weight: 700; }
+[class*="bg-gradient-to-"][class*="from-blue"], [class*="bg-gradient-to-"][class*="from-indigo"] { background-image: none; background-color: var(--brand); }
+table { border-color: var(--border); }
+thead[class*="bg-gray"], thead[class*="bg-slate"] { background: #f8fafc; }
+input, select, textarea { accent-color: var(--brand); }
 
 .app-container { width: min(1180px, calc(100% - 32px)); margin-inline: auto; }
 .page-section { padding-block: 48px; }

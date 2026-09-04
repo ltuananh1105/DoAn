@@ -116,18 +116,18 @@ export default function AiTutorModal({ isOpen, onClose }) {
   };
 
   return (
-    <div className="fixed bottom-5 right-5 z-50 w-[420px] max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden">
-      <div className="px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex justify-between items-center">
+    <div className="fixed bottom-20 right-5 z-50 w-[400px] max-w-[calc(100vw-2rem)] bg-white rounded-xl shadow-xl border border-gray-200 flex flex-col overflow-hidden">
+      <div className="px-4 py-3 bg-white border-b text-slate-900 flex justify-between items-center">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-lg">✨</div>
+          <div className="w-9 h-9 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center text-sm font-bold">AI</div>
           <div>
             <div className="font-bold text-sm">LearnUp AI</div>
-            <div className="text-[11px] text-blue-100">Trợ lý học tiếng Anh với Gemini</div>
+            <div className="text-[11px] text-slate-500">Trợ lý học tiếng Anh</div>
           </div>
         </div>
         <div className="flex items-center gap-1">
-          <button onClick={clearConversation} title="Xóa cuộc trò chuyện" className="p-2 rounded-lg hover:bg-white/10 text-xs">↻</button>
-          <button onClick={onClose} aria-label="Đóng chatbox" className="p-2 rounded-lg hover:bg-white/10">
+          <button onClick={clearConversation} title="Xóa cuộc trò chuyện" className="p-2 rounded-lg hover:bg-slate-100 text-xs text-slate-500">↻</button>
+          <button onClick={onClose} aria-label="Đóng chatbox" className="p-2 rounded-lg hover:bg-slate-100 text-slate-500">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
             </svg>

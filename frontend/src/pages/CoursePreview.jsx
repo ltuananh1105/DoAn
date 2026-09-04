@@ -143,7 +143,7 @@ export default function CoursePreview() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-14">
+    <div className="app-container page-section max-w-4xl">
       <Link to="/courses" className="text-sm text-blue-600 mb-4 inline-block font-semibold">
         ← Quay lại danh sách khóa học
       </Link>
@@ -151,7 +151,7 @@ export default function CoursePreview() {
       <span className="text-xs font-semibold text-[#1E4FD8] bg-blue-50 px-2.5 py-1 rounded-md">
         {course.category?.name || "Chưa phân loại"}
       </span>
-      <h1 className="text-3xl font-extrabold text-[#0F172A] mt-2 mb-3">{course.title}</h1>
+      <h1 className="page-heading mt-3 mb-3">{course.title}</h1>
       <p className="text-[#0F172A]/70 mb-4 leading-relaxed">{course.description}</p>
 
       <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-8">
@@ -169,7 +169,7 @@ export default function CoursePreview() {
         {!user && (
           <button
             onClick={() => navigate("/login")}
-            className="bg-[#1E4FD8] text-white font-bold px-8 py-3 rounded-full hover:bg-[#173FB0] transition shadow-md"
+            className="ui-button ui-button-primary px-6"
           >
             Đăng nhập để đăng ký học
           </button>
@@ -178,7 +178,7 @@ export default function CoursePreview() {
         {user?.role === "student" && !isEnrolled && (
           <button
             onClick={handleEnrollClick}
-            className="bg-[#1E4FD8] text-white font-bold px-8 py-3 rounded-full hover:bg-[#173FB0] transition shadow-md"
+            className="ui-button ui-button-primary px-6"
           >
             Đăng ký học ngay · {course.price?.toLocaleString("vi-VN")} đ
           </button>
@@ -187,7 +187,7 @@ export default function CoursePreview() {
         {user?.role === "student" && isEnrolled && (
           <Link
             to={`/student/courses/${courseId}`}
-            className="inline-block bg-green-600 text-white font-bold px-8 py-3 rounded-full hover:bg-green-700 transition shadow-md"
+            className="ui-button border border-green-700 bg-green-700 px-6 text-white hover:bg-green-800"
           >
             Vào học ngay ✓
           </Link>

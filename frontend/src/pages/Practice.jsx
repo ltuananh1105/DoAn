@@ -117,12 +117,11 @@ export default function Practice() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-10">
+    <div className="app-container page-section max-w-5xl">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-extrabold text-gray-900 flex items-center gap-2.5">
-            <span>📝 Trung Tâm Bài Kiểm Tra & Luyện Tập</span>
-          </h1>
+          <p className="text-sm font-semibold text-blue-700">ĐÁNH GIÁ KIẾN THỨC</p>
+          <h1 className="page-heading mt-2">Bài kiểm tra và luyện tập</h1>
           <p className="text-sm text-gray-500 mt-1">
             Tổng hợp các bài kiểm tra đánh giá kiến thức do Giảng viên biên soạn theo từng khóa học
           </p>
@@ -164,10 +163,10 @@ export default function Practice() {
                     </span>
                     <h3 className="font-bold text-gray-900 text-base mt-3 leading-snug">{q.title}</h3>
                     <div className="text-xs text-gray-500 space-y-1.5 mt-3 pt-3 border-t border-gray-100">
-                      <div>⏱️ Thời gian làm bài: <strong>{q.timeLimitMinutes || 15} phút</strong></div>
-                      <div>🎯 Điểm đạt chuẩn: <strong>{q.passScore || 80}%</strong></div>
-                      <div>📋 Số lượng: <strong>{q.questions?.length || 0} câu hỏi trắc nghiệm</strong></div>
-                      {q.teacherName && <div className="text-gray-400">👨‍🏫 Giảng viên: {q.teacherName}</div>}
+                      <div>Thời gian: <strong>{q.timeLimitMinutes || 15} phút</strong></div>
+                      <div>Điểm đạt: <strong>{q.passScore || 80}%</strong></div>
+                      <div>Số lượng: <strong>{q.questions?.length || 0} câu hỏi</strong></div>
+                      {q.teacherName && <div className="text-gray-400">Giảng viên: {q.teacherName}</div>}
                     </div>
                   </div>
 

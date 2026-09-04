@@ -127,9 +127,10 @@ export default function Courses() {
   }, [courses, searchTerm, selectedCategory]);
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-14">
-      <h1 className="text-3xl font-extrabold text-[#0F172A] mb-2">Khám phá khóa học</h1>
-      <p className="text-[#0F172A]/60 mb-6">Chọn khóa học phù hợp với mục tiêu và trình độ của bạn.</p>
+    <div className="app-container page-section">
+      <p className="text-sm font-semibold text-blue-700">DANH MỤC ĐÀO TẠO</p>
+      <h1 className="page-heading mt-2">Khám phá khóa học</h1>
+      <p className="page-description mb-7">Chọn khóa học phù hợp với mục tiêu và trình độ của bạn.</p>
 
       {/* THANH TÌM KIẾM & LỌC */}
       <div className="flex flex-col sm:flex-row gap-3 mb-8">
@@ -186,22 +187,31 @@ export default function Courses() {
         {filteredCourses.map((course) => {
           const isEnrolled = enrolledIds.includes(course.id);
           return (
-            <div key={course.id} className="rounded-2xl border border-black/5 p-5 hover:shadow-lg transition flex flex-col bg-white">
-              <span className="text-xs font-semibold text-[#1E4FD8] mb-1">
+            <article key={course.id} className="flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white transition hover:border-slate-300 hover:shadow-md">
+              <div className="flex h-28 items-end border-b border-slate-200 bg-slate-100 p-4">
+                <span className="rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 shadow-sm">
+                  {course.category?.name || "Chưa phân loại"}
+                </span>
+              </div>
+              <div className="flex flex-1 flex-col p-5">
+              <span className="text-xs text-slate-500 mb-2">
+                Giảng viên: {course.teacher?.name || "LearnUp"}
+              </span>
+              <span className="sr-only">
                 {course.category?.name || "Chưa phân loại"}
               </span>
-              <Link to={`/courses/${course.id}`} className="font-bold text-lg text-[#0F172A] mb-2 hover:text-[#1E4FD8] transition">
+              <Link to={`/courses/${course.id}`} className="font-semibold text-lg text-slate-900 mb-2 hover:text-blue-700 transition">
                 {course.title}
               </Link>
               <p className="text-sm text-[#0F172A]/60 mb-4 line-clamp-2">{course.description}</p>
-              <p className="text-sm font-semibold text-[#0F172A] mb-4">
+              <p className="text-base font-bold text-slate-900 mb-4">
                 {course.price?.toLocaleString("vi-VN")} đ
               </p>
 
               {!user && (
                 <Link
                   to="/login"
-                  className="mt-auto block text-center bg-[#1E4FD8] text-white text-sm font-bold py-2.5 rounded-full hover:bg-[#173FB0] transition"
+                  className="ui-button ui-button-primary mt-auto w-full"
                 >
                   Đăng nhập để đăng ký
                 </Link>
@@ -212,8 +222,8 @@ export default function Courses() {
                   disabled={isEnrolled}
                   className={`mt-auto text-sm font-bold py-2.5 rounded-full transition ${
                     isEnrolled
-                      ? "bg-green-100 text-green-700 cursor-default"
-                      : "bg-[#1E4FD8] text-white hover:bg-[#173FB0]"
+                      ? "bg-green-50 border border-green-200 text-green-700 cursor-default"
+                      : "bg-blue-700 text-white hover:bg-blue-800"
                   }`}
                 >
                   {isEnrolled ? "Đã đăng ký ✓" : "Đăng ký học"}
@@ -222,12 +232,13 @@ export default function Courses() {
               {user && user.role !== "student" && (
                 <Link
                   to={`/courses/${course.id}`}
-                  className="mt-auto block text-center border border-gray-300 text-gray-700 text-sm font-medium py-2 rounded-full hover:bg-gray-50"
+                  className="ui-button ui-button-secondary mt-auto w-full"
                 >
                   Xem chi tiết
                 </Link>
               )}
-            </div>
+              </div>
+            </article>
           );
         })}
       </div>

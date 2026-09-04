@@ -1,95 +1,15 @@
-/**
- * Modal chọn phương thức thanh toán
- * Props:
- *   isOpen: boolean
- *   course: { title, price }
- *   onClose: () => void
- *   onVNPay: () => void
- *   onDemoPay: () => void
- *   loading: boolean
- */
 export default function PaymentModal({ isOpen, course, onClose, onVNPay, onDemoPay, loading }) {
   if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden">
-        {/* HEADER */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-5 text-white">
-          <h2 className="text-lg font-extrabold">Thanh toán khóa học</h2>
-          <p className="text-xs text-blue-100 mt-0.5 line-clamp-1">{course?.title}</p>
-        </div>
-
-        {/* THÔNG TIN ĐƠN HÀNG */}
-        <div className="px-6 pt-5 pb-2">
-          <div className="flex justify-between items-center py-3 border-b text-sm">
-            <span className="text-gray-500">Khóa học</span>
-            <span className="font-semibold text-gray-900 line-clamp-1 max-w-[180px] text-right">{course?.title}</span>
-          </div>
-          <div className="flex justify-between items-center py-3 border-b text-sm">
-            <span className="text-gray-500">Tổng thanh toán</span>
-            <span className="text-xl font-extrabold text-blue-600">
-              {course?.price?.toLocaleString("vi-VN")} ₫
-            </span>
-          </div>
-        </div>
-
-        {/* CHỌN PHƯƠNG THỨC */}
-        <div className="px-6 pt-3 pb-6 space-y-3">
-          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Chọn phương thức thanh toán</p>
-
-          {/* VNPay */}
-          <button
-            onClick={onVNPay}
-            disabled={loading}
-            className="w-full flex items-center gap-4 p-4 border-2 border-gray-200 rounded-2xl hover:border-blue-500 hover:bg-blue-50 transition group disabled:opacity-50"
-          >
-            <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shrink-0 text-white font-extrabold text-xs">
-              VN
-            </div>
-            <div className="text-left flex-1">
-              <div className="font-bold text-sm text-gray-900 group-hover:text-blue-700">Thanh toán qua VNPay</div>
-              <div className="text-xs text-gray-400">ATM · Visa · MasterCard · QR Code</div>
-            </div>
-            <svg className="w-5 h-5 text-gray-300 group-hover:text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-
-          {/* Demo Pay */}
-          <button
-            onClick={onDemoPay}
-            disabled={loading}
-            className="w-full flex items-center gap-4 p-4 border-2 border-gray-200 rounded-2xl hover:border-green-500 hover:bg-green-50 transition group disabled:opacity-50"
-          >
-            <div className="w-10 h-10 rounded-xl bg-green-500 flex items-center justify-center shrink-0 text-white font-extrabold text-xs">
-              ✓
-            </div>
-            <div className="text-left flex-1">
-              <div className="font-bold text-sm text-gray-900 group-hover:text-green-700">Thanh toán Demo</div>
-              <div className="text-xs text-gray-400">Kích hoạt ngay, không cần nhập thẻ</div>
-            </div>
-            <svg className="w-5 h-5 text-gray-300 group-hover:text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-
-          {loading && (
-            <div className="flex items-center justify-center gap-2 py-2 text-sm text-gray-500">
-              <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-              Đang xử lý...
-            </div>
-          )}
-
-          <button
-            onClick={onClose}
-            disabled={loading}
-            className="w-full text-center text-sm text-gray-400 hover:text-gray-600 py-2 transition"
-          >
-            Hủy bỏ
-          </button>
-        </div>
+  return <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm">
+    <div className="w-full max-w-md overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
+      <div className="flex items-start justify-between border-b px-6 py-5"><div><p className="text-xs font-semibold uppercase tracking-wider text-blue-700">Thanh toán</p><h2 className="mt-1 text-lg font-bold text-slate-900">Xác nhận đăng ký khóa học</h2></div><button onClick={onClose} disabled={loading} className="rounded-md p-1.5 text-slate-400 hover:bg-slate-100">✕</button></div>
+      <div className="px-6 py-5"><div className="rounded-lg border border-slate-200 bg-slate-50 p-4"><p className="text-xs text-slate-500">Khóa học</p><p className="mt-1 font-semibold text-slate-900">{course?.title}</p><div className="mt-4 flex items-end justify-between border-t border-slate-200 pt-4"><span className="text-sm text-slate-600">Tổng thanh toán</span><strong className="text-xl text-slate-900">{course?.price?.toLocaleString('vi-VN')} ₫</strong></div></div>
+        <p className="mb-2 mt-5 text-sm font-semibold text-slate-800">Phương thức thanh toán</p><div className="space-y-2"><PaymentOption label="VNPay" description="Thẻ ATM, Visa, MasterCard hoặc QR" code="VN" onClick={onVNPay} disabled={loading}/><PaymentOption label="Thanh toán mô phỏng" description="Dùng để kiểm thử trong môi trường demo" code="DEMO" onClick={onDemoPay} disabled={loading}/></div>
+        {loading && <p className="mt-4 text-center text-sm text-slate-500">Đang xử lý giao dịch...</p>}
       </div>
+      <div className="border-t bg-slate-50 px-6 py-4"><button onClick={onClose} disabled={loading} className="ui-button ui-button-secondary w-full">Hủy</button></div>
     </div>
-  );
+  </div>;
 }
+
+function PaymentOption({ label, description, code, onClick, disabled }) { return <button type="button" onClick={onClick} disabled={disabled} className="flex w-full items-center gap-3 rounded-lg border border-slate-200 p-3 text-left hover:border-blue-400 hover:bg-blue-50 disabled:opacity-50"><span className="flex h-10 w-12 items-center justify-center rounded-md bg-slate-100 text-xs font-bold text-slate-700">{code}</span><span className="flex-1"><b className="block text-sm text-slate-900">{label}</b><span className="text-xs text-slate-500">{description}</span></span><span className="text-slate-400">›</span></button>; }

@@ -345,7 +345,7 @@ export default function Teacher() {
       {/* NÚT TOGGLE SIDEBAR */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="fixed top-3 left-3 z-50 p-2.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 transition"
+        className="fixed bottom-5 left-4 z-50 rounded-lg border border-gray-200 bg-white p-2.5 text-gray-700 shadow-md md:hidden"
       >
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
           <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
@@ -354,8 +354,8 @@ export default function Teacher() {
 
       {/* SIDEBAR BÊN TRÁI ĐỒNG BỘ VỚI STUDENT */}
       <aside
-        className={`group fixed top-16 left-0 z-40 h-[calc(100vh-64px)] bg-white border-r border-gray-200 transition-all duration-300 ease-in-out flex flex-col justify-between py-3 px-2 shadow-sm ${
-          isExpanded ? "w-60" : "w-16 hover:w-60"
+        className={`fixed top-16 left-0 z-40 flex h-[calc(100vh-64px)] w-60 flex-col justify-between border-r border-gray-200 bg-white px-3 py-4 transition-transform duration-200 ${
+          isExpanded ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         }`}
       >
         <div className="space-y-2 mt-2 w-full">
@@ -366,11 +366,11 @@ export default function Teacher() {
                 key={item.key}
                 onClick={() => setActiveTab(item.key)}
                 className={`flex items-center h-11 rounded-xl font-medium text-sm transition-colors whitespace-nowrap overflow-hidden w-full text-left ${
-                  isActive ? "bg-blue-100 text-blue-600 font-bold" : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                  isActive ? "bg-blue-50 text-blue-700 font-semibold" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                 }`}
               >
                 <div className="w-12 h-full flex items-center justify-center shrink-0">{item.icon}</div>
-                <span className={`transition-opacity duration-200 ${isExpanded ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
+                <span>
                   {item.label}
                 </span>
               </button>
@@ -387,14 +387,14 @@ export default function Teacher() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
             </svg>
           </div>
-          <span className={`transition-opacity duration-200 ${isExpanded ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
+          <span>
             Trở về trang chủ
           </span>
         </Link>
       </aside>
 
       {/* MAIN CONTENT BÊN PHẢI */}
-      <main className={`flex-1 transition-all duration-300 pr-6 py-8 ${isExpanded ? "pl-64" : "pl-20"}`}>
+      <main className="min-w-0 flex-1 px-4 py-8 md:pl-64 md:pr-6">
         <div className="max-w-6xl mx-auto">
           {loading ? (
             <div className="text-center py-20 text-gray-400">Đang tải dữ liệu giảng viên...</div>

@@ -125,7 +125,7 @@ export default function Settings() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-10 flex flex-col md:flex-row gap-6">
+    <div className="app-container page-section max-w-4xl flex flex-col md:flex-row gap-6">
       {/* SIDEBAR */}
       <aside className="w-full md:w-56 shrink-0">
         <p className="text-xs font-bold text-gray-400 uppercase mb-2 px-2">
