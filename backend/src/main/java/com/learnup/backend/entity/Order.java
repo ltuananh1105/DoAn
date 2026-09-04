@@ -24,7 +24,7 @@ public class Order {
 
     @Column(nullable = false)
     private Double amount;
-    private String paymentMethod;
+    private String paymentMethod; // DEMO_PAY
     private String status; // PENDING | COMPLETED | FAILED
     private String transactionNo;
     private LocalDateTime createdAt;

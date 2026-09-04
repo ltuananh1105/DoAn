@@ -332,7 +332,10 @@ export default function Teacher() {
       { key: "teacherEarning", label: "Thực nhận 80% (VNĐ)" },
       { key: "paymentMethod", label: "Phương thức thanh toán" },
     ];
-    const data = revenue?.transactions || [];
+    const data = (revenue?.transactions || []).map((transaction) => ({
+      ...transaction,
+      paymentMethod: transaction.paymentMethod === "DEMO_PAY" ? "Thanh toán demo" : transaction.paymentMethod,
+    }));
     setExportColumns(columns);
     setExportData(data);
     setExportFilename(`Bao_Cao_Doanh_Thu_${reportFrom}_${reportTo}`);

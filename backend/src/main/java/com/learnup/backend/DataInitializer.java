@@ -238,24 +238,24 @@ public class DataInitializer implements CommandLineRunner {
         Lesson c6l2 = lesson("Bài 2: Quá khứ đơn & Hoàn thành", "https://www.youtube.com/watch?v=juKd26qkNAw", c6ch1);
 
         // 4. ORDERS & ENROLLMENTS
-        orderAndEnroll(s1, c1, 499000.0, "VNPAY", -12);
-        orderAndEnroll(s1, c2, 890000.0, "MOMO", -10);
+        orderAndEnroll(s1, c1, 499000.0, "DEMO_PAY", -12);
+        orderAndEnroll(s1, c2, 890000.0, "DEMO_PAY", -10);
 
-        orderAndEnroll(s2, c1, 499000.0, "BANK_TRANSFER", -8);
-        orderAndEnroll(s2, c2, 890000.0, "VNPAY", -6);
-        orderAndEnroll(s2, c3, 350000.0, "MOMO", -5);
+        orderAndEnroll(s2, c1, 499000.0, "DEMO_PAY", -8);
+        orderAndEnroll(s2, c2, 890000.0, "DEMO_PAY", -6);
+        orderAndEnroll(s2, c3, 350000.0, "DEMO_PAY", -5);
 
-        orderAndEnroll(s3, c1, 499000.0, "VNPAY", -7);
-        orderAndEnroll(s3, c3, 350000.0, "BANK_TRANSFER", -4);
-        orderAndEnroll(s3, c4, 550000.0, "MOMO", -2);
+        orderAndEnroll(s3, c1, 499000.0, "DEMO_PAY", -7);
+        orderAndEnroll(s3, c3, 350000.0, "DEMO_PAY", -4);
+        orderAndEnroll(s3, c4, 550000.0, "DEMO_PAY", -2);
 
-        orderAndEnroll(s4, c2, 890000.0, "VNPAY", -9);
-        orderAndEnroll(s4, c4, 550000.0, "MOMO", -3);
-        orderAndEnroll(s4, c6, 299000.0, "BANK_TRANSFER", -1);
+        orderAndEnroll(s4, c2, 890000.0, "DEMO_PAY", -9);
+        orderAndEnroll(s4, c4, 550000.0, "DEMO_PAY", -3);
+        orderAndEnroll(s4, c6, 299000.0, "DEMO_PAY", -1);
 
-        orderAndEnroll(s5, c1, 499000.0, "VNPAY", -11);
-        orderAndEnroll(s5, c3, 350000.0, "MOMO", -6);
-        orderAndEnroll(s5, c6, 299000.0, "BANK_TRANSFER", -2);
+        orderAndEnroll(s5, c1, 499000.0, "DEMO_PAY", -11);
+        orderAndEnroll(s5, c3, 350000.0, "DEMO_PAY", -6);
+        orderAndEnroll(s5, c6, 299000.0, "DEMO_PAY", -2);
 
         // 5. LESSON PROGRESS
         // Student 1 progress in c1 & c2

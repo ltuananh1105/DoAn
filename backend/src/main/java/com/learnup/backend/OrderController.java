@@ -2,14 +2,12 @@ package com.learnup.backend;
 
 import com.learnup.backend.entity.*;
 import com.learnup.backend.repository.*;
-import com.learnup.backend.service.VNPayService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 import com.learnup.backend.security.CurrentUser;
-import org.springframework.beans.factory.annotation.Value;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -19,9 +17,7 @@ public class OrderController {
     @Autowired private EnrollmentRepository enrollmentRepository;
     @Autowired private CourseRepository courseRepository;
     @Autowired private UserRepository userRepository;
-    @Autowired private VNPayService vnPayService;
     @Autowired private CurrentUser currentUser;
-    @Value("${app.payment.demo-enabled}") private boolean demoPaymentEnabled;
 
     // Kiểm tra đã mua hoặc đã đăng ký chưa
     @GetMapping("/check")
@@ -81,67 +77,13 @@ public class OrderController {
         order.setCreatedAt(java.time.LocalDateTime.now());
         Order saved = orderRepository.save(order);
 
-        // Tạo luôn URL thanh toán VNPay
-        String paymentUrl = vnPayService.createPaymentUrl(saved.getOrderCode(), saved.getAmount().longValue(), "Thanh toan " + course.getTitle(), "127.0.0.1");
-
-        return Map.of(
-                "success", true,
-                "orderId", saved.getId(),
-                "orderCode", saved.getOrderCode(),
-                "amount", saved.getAmount(),
-                "paymentUrl", paymentUrl
-        );
-    }
-
-    // Xử lý callback sau khi VNPay return
-    @PostMapping("/vnpay-callback")
-    @Transactional
-    public Object processVNPayCallback(@RequestBody Map<String, String> params) {
-        if (!vnPayService.verifyCallback(params)) return Map.of("success", false, "message", "Chữ ký VNPay không hợp lệ");
-        String orderCode = params.get("vnp_TxnRef");
-        String responseCode = params.get("vnp_ResponseCode");
-        String transactionNo = params.get("vnp_TransactionNo");
-
-        Optional<Order> orderOpt = orderCode == null ? Optional.empty() : orderRepository.findByOrderCode(orderCode);
-        if (orderOpt.isEmpty()) return Map.of("success", false, "message", "Không tìm thấy đơn hàng");
-        Order order = orderOpt.get();
-        currentUser.requireStudentSelf(order.getStudent().getId());
-        if ("COMPLETED".equals(order.getStatus())) return Map.of("success", true, "message", "Đơn hàng đã được thanh toán", "order", order);
-        if (!"PENDING".equals(order.getStatus())) return Map.of("success", false, "message", "Đơn hàng không còn hiệu lực");
-        long returnedAmount;
-        try { returnedAmount = Long.parseLong(params.getOrDefault("vnp_Amount", "0")) / 100; }
-        catch (NumberFormatException ex) { return Map.of("success", false, "message", "Số tiền thanh toán không hợp lệ"); }
-        if (returnedAmount != order.getAmount().longValue()) return Map.of("success", false, "message", "Số tiền thanh toán không khớp");
-
-        if ("00".equals(responseCode)) {
-            order.setStatus("COMPLETED");
-            order.setPaymentMethod("VNPAY");
-            order.setTransactionNo(transactionNo != null ? transactionNo : "VNP" + System.currentTimeMillis());
-            order.setCompletedAt(java.time.LocalDateTime.now());
-            orderRepository.save(order);
-
-            // Cấp quyền ghi danh khóa học
-            if (order.getStudent() != null && order.getCourse() != null) {
-                if (!enrollmentRepository.existsByStudentIdAndCourseId(order.getStudent().getId(), order.getCourse().getId())) {
-                    Enrollment en = new Enrollment();
-                    en.setStudent(order.getStudent());
-                    en.setCourse(order.getCourse());
-                    enrollmentRepository.save(en);
-                }
-            }
-            return Map.of("success", true, "message", "Thanh toán thành công!", "order", order);
-        } else {
-            order.setStatus("FAILED");
-            orderRepository.save(order);
-            return Map.of("success", false, "message", "Giao dịch không thành công hoặc bị hủy.");
-        }
+        return buildPaymentResponse(saved);
     }
 
     // Thanh toán Demo
     @PostMapping("/{orderId}/demo-pay")
     @Transactional
     public Object processDemoPayment(@PathVariable Long orderId) {
-        if (!demoPaymentEnabled) return Map.of("success", false, "message", "Thanh toán demo đã bị tắt");
         Optional<Order> orderOpt = orderRepository.findById(orderId);
         if (orderOpt.isEmpty()) return Map.of("success", false, "message", "Không tìm thấy đơn hàng");
 
@@ -176,9 +118,7 @@ public class OrderController {
     }
 
     private Map<String, Object> buildPaymentResponse(Order order) {
-        String paymentUrl = vnPayService.createPaymentUrl(order.getOrderCode(), order.getAmount().longValue(),
-                "Thanh toan " + order.getCourse().getTitle(), "127.0.0.1");
         return Map.of("success", true, "orderId", order.getId(), "orderCode", order.getOrderCode(),
-                "amount", order.getAmount(), "paymentUrl", paymentUrl);
+                "amount", order.getAmount());
     }
 }

@@ -16,14 +16,13 @@ import TeacherCourseDetail from './pages/TeacherCourseDetail.jsx';
 import CoursePreview from './pages/CoursePreview.jsx';
 import AdminCourseReview from './pages/AdminCourseReview.jsx';
 import Settings from './pages/Settings.jsx';
-import VNPayReturn from './pages/VNPayReturn.jsx';
 
 function NotFound() { return <div className="app-container flex min-h-[60vh] flex-col items-center justify-center text-center"><p className="text-sm font-bold text-blue-700">LỖI 404</p><h1 className="mt-2 text-3xl font-bold text-slate-900">Không tìm thấy trang</h1><p className="mt-2 text-slate-600">Địa chỉ bạn truy cập không tồn tại hoặc đã được thay đổi.</p></div>; }
 
 export default function App() {
   const [aiOpen, setAiOpen] = useState(false);
   return <div className="relative min-h-screen"><Routes><Route element={<MainLayout />}>
-    <Route path="/" element={<Home />} /><Route path="/about" element={<About />} /><Route path="/login" element={<Login />} /><Route path="/register" element={<Register />} /><Route path="/courses" element={<Courses />} /><Route path="/courses/:courseId" element={<CoursePreview />} /><Route path="/vnpay-return" element={<VNPayReturn />} />
+    <Route path="/" element={<Home />} /><Route path="/about" element={<About />} /><Route path="/login" element={<Login />} /><Route path="/register" element={<Register />} /><Route path="/courses" element={<Courses />} /><Route path="/courses/:courseId" element={<CoursePreview />} />
     <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
     <Route path="/student" element={<ProtectedRoute role="student"><Student /></ProtectedRoute>} /><Route path="/student/courses" element={<ProtectedRoute role="student"><Student /></ProtectedRoute>} /><Route path="/student/courses/:courseId" element={<ProtectedRoute role="student"><CourseDetail /></ProtectedRoute>} />
     <Route path="/teacher" element={<ProtectedRoute role="teacher"><Teacher /></ProtectedRoute>} /><Route path="/teacher/courses/:courseId" element={<ProtectedRoute role="teacher"><TeacherCourseDetail /></ProtectedRoute>} />

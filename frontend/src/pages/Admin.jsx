@@ -373,7 +373,7 @@ export default function Admin() {
       amount: r.amount || 0,
       platformRevenue: (r.amount || 0) * 0.2,
       teacherPayout: (r.amount || 0) * 0.8,
-      paymentMethod: r.paymentMethod,
+      paymentMethod: r.paymentMethod === "DEMO_PAY" ? "Thanh toán demo" : r.paymentMethod,
     }));
     setExportColumns(columns);
     setExportData(data);
@@ -726,7 +726,7 @@ export default function Admin() {
                               {r.amount?.toLocaleString("vi-VN")} ₫
                             </td>
                             <td className="px-4 py-3 text-xs">
-                              <span className="bg-gray-100 px-2 py-1 rounded">{r.paymentMethod}</span>
+                              <span className="bg-gray-100 px-2 py-1 rounded">{r.paymentMethod === "DEMO_PAY" ? "Thanh toán demo" : r.paymentMethod}</span>
                             </td>
                           </tr>
                         ))}

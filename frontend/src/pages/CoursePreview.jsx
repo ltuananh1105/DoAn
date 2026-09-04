@@ -83,48 +83,26 @@ export default function CoursePreview() {
     return await orderRes.json();
   };
 
-  // Thanh toán VNPay
-  const handleVNPay = async () => {
-    setPaying(true);
-    try {
-      const orderData = await createOrder();
-      if (!orderData.success) {
-        alert(orderData.message || "Không thể tạo đơn hàng, vui lòng thử lại.");
-        setPaying(false);
-        return;
-      }
-      if (orderData.paymentUrl) {
-        window.location.href = orderData.paymentUrl;
-        return;
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Có lỗi xảy ra, vui lòng thử lại.");
-    }
-    setPaying(false);
-  };
-
-  // Thanh toán Demo
+  // Thanh toán demo và kích hoạt quyền học
   const handleDemoPay = async () => {
     setPaying(true);
     try {
       const orderData = await createOrder();
-      if (!orderData.success) {
-        alert(orderData.message || "Không thể tạo đơn hàng, vui lòng thử lại.");
-        setPaying(false);
-        return;
-      }
-      await fetch(`/api/orders/${orderData.orderId}/demo-pay`, {
+      if (!orderData.success) throw new Error(orderData.message || "Không thể tạo đơn demo.");
+      const paymentRes = await fetch(`/api/orders/${orderData.orderId}/demo-pay`, {
         method: "POST",
       });
+      const paymentData = await paymentRes.json();
+      if (!paymentRes.ok || !paymentData.success) throw new Error(paymentData.message || "Không thể hoàn tất thanh toán demo.");
       setIsEnrolled(true);
       setShowPayModal(false);
-      alert("Đăng ký & Kích hoạt khóa học thành công!");
+      alert("Thanh toán demo thành công. Khóa học đã được kích hoạt!");
     } catch (err) {
       console.error(err);
-      alert("Có lỗi xảy ra, vui lòng thử lại.");
+      alert(err.message || "Có lỗi xảy ra, vui lòng thử lại.");
+    } finally {
+      setPaying(false);
     }
-    setPaying(false);
   };
 
   if (loading) {
@@ -225,8 +203,7 @@ export default function CoursePreview() {
         isOpen={showPayModal}
         course={course}
         onClose={() => setShowPayModal(false)}
-        onVNPay={handleVNPay}
-        onDemoPay={handleDemoPay}
+        onConfirm={handleDemoPay}
         loading={paying}
       />
     </div>

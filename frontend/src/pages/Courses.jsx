@@ -62,7 +62,7 @@ export default function Courses() {
     }
   }, [user]);
 
-  // Mở modal chọn phương thức thanh toán
+  // Mở hộp xác nhận thanh toán demo
   const handleEnroll = (courseId) => {
     if (!user) {
       window.location.href = "/login";
@@ -72,7 +72,7 @@ export default function Courses() {
     setPayModal({ courseId, course });
   };
 
-  // Tạo đơn hàng chung
+  // Tạo đơn hàng demo
   const createOrder = async (courseId) => {
     const orderRes = await fetch("/api/orders", {
       method: "POST",
@@ -82,34 +82,24 @@ export default function Courses() {
     return await orderRes.json();
   };
 
-  // Thanh toán VNPay
-  const handleVNPay = async () => {
-    if (!payModal) return;
-    setPaying(true);
-    try {
-      const orderData = await createOrder(payModal.courseId);
-      if (!orderData.success) { alert(orderData.message || "Lỗi tạo đơn."); return; }
-      if (orderData.paymentUrl) {
-        window.location.href = orderData.paymentUrl;
-        return;
-      }
-    } catch { alert("Có lỗi xảy ra."); }
-    setPaying(false);
-  };
-
-  // Thanh toán Demo
+  // Thanh toán demo và kích hoạt quyền học
   const handleDemoPay = async () => {
     if (!payModal) return;
     setPaying(true);
     try {
       const orderData = await createOrder(payModal.courseId);
-      if (!orderData.success) { alert(orderData.message || "Lỗi tạo đơn."); return; }
-      await fetch(`/api/orders/${orderData.orderId}/demo-pay`, { method: "POST" });
+      if (!orderData.success) throw new Error(orderData.message || "Không thể tạo đơn demo.");
+      const paymentRes = await fetch(`/api/orders/${orderData.orderId}/demo-pay`, { method: "POST" });
+      const paymentData = await paymentRes.json();
+      if (!paymentRes.ok || !paymentData.success) throw new Error(paymentData.message || "Không thể hoàn tất thanh toán demo.");
       setEnrolledIds((ids) => [...ids, payModal.courseId]);
       setPayModal(null);
-      alert("Đăng ký & Kích hoạt khóa học thành công!");
-    } catch { alert("Có lỗi xảy ra."); }
-    setPaying(false);
+      alert("Thanh toán demo thành công. Khóa học đã được kích hoạt!");
+    } catch (error) {
+      alert(error.message || "Có lỗi xảy ra.");
+    } finally {
+      setPaying(false);
+    }
   };
 
   // Lọc & tìm kiếm phía client
@@ -266,8 +256,7 @@ export default function Courses() {
         isOpen={!!payModal}
         course={payModal?.course}
         onClose={() => setPayModal(null)}
-        onVNPay={handleVNPay}
-        onDemoPay={handleDemoPay}
+        onConfirm={handleDemoPay}
         loading={paying}
       />
     </div>
