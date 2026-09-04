@@ -4,6 +4,7 @@ import MainLayout from './layouts/MainLayout.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import AiTutorModal from './components/AiTutorModal.jsx';
 import Home from './pages/Home.jsx';
+import About from './pages/About.jsx';
 import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
 import Student from './pages/Student.jsx';
@@ -17,10 +18,6 @@ import AdminCourseReview from './pages/AdminCourseReview.jsx';
 import Settings from './pages/Settings.jsx';
 import VNPayReturn from './pages/VNPayReturn.jsx';
 
-function About() {
-  const audiences = [['Học viên', 'Tìm khóa học, học theo bài và theo dõi tiến độ.'], ['Giáo viên', 'Xây dựng khóa học, quản lý nội dung và kết quả.'], ['Quản trị viên', 'Duyệt nội dung, quản lý tài khoản và báo cáo.']];
-  return <div className="app-container page-section"><div className="max-w-3xl"><p className="text-sm font-semibold text-blue-700">VỀ LEARNUP</p><h1 className="page-heading mt-3">Nền tảng quản lý học tiếng Anh trực tuyến</h1><p className="page-description">LearnUp giúp giáo viên tổ chức nội dung, học viên theo dõi quá trình học và đơn vị quản trị kiểm soát chất lượng khóa học trên cùng một hệ thống.</p></div><div className="mt-10 grid gap-5 md:grid-cols-3">{audiences.map(([title, text]) => <div key={title} className="ui-card p-6"><h2 className="font-semibold text-slate-900">{title}</h2><p className="mt-2 text-sm leading-6 text-slate-600">{text}</p></div>)}</div></div>;
-}
 function NotFound() { return <div className="app-container flex min-h-[60vh] flex-col items-center justify-center text-center"><p className="text-sm font-bold text-blue-700">LỖI 404</p><h1 className="mt-2 text-3xl font-bold text-slate-900">Không tìm thấy trang</h1><p className="mt-2 text-slate-600">Địa chỉ bạn truy cập không tồn tại hoặc đã được thay đổi.</p></div>; }
 
 export default function App() {
