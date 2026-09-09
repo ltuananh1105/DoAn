@@ -30,7 +30,10 @@ export default function CourseDetail() {
 
   useEffect(() => {
     if (!attemptId || quizResult) return;
-    const timer = setInterval(() => setRemainingSeconds((value) => Math.max(0, value - 1)), 1000);
+    const timer = setInterval(
+      () => setRemainingSeconds((value) => Math.max(0, value - 1)),
+      1000,
+    );
     return () => clearInterval(timer);
   }, [attemptId, quizResult]);
 
@@ -56,9 +59,12 @@ export default function CourseDetail() {
             chs.map((ch) =>
               fetch(`/api/chapters/${ch.id}/lessons`)
                 .then((res) => res.json())
-                .then((lessons) => [ch.id, Array.isArray(lessons) ? lessons : []])
-                .catch(() => [ch.id, []])
-            )
+                .then((lessons) => [
+                  ch.id,
+                  Array.isArray(lessons) ? lessons : [],
+                ])
+                .catch(() => [ch.id, []]),
+            ),
           );
           const map = Object.fromEntries(entries);
           setLessonsByChapter(map);
@@ -96,7 +102,8 @@ export default function CourseDetail() {
         body: JSON.stringify({ studentId: user.id, lessonId: activeLesson.id }),
       });
       const data = await response.json();
-      if (!response.ok || !data.success) throw new Error(data.message || "Không thể cập nhật tiến độ");
+      if (!response.ok || !data.success)
+        throw new Error(data.message || "Không thể cập nhật tiến độ");
 
       setCourseProgress((current) => {
         const completedIds = new Set(current.completedLessonIds || []);
@@ -107,9 +114,10 @@ export default function CourseDetail() {
           ...current,
           completedLessonIds: [...completedIds],
           completedLessons,
-          progressPercent: current.totalLessons === 0
-            ? 0
-            : Math.round(completedLessons * 100 / current.totalLessons),
+          progressPercent:
+            current.totalLessons === 0
+              ? 0
+              : Math.round((completedLessons * 100) / current.totalLessons),
         };
       });
     } catch (error) {
@@ -126,11 +134,13 @@ export default function CourseDetail() {
       const res = await fetch(`/api/quizzes/${quizId}`);
       const data = await res.json();
       const startRes = await fetch(`/api/quizzes/${quizId}/start`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ studentId: user?.id }),
       });
       const attempt = await startRes.json();
-      if (!attempt.success) throw new Error(attempt.message || "Không thể bắt đầu quiz");
+      if (!attempt.success)
+        throw new Error(attempt.message || "Không thể bắt đầu quiz");
       setQuizDetail(data);
       setAttemptId(attempt.attemptId);
       setRemainingSeconds(attempt.remainingSeconds);
@@ -178,7 +188,11 @@ export default function CourseDetail() {
   };
 
   if (loading) {
-    return <div className="max-w-6xl mx-auto px-6 py-12 text-gray-400">Đang tải bài học...</div>;
+    return (
+      <div className="max-w-6xl mx-auto px-6 py-12 text-gray-400">
+        Đang tải bài học...
+      </div>
+    );
   }
 
   // =================== GIAO DIỆN LÀM BÀI QUIZ ===================
@@ -195,14 +209,23 @@ export default function CourseDetail() {
         {quizResult ? (
           /* KẾT QUẢ SAU KHI NỘP BÀI */
           <div className="bg-white border rounded-3xl p-8 shadow-sm text-center">
-            <div className={`text-6xl mb-4 ${quizResult.passed ? "text-green-500" : "text-red-400"}`}>
+            <div
+              className={`text-6xl mb-4 ${quizResult.passed ? "text-green-500" : "text-red-400"}`}
+            >
               {quizResult.passed ? "🎉" : "😔"}
             </div>
             <h2 className="text-2xl font-extrabold text-gray-900 mb-1">
-              {quizResult.passed ? "Chúc mừng! Bạn đã đạt!" : "Chưa đạt yêu cầu"}
+              {quizResult.passed
+                ? "Chúc mừng! Bạn đã đạt!"
+                : "Chưa đạt yêu cầu"}
             </h2>
             <p className="text-gray-500 mb-6">
-              Điểm của bạn: <strong className={`text-xl ${quizResult.passed ? "text-green-600" : "text-red-500"}`}>{quizResult.score}%</strong>
+              Điểm của bạn:{" "}
+              <strong
+                className={`text-xl ${quizResult.passed ? "text-green-600" : "text-red-500"}`}
+              >
+                {quizResult.score}%
+              </strong>
               {" · "}Điểm đạt: <strong>{quizDetail.passScore}%</strong>
             </p>
 
@@ -214,13 +237,28 @@ export default function CourseDetail() {
                 const selectedOpt = q.options?.find((o) => o.id === selectedId);
                 const isCorrect = q.isCorrect;
                 return (
-                  <div key={q.id} className={`p-4 rounded-xl border text-sm ${isCorrect ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"}`}>
+                  <div
+                    key={q.id}
+                    className={`p-4 rounded-xl border text-sm ${isCorrect ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"}`}
+                  >
                     <div className="font-semibold text-gray-900 mb-2">
-                      <span className={isCorrect ? "text-green-700" : "text-red-700"}>{isCorrect ? "Đúng" : "Sai"}</span> · Câu {idx + 1}: {q.content}
+                      <span
+                        className={
+                          isCorrect ? "text-green-700" : "text-red-700"
+                        }
+                      >
+                        {isCorrect ? "Đúng" : "Sai"}
+                      </span>{" "}
+                      · Câu {idx + 1}: {q.content}
                     </div>
                     <div className="text-xs text-gray-600">
-                      Bạn chọn: <strong>{selectedOpt?.content || "Chưa chọn"}</strong>
-                      {!isCorrect && <span className="ml-2 text-green-700">| Đáp án đúng: <strong>{correctOpt?.content}</strong></span>}
+                      Bạn chọn:{" "}
+                      <strong>{selectedOpt?.content || "Chưa chọn"}</strong>
+                      {!isCorrect && (
+                        <span className="ml-2 text-green-700">
+                          | Đáp án đúng: <strong>{correctOpt?.content}</strong>
+                        </span>
+                      )}
                     </div>
                     {q.explanation && (
                       <div className="mt-2 text-xs text-indigo-700 bg-indigo-50 px-3 py-1.5 rounded-lg">
@@ -251,10 +289,16 @@ export default function CourseDetail() {
           /* GIAO DIỆN LÀM BÀI */
           <div className="bg-white border rounded-3xl p-8 shadow-sm">
             <div className="pb-5 mb-6 border-b">
-              <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-md">Bài Kiểm Tra</span>
-              <h2 className="text-xl font-bold text-gray-900 mt-2">{quizDetail.title}</h2>
+              <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-md">
+                Bài Kiểm Tra
+              </span>
+              <h2 className="text-xl font-bold text-gray-900 mt-2">
+                {quizDetail.title}
+              </h2>
               <p className="text-xs text-gray-400 mt-0.5">
-                Còn {Math.floor(remainingSeconds / 60)}:{String(remainingSeconds % 60).padStart(2, "0")} · Điểm đạt: {quizDetail.passScore}%
+                Còn {Math.floor(remainingSeconds / 60)}:
+                {String(remainingSeconds % 60).padStart(2, "0")} · Điểm đạt:{" "}
+                {quizDetail.passScore}%
               </p>
             </div>
 
@@ -285,7 +329,8 @@ export default function CourseDetail() {
 
             <div className="flex justify-between items-center mt-6 pt-5 border-t">
               <span className="text-xs text-gray-400">
-                Đã chọn: {Object.keys(answers).length}/{(quizDetail.questions || []).length} câu
+                Đã chọn: {Object.keys(answers).length}/
+                {(quizDetail.questions || []).length} câu
               </span>
               <button
                 onClick={handleSubmitQuiz}
@@ -304,7 +349,10 @@ export default function CourseDetail() {
   // =================== GIAO DIỆN TRANG KHÓA HỌC ===================
   return (
     <div className="max-w-6xl mx-auto px-6 py-8">
-      <Link to="/student" className="text-sm text-blue-600 mb-4 inline-block font-semibold">
+      <Link
+        to="/student"
+        className="text-sm text-blue-600 mb-4 inline-block font-semibold"
+      >
         ← Quay lại Khóa học của tôi
       </Link>
 
@@ -321,7 +369,9 @@ export default function CourseDetail() {
               ></iframe>
             ) : (
               <div className="text-center p-6">
-                <p className="text-gray-400 mb-2">Chưa có video hoặc chọn bài học bên phải</p>
+                <p className="text-gray-400 mb-2">
+                  Chưa có video hoặc chọn bài học bên phải
+                </p>
                 <p className="text-xs text-gray-500">{course?.title}</p>
               </div>
             )}
@@ -329,7 +379,9 @@ export default function CourseDetail() {
 
           <div className="mt-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <h1 className="text-2xl font-bold text-gray-900">{activeLesson?.title || course?.title}</h1>
+              <h1 className="text-2xl font-bold text-gray-900">
+                {activeLesson?.title || course?.title}
+              </h1>
               {activeLesson && (
                 <button
                   onClick={handleToggleProgress}
@@ -340,7 +392,9 @@ export default function CourseDetail() {
                       : "bg-blue-600 border-blue-600 text-white hover:bg-blue-700"
                   }`}
                 >
-                  {courseProgress.completedLessonIds?.includes(activeLesson.id) ? "✓ Đã hoàn thành" : "Đánh dấu hoàn thành"}
+                  {courseProgress.completedLessonIds?.includes(activeLesson.id)
+                    ? "✓ Đã hoàn thành"
+                    : "Đánh dấu hoàn thành"}
                 </button>
               )}
             </div>
@@ -350,14 +404,27 @@ export default function CourseDetail() {
           {/* BÀI QUIZ CỦA KHÓA HỌC */}
           {quizzes.length > 0 && (
             <div className="mt-8 pt-6 border-t">
-              <h2 className="font-bold text-lg text-gray-900 mb-3">Bài kiểm tra & Quiz khóa học</h2>
-              {quizLoading && <div className="text-sm text-gray-400 py-4">Đang tải bài kiểm tra...</div>}
+              <h2 className="font-bold text-lg text-gray-900 mb-3">
+                Bài kiểm tra & Quiz khóa học
+              </h2>
+              {quizLoading && (
+                <div className="text-sm text-gray-400 py-4">
+                  Đang tải bài kiểm tra...
+                </div>
+              )}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {quizzes.map((q) => (
-                  <div key={q.id} className="p-4 border rounded-xl bg-indigo-50/50 border-indigo-100 flex justify-between items-center">
+                  <div
+                    key={q.id}
+                    className="p-4 border rounded-xl bg-indigo-50/50 border-indigo-100 flex justify-between items-center"
+                  >
                     <div>
-                      <div className="font-bold text-sm text-gray-900">{q.title}</div>
-                      <div className="text-xs text-gray-500">Điểm đạt: {q.passScore}% · {q.timeLimitMinutes} phút</div>
+                      <div className="font-bold text-sm text-gray-900">
+                        {q.title}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        Điểm đạt: {q.passScore}% · {q.timeLimitMinutes} phút
+                      </div>
                     </div>
                     <button
                       onClick={() => handleStartQuiz(q.id)}
@@ -377,19 +444,30 @@ export default function CourseDetail() {
         <div className="w-full lg:w-80 space-y-4">
           <div>
             <div className="flex justify-between items-center mb-2">
-              <h2 className="font-bold text-lg text-gray-900">Mục lục bài học</h2>
-              <span className="text-xs font-bold text-blue-600">{courseProgress.progressPercent}%</span>
+              <h2 className="font-bold text-lg text-gray-900">
+                Mục lục bài học
+              </h2>
+              <span className="text-xs font-bold text-blue-600">
+                {courseProgress.progressPercent}%
+              </span>
             </div>
             <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-              <div className="h-full bg-green-500 transition-all" style={{ width: `${courseProgress.progressPercent}%` }} />
+              <div
+                className="h-full bg-green-500 transition-all"
+                style={{ width: `${courseProgress.progressPercent}%` }}
+              />
             </div>
             <p className="text-[11px] text-gray-400 mt-1">
-              {courseProgress.completedLessons}/{courseProgress.totalLessons} bài đã hoàn thành
+              {courseProgress.completedLessons}/{courseProgress.totalLessons}{" "}
+              bài đã hoàn thành
             </p>
           </div>
 
           {chapters.map((ch) => (
-            <div key={ch.id} className="border rounded-xl bg-white overflow-hidden shadow-xs">
+            <div
+              key={ch.id}
+              className="border rounded-xl bg-white overflow-hidden shadow-xs"
+            >
               <div className="p-3 bg-gray-50 font-semibold text-xs text-gray-700 border-b">
                 {ch.title}
               </div>
@@ -404,25 +482,33 @@ export default function CourseDetail() {
                         : "hover:bg-gray-50 text-gray-700"
                     }`}
                   >
-                    <span className={`w-5 h-5 rounded-full flex items-center justify-center font-mono text-[10px] ${
-                      courseProgress.completedLessonIds?.includes(l.id)
-                        ? "bg-green-500 text-white"
-                        : "bg-gray-200 text-gray-700"
-                    }`}>
-                      {courseProgress.completedLessonIds?.includes(l.id) ? "✓" : idx + 1}
+                    <span
+                      className={`w-5 h-5 rounded-full flex items-center justify-center font-mono text-[10px] ${
+                        courseProgress.completedLessonIds?.includes(l.id)
+                          ? "bg-green-500 text-white"
+                          : "bg-gray-200 text-gray-700"
+                      }`}
+                    >
+                      {courseProgress.completedLessonIds?.includes(l.id)
+                        ? "✓"
+                        : idx + 1}
                     </span>
                     <span className="flex-1 truncate">{l.title}</span>
                   </button>
                 ))}
                 {(lessonsByChapter[ch.id] || []).length === 0 && (
-                  <div className="p-3 text-xs text-gray-400 italic">Chưa có bài học trong chương này</div>
+                  <div className="p-3 text-xs text-gray-400 italic">
+                    Chưa có bài học trong chương này
+                  </div>
                 )}
               </div>
             </div>
           ))}
 
           {chapters.length === 0 && (
-            <p className="text-xs text-gray-400">Khóa học chưa có chương mục nào.</p>
+            <p className="text-xs text-gray-400">
+              Khóa học chưa có chương mục nào.
+            </p>
           )}
         </div>
       </div>

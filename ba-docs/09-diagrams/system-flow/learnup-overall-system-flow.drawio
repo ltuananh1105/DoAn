@@ -1,0 +1,146 @@
+<mxfile host="app.diagrams.net" type="device">
+<diagram id="learnup-overall-system-flow" name="Overall System Flow">
+<mxGraphModel dx="1920" dy="1080" grid="0" guides="1" connect="1" page="1" pageScale="1" pageWidth="1920" pageHeight="1080" background="#FFFFFF" shadow="0">
+<root>
+<mxCell id="0"/>
+<mxCell id="1" parent="0"/>
+<mxCell id="title" value="&lt;b&gt;LearnUp — Overall System Flow&lt;/b&gt;" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=30;fontColor=#526170;spacing=0;" vertex="1" parent="1">
+<mxGeometry x="40" y="44" width="1800" height="50" as="geometry"/>
+</mxCell>
+<mxCell id="client-label" value="CLIENT" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=14;fontColor=#526170;spacing=0;" vertex="1" parent="1">
+<mxGeometry x="40" y="232" width="230" height="24" as="geometry"/>
+</mxCell>
+<mxCell id="frontend-label" value="FRONTEND" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=14;fontColor=#526170;spacing=0;" vertex="1" parent="1">
+<mxGeometry x="340" y="232" width="270" height="24" as="geometry"/>
+</mxCell>
+<mxCell id="db-label" value="DATABASE" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=14;fontColor=#526170;spacing=0;" vertex="1" parent="1">
+<mxGeometry x="1610" y="532" width="270" height="24" as="geometry"/>
+</mxCell>
+<mxCell id="external-label" value="EXTERNAL SYSTEM" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=14;fontColor=#526170;spacing=0;" vertex="1" parent="1">
+<mxGeometry x="1610" y="782" width="270" height="24" as="geometry"/>
+</mxCell>
+<mxCell id="backend" value="" style="rounded=1;arcSize=3;html=1;fillColor=#F7F9FB;strokeColor=#8295A6;strokeWidth=1.5;container=1;collapsible=0;shadow=0;" vertex="1" parent="1">
+<mxGeometry x="760" y="170" width="740" height="640" as="geometry"/>
+</mxCell>
+<mxCell id="backend-title" value="&lt;b&gt;Spring Boot Backend&lt;/b&gt;" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=25;fontColor=#526170;spacing=0;" vertex="1" parent="1">
+<mxGeometry x="800" y="192" width="660" height="38" as="geometry"/>
+</mxCell>
+<mxCell id="users" value="" style="rounded=1;arcSize=5;html=1;fillColor=#FFFFFF;strokeColor=#B8C3CD;strokeWidth=1;container=1;collapsible=0;shadow=0;" vertex="1" parent="1">
+<mxGeometry x="40" y="270" width="230" height="400" as="geometry"/>
+</mxCell>
+<mxCell id="users-header" value="Users / Browser Clients" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#EAF0F5;strokeColor=none;fontFamily=Arial;fontSize=18;fontStyle=1;fontColor=#172B3A;align=left;verticalAlign=middle;spacingLeft=14;spacingRight=10;" vertex="1" parent="users">
+<mxGeometry x="1" y="1" width="228" height="52" as="geometry"/>
+</mxCell>
+<mxCell id="users-body" value="&lt;b&gt;Guest&lt;/b&gt;&lt;br&gt;Browse / Authenticate&lt;br&gt;&lt;br&gt;&lt;b&gt;Student&lt;/b&gt;&lt;br&gt;Enroll / Learn / Quiz&lt;br&gt;&lt;br&gt;&lt;b&gt;Teacher&lt;/b&gt;&lt;br&gt;Manage / Submit Courses&lt;br&gt;&lt;br&gt;&lt;b&gt;Admin&lt;/b&gt;&lt;br&gt;Review / Administer" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=top;fontFamily=Arial;fontSize=17;fontColor=#334155;spacing=0;" vertex="1" parent="users">
+<mxGeometry x="14" y="70" width="202" height="318" as="geometry"/>
+</mxCell>
+<mxCell id="frontend" value="" style="rounded=1;arcSize=5;html=1;fillColor=#FFFFFF;strokeColor=#B8C3CD;strokeWidth=1;container=1;collapsible=0;shadow=0;" vertex="1" parent="1">
+<mxGeometry x="340" y="270" width="270" height="400" as="geometry"/>
+</mxCell>
+<mxCell id="frontend-header" value="React Web Frontend" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#EAF0F5;strokeColor=none;fontFamily=Arial;fontSize=18;fontStyle=1;fontColor=#172B3A;align=left;verticalAlign=middle;spacingLeft=14;spacingRight=10;" vertex="1" parent="frontend">
+<mxGeometry x="1" y="1" width="268" height="52" as="geometry"/>
+</mxCell>
+<mxCell id="frontend-body" value="React + Vite&lt;br&gt;&lt;br&gt;Routing / Protected Routes&lt;br&gt;Auth Context + JWT Storage&lt;br&gt;&lt;br&gt;Catalog &amp; Learning UI&lt;br&gt;Teacher / Admin UI&lt;br&gt;AI Tutor UI" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=top;fontFamily=Arial;fontSize=17;fontColor=#334155;spacing=0;" vertex="1" parent="frontend">
+<mxGeometry x="14" y="70" width="242" height="318" as="geometry"/>
+</mxCell>
+<mxCell id="security" value="" style="rounded=1;arcSize=5;html=1;fillColor=#FFFFFF;strokeColor=#B8C3CD;strokeWidth=1;container=1;collapsible=0;shadow=0;" vertex="1" parent="backend">
+<mxGeometry x="40" y="100" width="300" height="190" as="geometry"/>
+</mxCell>
+<mxCell id="security-header" value="Authentication &amp; Authorization" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#EAF0F5;strokeColor=none;fontFamily=Arial;fontSize=17;fontStyle=1;fontColor=#172B3A;align=left;verticalAlign=middle;spacingLeft=14;spacingRight=10;" vertex="1" parent="security">
+<mxGeometry x="1" y="1" width="298" height="52" as="geometry"/>
+</mxCell>
+<mxCell id="security-body" value="Login / JWT&lt;br&gt;Role Checks&lt;br&gt;Ownership / Access" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=top;fontFamily=Arial;fontSize=17;fontColor=#334155;spacing=0;" vertex="1" parent="security">
+<mxGeometry x="14" y="70" width="272" height="108" as="geometry"/>
+</mxCell>
+<mxCell id="business" value="" style="rounded=1;arcSize=5;html=1;fillColor=#FFFFFF;strokeColor=#B8C3CD;strokeWidth=1;container=1;collapsible=0;shadow=0;" vertex="1" parent="backend">
+<mxGeometry x="400" y="100" width="300" height="190" as="geometry"/>
+</mxCell>
+<mxCell id="business-header" value="Business APIs &amp; Logic" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#EAF0F5;strokeColor=none;fontFamily=Arial;fontSize=18;fontStyle=1;fontColor=#172B3A;align=left;verticalAlign=middle;spacingLeft=14;spacingRight=10;" vertex="1" parent="business">
+<mxGeometry x="1" y="1" width="298" height="52" as="geometry"/>
+</mxCell>
+<mxCell id="business-body" value="Course &amp; Content&lt;br&gt;Enrollment &amp; Orders&lt;br&gt;Progress &amp; Quiz&lt;br&gt;Review / Administration" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=top;fontFamily=Arial;fontSize=17;fontColor=#334155;spacing=0;" vertex="1" parent="business">
+<mxGeometry x="14" y="70" width="272" height="108" as="geometry"/>
+</mxCell>
+<mxCell id="ai" value="" style="rounded=1;arcSize=5;html=1;fillColor=#FFFFFF;strokeColor=#B8C3CD;strokeWidth=1;container=1;collapsible=0;shadow=0;" vertex="1" parent="backend">
+<mxGeometry x="40" y="400" width="300" height="190" as="geometry"/>
+</mxCell>
+<mxCell id="ai-header" value="AI Tutor Service" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#EAF0F5;strokeColor=none;fontFamily=Arial;fontSize=18;fontStyle=1;fontColor=#172B3A;align=left;verticalAlign=middle;spacingLeft=14;spacingRight=10;" vertex="1" parent="ai">
+<mxGeometry x="1" y="1" width="298" height="52" as="geometry"/>
+</mxCell>
+<mxCell id="ai-body" value="Authenticated Chat&lt;br&gt;Gemini Integration&lt;br&gt;SSE Streaming" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=top;fontFamily=Arial;fontSize=17;fontColor=#334155;spacing=0;" vertex="1" parent="ai">
+<mxGeometry x="14" y="70" width="272" height="108" as="geometry"/>
+</mxCell>
+<mxCell id="persistence" value="" style="rounded=1;arcSize=5;html=1;fillColor=#FFFFFF;strokeColor=#B8C3CD;strokeWidth=1;container=1;collapsible=0;shadow=0;" vertex="1" parent="backend">
+<mxGeometry x="400" y="400" width="300" height="190" as="geometry"/>
+</mxCell>
+<mxCell id="persistence-header" value="Persistence / Repositories" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#EAF0F5;strokeColor=none;fontFamily=Arial;fontSize=18;fontStyle=1;fontColor=#172B3A;align=left;verticalAlign=middle;spacingLeft=14;spacingRight=10;" vertex="1" parent="persistence">
+<mxGeometry x="1" y="1" width="298" height="52" as="geometry"/>
+</mxCell>
+<mxCell id="persistence-body" value="Spring Data JPA&lt;br&gt;Repositories" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=top;fontFamily=Arial;fontSize=17;fontColor=#334155;spacing=0;" vertex="1" parent="persistence">
+<mxGeometry x="14" y="70" width="272" height="108" as="geometry"/>
+</mxCell>
+<mxCell id="db" value="" style="rounded=1;arcSize=5;html=1;fillColor=#FFFFFF;strokeColor=#B8C3CD;strokeWidth=1;container=1;collapsible=0;shadow=0;" vertex="1" parent="1">
+<mxGeometry x="1610" y="570" width="270" height="190" as="geometry"/>
+</mxCell>
+<mxCell id="db-header" value="Microsoft SQL Server" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#EAF0F5;strokeColor=none;fontFamily=Arial;fontSize=18;fontStyle=1;fontColor=#172B3A;align=left;verticalAlign=middle;spacingLeft=14;spacingRight=10;" vertex="1" parent="db">
+<mxGeometry x="1" y="1" width="268" height="52" as="geometry"/>
+</mxCell>
+<mxCell id="db-body" value="&lt;b&gt;learnup_db&lt;/b&gt;&lt;br&gt;&lt;br&gt;Users · Courses · Learning&lt;br&gt;Enrollment · Assessment" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=top;fontFamily=Arial;fontSize=17;fontColor=#334155;spacing=0;" vertex="1" parent="db">
+<mxGeometry x="14" y="70" width="242" height="108" as="geometry"/>
+</mxCell>
+<mxCell id="gemini" value="" style="rounded=1;arcSize=5;html=1;fillColor=#FFFFFF;strokeColor=#B8C3CD;strokeWidth=1;container=1;collapsible=0;shadow=0;" vertex="1" parent="1">
+<mxGeometry x="1610" y="820" width="270" height="110" as="geometry"/>
+</mxCell>
+<mxCell id="gemini-header" value="Google Gemini API" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#EAF0F5;strokeColor=none;fontFamily=Arial;fontSize=18;fontStyle=1;fontColor=#172B3A;align=left;verticalAlign=middle;spacingLeft=14;spacingRight=10;" vertex="1" parent="gemini">
+<mxGeometry x="1" y="1" width="268" height="52" as="geometry"/>
+</mxCell>
+<mxCell id="gemini-body" value="External AI System" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=top;fontFamily=Arial;fontSize=17;fontColor=#334155;spacing=0;" vertex="1" parent="gemini">
+<mxGeometry x="14" y="70" width="242" height="28" as="geometry"/>
+</mxCell>
+<mxCell id="interaction-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;curved=0;html=1;startArrow=none;startFill=0;endArrow=open;endFill=0;strokeColor=#354F64;strokeWidth=2;fontFamily=Arial;fontSize=14;fontColor=#475569;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.2375;entryX=0;entryY=0.2375;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="users" target="frontend">
+<mxGeometry relative="1" as="geometry">
+</mxGeometry>
+</mxCell>
+<mxCell id="interaction-2" value="REST / JSON&lt;br&gt;Bearer JWT when required" style="edgeStyle=orthogonalEdgeStyle;rounded=0;curved=0;html=1;startArrow=open;startFill=0;endArrow=open;endFill=0;strokeColor=#354F64;strokeWidth=2;fontFamily=Arial;fontSize=14;fontColor=#475569;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.2375;entryX=0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="frontend" target="security">
+<mxGeometry relative="1" as="geometry">
+<mxPoint x="0" y="-30" as="offset"/>
+</mxGeometry>
+</mxCell>
+<mxCell id="interaction-3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;curved=0;html=1;startArrow=none;startFill=0;endArrow=open;endFill=0;strokeColor=#718393;strokeWidth=1.3;fontFamily=Arial;fontSize=14;fontColor=#475569;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="security" target="business">
+<mxGeometry relative="1" as="geometry">
+</mxGeometry>
+</mxCell>
+<mxCell id="interaction-4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;curved=0;html=1;startArrow=none;startFill=0;endArrow=open;endFill=0;strokeColor=#718393;strokeWidth=1.3;fontFamily=Arial;fontSize=14;fontColor=#475569;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="security" target="ai">
+<mxGeometry relative="1" as="geometry">
+</mxGeometry>
+</mxCell>
+<mxCell id="interaction-5" value="Account /&lt;br&gt;access lookup" style="edgeStyle=orthogonalEdgeStyle;rounded=0;curved=0;html=1;startArrow=open;startFill=0;endArrow=open;endFill=0;strokeColor=#718393;strokeWidth=1.3;fontFamily=Arial;fontSize=14;fontColor=#475569;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.7368421052631579;entryX=0;entryY=0.42105263157894735;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="security" target="persistence">
+<mxGeometry relative="1" as="geometry">
+<Array as="points">
+<mxPoint x="1130" y="410"/>
+<mxPoint x="1130" y="650"/>
+</Array>
+<mxPoint x="-85" y="0" as="offset"/>
+</mxGeometry>
+</mxCell>
+<mxCell id="interaction-6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;curved=0;html=1;startArrow=open;startFill=0;endArrow=open;endFill=0;strokeColor=#718393;strokeWidth=1.3;fontFamily=Arial;fontSize=14;fontColor=#475569;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="business" target="persistence">
+<mxGeometry relative="1" as="geometry">
+</mxGeometry>
+</mxCell>
+<mxCell id="interaction-7" value="SQL / JDBC&lt;br&gt;Read / Write" style="edgeStyle=orthogonalEdgeStyle;rounded=0;curved=0;html=1;startArrow=open;startFill=0;endArrow=open;endFill=0;strokeColor=#718393;strokeWidth=1.3;fontFamily=Arial;fontSize=14;fontColor=#475569;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="persistence" target="db">
+<mxGeometry relative="1" as="geometry">
+<mxPoint x="0" y="-30" as="offset"/>
+</mxGeometry>
+</mxCell>
+<mxCell id="interaction-8" value="HTTPS&lt;br&gt;Request / SSE stream" style="edgeStyle=orthogonalEdgeStyle;rounded=0;curved=0;html=1;startArrow=open;startFill=0;endArrow=open;endFill=0;strokeColor=#718393;strokeWidth=1.3;fontFamily=Arial;fontSize=14;fontColor=#475569;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="ai" target="gemini">
+<mxGeometry relative="1" as="geometry">
+<Array as="points">
+<mxPoint x="950" y="875"/>
+</Array>
+<mxPoint x="0" y="-30" as="offset"/>
+</mxGeometry>
+</mxCell>
+</root>
+</mxGraphModel>
+</diagram>
+</mxfile>

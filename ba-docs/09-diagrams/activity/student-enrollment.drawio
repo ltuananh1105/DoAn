@@ -1,0 +1,142 @@
+<mxfile host="app.diagrams.net" type="device">
+  <diagram id="student-enrollment" name="Student Enrollment Activity">
+    <mxGraphModel dx="926" dy="1244" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="926" pageHeight="1244" background="#FFFFFF" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="LearnUp — Student Enrollment Activity" style="text;html=1;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=26;fontStyle=1;fontColor=#172B3A;spacing=0;" vertex="1" parent="1">
+          <mxGeometry x="48" y="34" width="838" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="initial" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#172B3A;strokeColor=#172B3A;strokeWidth=1.3;fontFamily=Arial;fontSize=17;fontColor=#172B3A;spacing=4;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="218" y="136" width="24" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="select" value="Student Selects Course" style="rounded=1;arcSize=16;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#526170;strokeWidth=1.3;fontFamily=Arial;fontSize=17;fontColor=#172B3A;spacing=4;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="100" y="190" width="260" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="enroll" value="Student Chooses Enroll" style="rounded=1;arcSize=16;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#526170;strokeWidth=1.3;fontFamily=Arial;fontSize=17;fontColor=#172B3A;spacing=4;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="100" y="280" width="260" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="auth-check" value="Check Authentication" style="rounded=1;arcSize=16;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#526170;strokeWidth=1.3;fontFamily=Arial;fontSize=17;fontColor=#172B3A;spacing=4;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="100" y="370" width="260" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="authenticated" value="Authenticated?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#EDF4F8;strokeColor=#526170;strokeWidth=1.3;fontFamily=Arial;fontSize=17;fontColor=#172B3A;spacing=4;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="140" y="460" width="180" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="availability-check" value="Check Course Availability" style="rounded=1;arcSize=16;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#526170;strokeWidth=1.3;fontFamily=Arial;fontSize=17;fontColor=#172B3A;spacing=4;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="100" y="580" width="260" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="available" value="Course&lt;br&gt;Available?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#EDF4F8;strokeColor=#526170;strokeWidth=1.3;fontFamily=Arial;fontSize=17;fontColor=#172B3A;spacing=4;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="140" y="670" width="180" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="enrollment-check" value="Check Existing Enrollment" style="rounded=1;arcSize=16;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#526170;strokeWidth=1.3;fontFamily=Arial;fontSize=17;fontColor=#172B3A;spacing=4;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="100" y="790" width="260" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="enrolled" value="Already&lt;br&gt;Enrolled?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#EDF4F8;strokeColor=#526170;strokeWidth=1.3;fontFamily=Arial;fontSize=17;fontColor=#172B3A;spacing=4;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="140" y="880" width="180" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="create" value="Create Enrollment" style="rounded=1;arcSize=16;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#526170;strokeWidth=1.3;fontFamily=Arial;fontSize=17;fontColor=#172B3A;spacing=4;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="100" y="1000" width="260" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="success" value="Show Enrollment Success" style="rounded=1;arcSize=16;whiteSpace=wrap;html=1;fillColor=#EDF4F8;strokeColor=#526170;strokeWidth=1.3;fontFamily=Arial;fontSize=17;fontColor=#172B3A;spacing=4;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="100" y="1090" width="260" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="final-success" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#172B3A;strokeWidth=1.8;fontFamily=Arial;fontSize=17;fontColor=#172B3A;spacing=4;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="214" y="1180" width="32" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="final-success-center" value="" style="ellipse;html=1;fillColor=#172B3A;strokeColor=none;" vertex="1" parent="final-success">
+          <mxGeometry x="7" y="7" width="18" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="login" value="Require Login" style="rounded=1;arcSize=16;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#526170;strokeWidth=1.3;fontFamily=Arial;fontSize=17;fontColor=#172B3A;spacing=4;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="542" y="472" width="260" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="unavailable" value="Show Enrollment&lt;br&gt;Unavailable" style="rounded=1;arcSize=16;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#526170;strokeWidth=1.3;fontFamily=Arial;fontSize=17;fontColor=#172B3A;spacing=4;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="542" y="682" width="260" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="already" value="Inform Student&lt;br&gt;Already Enrolled" style="rounded=1;arcSize=16;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#526170;strokeWidth=1.3;fontFamily=Arial;fontSize=17;fontColor=#172B3A;spacing=4;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="542" y="892" width="260" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="final-login" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#172B3A;strokeWidth=1.8;fontFamily=Arial;fontSize=17;fontColor=#172B3A;spacing=4;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="846" y="484" width="32" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="final-login-center" value="" style="ellipse;html=1;fillColor=#172B3A;strokeColor=none;" vertex="1" parent="final-login">
+          <mxGeometry x="7" y="7" width="18" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="final-unavailable" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#172B3A;strokeWidth=1.8;fontFamily=Arial;fontSize=17;fontColor=#172B3A;spacing=4;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="846" y="694" width="32" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="final-unavailable-center" value="" style="ellipse;html=1;fillColor=#172B3A;strokeColor=none;" vertex="1" parent="final-unavailable">
+          <mxGeometry x="7" y="7" width="18" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="final-already" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#172B3A;strokeWidth=1.8;fontFamily=Arial;fontSize=17;fontColor=#172B3A;spacing=4;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="846" y="904" width="32" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="final-already-center" value="" style="ellipse;html=1;fillColor=#172B3A;strokeColor=none;" vertex="1" parent="final-already">
+          <mxGeometry x="7" y="7" width="18" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="flow-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;curved=0;html=1;endArrow=open;endFill=0;endSize=8;strokeColor=#354F64;strokeWidth=1.8;fontFamily=Arial;fontSize=14;fontColor=#475569;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="initial" target="select">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="flow-2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;curved=0;html=1;endArrow=open;endFill=0;endSize=8;strokeColor=#354F64;strokeWidth=1.8;fontFamily=Arial;fontSize=14;fontColor=#475569;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="select" target="enroll">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="flow-3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;curved=0;html=1;endArrow=open;endFill=0;endSize=8;strokeColor=#354F64;strokeWidth=1.8;fontFamily=Arial;fontSize=14;fontColor=#475569;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="enroll" target="auth-check">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="flow-4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;curved=0;html=1;endArrow=open;endFill=0;endSize=8;strokeColor=#354F64;strokeWidth=1.8;fontFamily=Arial;fontSize=14;fontColor=#475569;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="auth-check" target="authenticated">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="flow-5" value="[Yes]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;curved=0;html=1;endArrow=open;endFill=0;endSize=8;strokeColor=#354F64;strokeWidth=1.8;fontFamily=Arial;fontSize=14;fontColor=#475569;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="authenticated" target="availability-check">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="38" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow-6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;curved=0;html=1;endArrow=open;endFill=0;endSize=8;strokeColor=#354F64;strokeWidth=1.8;fontFamily=Arial;fontSize=14;fontColor=#475569;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="availability-check" target="available">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="flow-7" value="[Yes]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;curved=0;html=1;endArrow=open;endFill=0;endSize=8;strokeColor=#354F64;strokeWidth=1.8;fontFamily=Arial;fontSize=14;fontColor=#475569;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="available" target="enrollment-check">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="38" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow-8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;curved=0;html=1;endArrow=open;endFill=0;endSize=8;strokeColor=#354F64;strokeWidth=1.8;fontFamily=Arial;fontSize=14;fontColor=#475569;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="enrollment-check" target="enrolled">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="flow-9" value="[No]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;curved=0;html=1;endArrow=open;endFill=0;endSize=8;strokeColor=#354F64;strokeWidth=1.8;fontFamily=Arial;fontSize=14;fontColor=#475569;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="enrolled" target="create">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="38" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow-10" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;curved=0;html=1;endArrow=open;endFill=0;endSize=8;strokeColor=#354F64;strokeWidth=1.8;fontFamily=Arial;fontSize=14;fontColor=#475569;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="create" target="success">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="flow-11" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;curved=0;html=1;endArrow=open;endFill=0;endSize=8;strokeColor=#354F64;strokeWidth=1.8;fontFamily=Arial;fontSize=14;fontColor=#475569;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="success" target="final-success">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="flow-12" value="[No]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;curved=0;html=1;endArrow=open;endFill=0;endSize=8;strokeColor=#8793A0;strokeWidth=1.25;fontFamily=Arial;fontSize=14;fontColor=#475569;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="authenticated" target="login">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="0" y="-20" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow-13" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;curved=0;html=1;endArrow=open;endFill=0;endSize=8;strokeColor=#8793A0;strokeWidth=1.25;fontFamily=Arial;fontSize=14;fontColor=#475569;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="login" target="final-login">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="flow-14" value="[No]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;curved=0;html=1;endArrow=open;endFill=0;endSize=8;strokeColor=#8793A0;strokeWidth=1.25;fontFamily=Arial;fontSize=14;fontColor=#475569;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="available" target="unavailable">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="0" y="-20" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow-15" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;curved=0;html=1;endArrow=open;endFill=0;endSize=8;strokeColor=#8793A0;strokeWidth=1.25;fontFamily=Arial;fontSize=14;fontColor=#475569;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="unavailable" target="final-unavailable">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="flow-16" value="[Yes]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;curved=0;html=1;endArrow=open;endFill=0;endSize=8;strokeColor=#8793A0;strokeWidth=1.25;fontFamily=Arial;fontSize=14;fontColor=#475569;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="enrolled" target="already">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="0" y="-20" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow-17" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;curved=0;html=1;endArrow=open;endFill=0;endSize=8;strokeColor=#8793A0;strokeWidth=1.25;fontFamily=Arial;fontSize=14;fontColor=#475569;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="already" target="final-already">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
