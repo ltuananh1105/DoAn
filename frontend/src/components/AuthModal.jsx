@@ -1,5 +1,0 @@
-import { Link } from 'react-router-dom';
-
-export default function AuthModal({ onClose }) {
-  return <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/50 px-4" onClick={onClose}><div className="relative w-full max-w-sm rounded-xl border border-slate-200 bg-white p-6 shadow-xl" onClick={event => event.stopPropagation()}><button onClick={onClose} aria-label="Đóng" className="absolute right-4 top-4 rounded-md p-1 text-slate-400 hover:bg-slate-100">✕</button><div className="flex items-center gap-2"><span className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-700 font-bold text-white">L</span><b>LearnUp</b></div><h2 className="mt-6 text-xl font-bold text-slate-900">Tiếp tục với LearnUp</h2><p className="mt-2 text-sm leading-6 text-slate-600">Đăng nhập vào tài khoản hiện có hoặc đăng ký tài khoản mới.</p><div className="mt-6 grid gap-3"><Link to="/login" onClick={onClose} className="ui-button ui-button-primary">Đăng nhập</Link><Link to="/register" onClick={onClose} className="ui-button ui-button-secondary">Đăng ký</Link></div></div></div>;
-}
